@@ -1,0 +1,414 @@
+% Design of Experiments
+
+% Introduction and background literature
+@misc{vaswani2023,
+  title         = {Attention Is All You Need},
+  author        = {Ashish Vaswani and Noam Shazeer and Niki Parmar and Jakob Uszkoreit and Llion Jones and Aidan N. Gomez and Lukasz Kaiser and Illia Polosukhin},
+  year          = {2023},
+  eprint        = {1706.03762},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/1706.03762}
+}
+
+@article{mcbride2019,
+  author   = {McBride, Kevin and Sundmacher, Kai},
+  title    = {Overview of Surrogate Modeling in Chemical Process Engineering},
+  journal  = {Chemie Ingenieur Technik},
+  volume   = {91},
+  number   = {3},
+  pages    = {228-239},
+  keywords = {Process design, Process optimization, Simulations, Surrogate modeling},
+  doi      = {https://doi.org/10.1002/cite.201800091},
+  url      = {https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.201800091},
+  eprint   = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/cite.201800091},
+  abstract = {Abstract The ability to accurately model and simulate chemical processes has been paramount to the growing success and efficiency in process design and operation. These improvements usually come with increasing complexity of the underlying models leading to substantial computational effort in their use. It may also occur that the structure of the model is sometimes unknown making optimization and study difficult. To circumvent these issues, mathematically simpler models, commonly known as surrogate models, have been designed and used to successfully replace these complex, underlying models with much success. This technique has seen increasing use within the chemical process engineering field and this article summarizes some popular surrogates and their recent use in this area.},
+  year     = {2019}
+}
+
+@article{hornik1990,
+  title    = {Approximation capabilities of multilayer feedforward networks},
+  journal  = {Neural Networks},
+  volume   = {4},
+  number   = {2},
+  pages    = {251-257},
+  year     = {1991},
+  issn     = {0893-6080},
+  doi      = {https://doi.org/10.1016/0893-6080(91)90009-T},
+  url      = {https://www.sciencedirect.com/science/article/pii/089360809190009T},
+  author   = {Kurt Hornik},
+  keywords = {Multilayer feedforward networks, Activation function, Universal approximation capabilities, Input environment measure, () approximation, Uniform approximation, Sobolev spaces, Smooth approximation},
+  abstract = {We show that standard multilayer feedforward networks with as few as a single hidden layer and arbitrary bounded and nonconstant activation function are universal approximators with respect to Lp(μ) performance criteria, for arbitrary finite input environment measures μ, provided only that sufficiently many hidden units are available. If the activation function is continuous, bounded and nonconstant, then continuous mappings can be learned uniformly over compact input sets. We also give very general conditions ensuring that networks with sufficiently smooth activation functions are capable of arbitrarily accurate approximation to a function and its derivatives.}
+}
+
+@misc{empty000,
+  title  = {Placeholder citation},
+  author = {JD},
+  year   = {0000}
+}
+
+
+% Physics constrained Neural networks
+@article{chen2024,
+  title    = {Physics-informed neural networks with hard linear equality constraints},
+  journal  = {Computers \& Chemical Engineering},
+  volume   = {189},
+  pages    = {108764},
+  year     = {2024},
+  issn     = {0098-1354},
+  doi      = {https://doi.org/10.1016/j.compchemeng.2024.108764},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0098135424001820},
+  author   = {Hao Chen and Gonzalo E. Constante Flores and Can Li},
+  keywords = {Surrogate modeling, Physics-informed neural network, Artificial intelligence},
+  abstract = {Surrogate modeling is used to replace computationally expensive simulations. Neural networks have been widely applied as surrogate models that enable efficient evaluations over complex physical systems. Despite this, neural networks are data-driven models and devoid of any physics. The incorporation of physics into neural networks can improve generalization and data efficiency. The physics-informed neural network (PINN) is an approach to leverage known physical constraints present in the data, but it cannot strictly satisfy them in the predictions. This work proposes a novel physics-informed neural network, KKT-hPINN, which rigorously guarantees hard linear equality constraints through projection layers derived from KKT conditions. Numerical experiments on Aspen models of a continuous stirred-tank reactor (CSTR) unit, an extractive distillation subsystem, and a chemical plant demonstrate that this model can further enhance the prediction accuracy.}
+}
+@misc{lastrucci2025,
+  title         = {Picard-KKT-hPINN: Enforcing Nonlinear Enthalpy Balances for Physically Consistent Neural Networks},
+  author        = {Giacomo Lastrucci and Tanuj Karia and Zoë Gromotka and Artur M. Schweidtmann},
+  year          = {2025},
+  eprint        = {2501.17782},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2501.17782}
+}
+@article{raissi2019,
+  title    = {Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations},
+  journal  = {Journal of Computational Physics},
+  volume   = {378},
+  pages    = {686-707},
+  year     = {2019},
+  issn     = {0021-9991},
+  doi      = {https://doi.org/10.1016/j.jcp.2018.10.045},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0021999118307125},
+  author   = {M. Raissi and P. Perdikaris and G.E. Karniadakis},
+  keywords = {Data-driven scientific computing, Machine learning, Predictive modeling, Runge–Kutta methods, Nonlinear dynamics},
+  abstract = {We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
+}
+
+
+% Covariance of Parameters
+@misc{durholt2024,
+  title         = {BoFire: Bayesian Optimization Framework Intended for Real Experiments},
+  author        = {Johannes P. D{\"{u}}rholt and Thomas S. Asche and Johanna Kleinekorte and Gabriel Mancino-Ball and Benjamin Schiller and Simon Sung and Julian Keupp and Aaron Osburg and Toby Boyne and Ruth Misener and Rosona Eldred and Wagner Steuer Costa and Chrysoula Kappatou and Robert M. Lee and Dominik Linzner and David Walz and Niklas Wulkow and Behrang Shafei},
+  year          = {2024},
+  eprint        = {2408.05040},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2408.05040}
+}
+
+
+% Heat transfer correlations
+@book{vdiwaermeatlas2010,
+  title     = {VDI-Wärmeatlas},
+  editor    = {VDI-Gesellschaft Verfahrenstechnik und Chemieingenieurwesen (GVC)},
+  edition   = {11},
+  year      = {2010},
+  publisher = {Springer},
+  address   = {Berlin, Heidelberg},
+  isbn      = {978-3-540-77876-9},
+  language  = {german}
+}
+
+% Radial bed heat conductivity
+@article{zehner1970,
+  author   = {Zehner, P. and Schlünder, E. U.},
+  title    = {Wärmeleitfähigkeit von Schüttungen bei mäßigen Temperaturen},
+  journal  = {Chemie Ingenieur Technik},
+  volume   = {42},
+  number   = {14},
+  pages    = {933-941},
+  doi      = {https://doi.org/10.1002/cite.330421408},
+  url      = {https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.330421408},
+  eprint   = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/cite.330421408},
+  abstract = {Abstract Die effektive Wärmeleitfähigkeit nicht durchströmter Schüttungen hängt stark von der Art der Berührung der Partikel ab; sie ist z. B. bei Kugeln und Zylindern unterschiedlich. Aus einem einfachen Modell werden Gleichungen entwickelt, die außer den Wärmeleitfähigkeiten der fluiden Phase und des Feststoffs die Porosität der Schüttung berücksichtigen. Die Gleichungen enthalten einen empirischen Anpassungsparameter, der nur von der Form der Partikel abhängt und aus in der Literatur veröffentlichten Meßwerten bestimmt wird.},
+  year     = {1970}
+}
+
+
+
+% Mass transfer coefficient
+@book{cussler1984diffusion,
+  author    = {Cussler, E.L.},
+  title     = {Diffusion: Mass Transfer in Fluid Systems},
+  year      = {1984},
+  publisher = {Cambridge University Press},
+  address   = {Cambridge}
+}
+
+% Heat capacity and enthalpy of formulation correlations
+@misc{Linstrom2010,
+  author       = {Linstrom, P. J. and Mallard, W. G.},
+  title        = {NIST Chemistry WebBook},
+  year         = {2010},
+  howpublished = {NIST Standard Reference Database Number 69},
+  note         = {[Online; accessed 15-August-2025]},
+  url          = {http://webbook.nist.gov}
+}
+
+% Ethene, O2, EO, H2O, CO2
+@techreport{Chase1998,
+  author      = {Chase, M. W., Jr.},
+  title       = {NIST-JANAF Thermochemical Tables, Fourth Edition},
+  institution = {American Institute of Physics, for the Journal of Physical and Chemical Reference Data Monographs},
+  address     = {Washington, DC \& New York, NY},
+  number      = {Monograph 9},
+  year        = {1998},
+  pages       = {1--1951},
+  doi         = {10.18434/T42S31},
+  note        = {[Online; accessed 15-August-2025]}
+}
+
+
+% EtOx
+@article{pietschak2018,
+  author  = {Pietschak, Alexander and Kaiser, Markus and Freund, Hannsj{\"o}rg},
+  year    = {2018},
+  title   = {Tailored catalyst pellet specification for improved fixed-bed transport characteristics: A shortcut method for the model-based reactor design},
+  pages   = {60--74},
+  volume  = {137},
+  issn    = {02638762},
+  journal = {Chemical Engineering Research and Design},
+  doi     = {10.1016/j.cherd.2018.06.043}
+}
+
+@article{bayat2013,
+  title    = {Dynamic optimal design of an industrial ethylene oxide (EO) reactor via differential evolution algorithm},
+  journal  = {Journal of Natural Gas Science and Engineering},
+  volume   = {12},
+  pages    = {56-64},
+  year     = {2013},
+  issn     = {1875-5100},
+  doi      = {https://doi.org/10.1016/j.jngse.2013.01.004},
+  url      = {https://www.sciencedirect.com/science/article/pii/S187551001300005X},
+  author   = {M. Bayat and M. Hamidi and Z. Dehghani and M.R. Rahimpour},
+  keywords = {Ethylene oxide reactor, Dynamic optimization, Differential evolution method, Long-term catalyst deactivation},
+  abstract = {In this study, the operating conditions of an industrial fixed-bed ethylene oxide reactor are optimized via differential evolution (DE) algorithm to boost the ethylene oxide yield with taking into account the catalyst deactivation. A mathematical heterogenous model of the reactor has been used in order to evaluate the optimal operating conditions, both at steady state and dynamic conditions. Two different cases have been investigated in this regard. In the first case, optimum inlet molar flow rate, inlet pressure of the reaction side and temperatures of shell and tube sides have been obtained within their practical ranges. In the second case, a stepwise approach has been followed in order to determine the optimal temperature profiles for saturated water and gas in three steps during operation. The objective of each optimization case study is to maximize the ethylene oxide production rate. The effect of optimal operating conditions on the reactor performance has been compared with corresponding industrial conditions over a period of three operating years. 1.726% and 4.22% yield enhancement of ethylene oxide production can be achieved by application of first and second optimization case studies, respectively.}
+}
+
+
+
+
+% Uncertainty Quantification in MPC
+@PHDTHESIS{houska2011,
+  author = {B. Houska},
+  title = {Robust Optimization of Dynamic Systems},
+  school = {KU Leuven},
+  year = {2011},
+  isbn = {978-94-6018-394-2}
+}
+
+
+
+
+@misc{chen2025,
+  title         = {Uncertainty-Aware Digital Twins: Robust Model Predictive Control using Time-Series Deep Quantile Learning},
+  author        = {Yi-Ping Chen and Ying-Kuan Tsai and Vispi Karkaria and Wei Chen},
+  year          = {2025},
+  eprint        = {2501.10337},
+  archiveprefix = {arXiv},
+  primaryclass  = {eess.SY},
+  url           = {https://arxiv.org/abs/2501.10337}
+}
+
+@misc{bao2024,
+  title         = {Adaptive Uncertainty Quantification for Scenario-based Control Using Meta-learning of Bayesian Neural Networks},
+  author        = {Yajie Bao and Javad Mohammadpour Velni},
+  year          = {2024},
+  eprint        = {2407.14492},
+  archiveprefix = {arXiv},
+  primaryclass  = {eess.SY},
+  url           = {https://arxiv.org/abs/2407.14492}
+}
+
+
+% CQR
+@misc{huang2024torchcp,
+  title         = {TorchCP: A Python Library for Conformal Prediction},
+  author        = {Jianguo Huang and Jianqing Song and Xuanning Zhou and Bingyi Jing and Hongxin Wei},
+  year          = {2024},
+  eprint        = {2402.12683},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG}
+}
+
+@inproceedings{romano2019cqr,
+  title     = {Conformalized Quantile Regression},
+  author    = {Yaniv Romano and Evan Patterson and Emmanuel J. Cand{\`e}s},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2019},
+  url       = {https://arxiv.org/abs/1905.03222}
+}
+
+@article{manokhin2025,
+  title        = {Conformalized Quantile Regression: Smarter Uncertainty Prediction for Data Scientists},
+  author       = {Valeriy Manokhin},
+  year         = {2025},
+  month        = mar,
+  note         = {Published on Medium, \url{https://medium.com/@valeriy.manokhin/conformalized-quantile-regression-smarter-uncertainty-prediction-for-data-scientists-abcdef123456}},
+  howpublished = {Online article}
+}
+
+
+
+% Implicit Neural Layers
+
+@inproceedings{cvxpylayers2019,
+  author    = {Agrawal, A. and Amos, B. and Barratt, S. and Boyd, S. and Diamond, S. and Kolter, Z.},
+  title     = {Differentiable Convex Optimization Layers},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2019}
+}
+
+% Neural MPC
+
+# Speed up of the backward pass
+@article{Salzmann_2023,
+  title     = {Real-Time Neural MPC: Deep Learning Model Predictive Control for Quadrotors and Agile Robotic Platforms},
+  volume    = {8},
+  issn      = {2377-3774},
+  url       = {http://dx.doi.org/10.1109/LRA.2023.3246839},
+  doi       = {10.1109/lra.2023.3246839},
+  number    = {4},
+  journal   = {IEEE Robotics and Automation Letters},
+  publisher = {Institute of Electrical and Electronics Engineers (IEEE)},
+  author    = {Salzmann, Tim and Kaufmann, Elia and Arrizabalaga, Jon and Pavone, Marco and Scaramuzza, Davide and Ryll, Markus},
+  year      = {2023},
+  month     = apr,
+  pages     = {2397–2404},
+  note      = {Signifikante Beschleunigung der MPC backward differentiation des NNs durch eine Taylorreihe zweiter Ordnung.}
+}
+
+@inproceedings{salzmann2024l4casadi,
+  title     = {Learning for CasADi: Data-driven Models in Numerical Optimization},
+  author    = {Salzmann, Tim and Arrizabalaga, Jon and Andersson, Joel and Pavone, Marco and Ryll, Markus},
+  booktitle = {Learning for Dynamics and Control Conference (L4DC)},
+  year      = {2024}
+}
+
+
+
+% Proper Orthogonal Decomposition
+
+% General
+@incollection{Brunton2019,
+  author    = {Steven L. Brunton and J. Nathan Kutz},
+  title     = {Reduced Order Models (ROMs)},
+  booktitle = {Data-Driven Science and Engineering: Machine Learning, Dynamical Systems, and Control},
+  publisher = {Cambridge University Press},
+  year      = {2019},
+  pages     = {375--402},
+  keywords  = {Reduced Order Models, Machine Learning, Dynamical Systems},
+  status    = {zu lesen},
+  relevance = {mittel},
+  note      = {POD for model reduction}
+}
+
+@article{Kerschen2005,
+  title     = {The Method of Proper Orthogonal Decomposition for Dynamical Characterization and Order Reduction of Mechanical Systems: An Overview},
+  author    = {Kerschen, Gaetan and Golinval, Jean-Claude and Vakakis, Alexander F. and Bergman, Lawrence A.},
+  journal   = {Nonlinear Dynamics},
+  volume    = {41},
+  pages     = {147--169},
+  year      = {2005},
+  publisher = {Springer},
+  doi       = {10.1007/s11071-005-2803-2},
+  note      = {Present address of first author: Postdoctoral fellow, National Technical University of Athens, Greece, and University of Illinois at Urbana-Champaign, USA}
+}
+
+% Incremental Singular Value Decomposition
+@inproceedings{Brand2002,
+  author    = {Matthew Brand},
+  title     = {Incremental Singular Value Decomposition of Uncertain Data with Missing Values},
+  booktitle = {Computer Vision - ECCV 2002, Part I},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {2350},
+  pages     = {707--720},
+  publisher = {Springer},
+  year      = {2002},
+  doi       = {10.1007/3-540-47969-4_47}
+}
+
+
+
+% Specific
+@misc{manns2021,
+  title         = {A simplified Newton method to generate snapshots for POD models of semilinear optimal control problems},
+  author        = {Paul Manns and Stefan Ulbrich},
+  year          = {2021},
+  eprint        = {2108.01983},
+  archiveprefix = {arXiv},
+  primaryclass  = {math.OC},
+  url           = {https://arxiv.org/abs/2108.01983}
+}
+
+@article{Nguyen2020,
+  title    = {POD-DEIM model order reduction technique for model predictive control in continuous chemical processing},
+  journal  = {Computers \& Chemical Engineering},
+  volume   = {133},
+  pages    = {106638},
+  year     = {2020},
+  issn     = {0098-1354},
+  doi      = {https://doi.org/10.1016/j.compchemeng.2019.106638},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0098135419309895},
+  author   = {Van Bo Nguyen and Si Bui Quang Tran and Saif A. Khan and Jiawei Rong and Jing Lou},
+  keywords = {Model order reduction, Model predictive control, Real time control, Chemical process, SISO, MIMO}
+}
+
+% Vorlesungsunterlagen
+
+
+
+
+
+
+
+
+
+% Python Toolboxes
+% do-mpc
+
+@article{dompc,
+  author  = {F. Fiedler and B. Karg and L. Lüken and D. Brandner and M. Heinlein and F. Brabender and S. Lucia},
+  title   = {do-mpc: Towards FAIR nonlinear and robust model predictive control},
+  journal = {Control Engineering Practice},
+  volume  = {140},
+  pages   = {105676},
+  year    = {2023},
+  doi     = {}
+}
+
+% casadi
+
+@article{casadi,
+  author    = {Joel A E Andersson and Joris Gillis and Greg Horn
+               and James B Rawlings and Moritz Diehl},
+  title     = {{CasADi} -- {A} software framework for nonlinear optimization
+               and optimal control},
+  journal   = {Mathematical Programming Computation},
+  volume    = {11},
+  number    = {1},
+  pages     = {1--36},
+  year      = {2019},
+  publisher = {Springer},
+  doi       = {10.1007/s12532-018-0139-4}
+}
+
+% IPOPT
+
+@article{Waechter2006,
+  author    = {A. W{\"a}chter and L. T. Biegler},
+  title     = {On the Implementation of a Primal-Dual Interior Point Filter Line Search Algorithm for Large-Scale Nonlinear Programming},
+  journal   = {Mathematical Programming},
+  volume    = {106},
+  number    = {1},
+  pages     = {25--57},
+  year      = {2006},
+  note      = {Preprint},
+  keywords  = {Nonlinear Programming, Interior Point, Filter Method, IPOPT},
+  status    = {gelesen},
+  relevance = {hoch}
+}
+
+
+

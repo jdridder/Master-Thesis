@@ -1,0 +1,77 @@
+% This file contains all the packages used in the template
+% Remove or add new packages to suit your needs
+
+\documentclass{article}
+%% Language/Text %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Features %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[
+	colorlinks=true,
+	linkcolor=black,
+	citecolor=black,
+	filecolor=magenta,  
+	urlcolor=cyan,
+	pdfauthor={TU Dortmund PAS-BCI Student},
+]{hyperref}
+
+\usepackage{csquotes}
+\usepackage{graphicx} %%For loading graphic files
+\usepackage[skip=2pt]{caption}
+\usepackage{subcaption}
+\usepackage{etoolbox}
+% Math
+\usepackage{bm}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{cases}
+\usepackage{interval}
+%
+\usepackage{psfrag}
+\usepackage{authblk}
+\usepackage{fancyhdr}
+\usepackage[binary-units=true]{siunitx}
+% Algorithms, Code etc.
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{listings}
+\lstset{basicstyle=\small\ttfamily,
+breaklines=true
+}
+
+%% Layout / Geometry %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{setspace}
+\singlespacing        %% 1-spacing (default)
+%\onehalfspacing       %% 1,5-spacing
+%\doublespacing        %% 2-spacing
+
+% Higher penalties to avoid orphans and widows 
+% http://www.texfaq.org/FAQ-widows
+\clubpenalty = 10000
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+
+% Package for including pdf pages (Used for Affdavit)
+\usepackage{pdfpages}
+
+%% Bibliography %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[
+sorting=none,
+style=ieee,
+]{biblatex}
+
+
+%% User defined theorems %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% https://en.wikibooks.org/wiki/LaTeX/Theorems
+\theoremstyle{plain} % Style applies to all below until changed.
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{assumption}{Assumption}[chapter]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[chapter]

@@ -1,0 +1,45 @@
+\chapter{Introduction}\label{intro} 
+
+In the chemical process industry, system models are a fundamental tool for design and operation. Due to its
+techno-scientific nature, chemical engineering is about modelling physical and chemical phenomena in an
+accurate enough manner to realize a save and profitable conversion process. These models vary in complexity and 
+prediction potency from single equations such as the Bernoulli equation to detailed partial differentail equation systems
+such as multi-phase Navier-Stokes. Physico-chemical models are at the core of optimal design or optimal control
+of most unit operations.
+\newline
+As these \emph{first principle models} rely on intrinsic parameters such as activation energies, friction coefficients, etc.
+that are usually fitted by experiments, they exhibit some kind of prediction uncertainty. This uncertainty is 
+heavily tied to the measurement uncertainty of the underlying experiments and the non-linearity in the propagation by the model. 
+For example parametric uncertainties of $ \pm 50~\%$ can occur in multi-component reaction systems \cite{empty000}.
+As most phenomena in chemical engineering exhibit strong non-lineatities, such as reaction kinetics or activity coefficients,
+uncertainty quantification represents a great challenge. 
+\newline
+\emph{Model Predictive Control} (MPC) is a potent optimal control algorithm that allows the optimal operation of various systems. 
+The algorithm optimizes a custom loss or reward function under a set of constraints and the dynamics of the system model. The optimal inputs
+of the system are determined at every time instant as the solution of the optimization. MPC is able do deal with uncertain parameter
+scenarios in the form of \emph{multi-stage} MPC, where all possible scenarios are optimized over simultaneously. This leads
+to tremendous computational effort especcialy for detailed system models. The computational effort growths multiplicatory with the 
+amount of parameters and exponentially with the robust horizon \cite{empty000}. These optimization tasks are impossible to solve
+in real time with current hardware.
+\newline
+\emph{Neural Networks} (NNs) are able to approximate any continuous function that maps from a finite dimensional space to
+another up to an arbitrary small error \cite{empty000}. Thus, NNs are a key component of machine learning advancements of the 2010s enabling
+data approximation of almost any kind such as autoregressive language generation \cite{vaswani2023}, protein folding \cite{empty000} or
+reduction of partial differential equations (PDEs). Their universal approximation ability, differentiatability and fast evaluation makes NNs greatly suitable to reduce first principle models in
+the context of optimal control.
+\newline
+For NNs to be applied successfully and savely in process engineering, another measure is of great importance – The alignment of 
+predictions with physical conservation laws such as mass or energy. By definition, NN predictions seek to minimize a loss function
+to the ground truth data. The aligment of the predictions with real balance equations is only achieved until test accuracy. Deviations
+accumulate especcialy in propagation scenarios where predictions are propagated through different networks or through a time horizon
+in autoregressive manner. This leads to bad predictions or even unstable behavior in late propagation stages and makes MPC
+implementations challenging.
+\newline
+This work investigates the usage of physics-consistent (PC) NNs in the context of robust model predictive control under
+parametric uncertainty. The NNs in focus shall significantly reduce the computational effort due to different parameter scenarios as well as 
+guarantee physical correctness of the predictions over the whole prediction horizon. To account for uncertainties, quantile
+regression is utilized which captures a prediction confidence intervall. PC is enforced by implementing a recent
+type of activation function that elegantly maps a prediction into the allowed output space without altering the inference time \cite{chen2024}.
+\newline
+The developed surrogate models are later evaluated regarding their simulation accuracy using a fictional plug flow tubular reactor (PFTR) model of the ethene oxide synthesis.
+

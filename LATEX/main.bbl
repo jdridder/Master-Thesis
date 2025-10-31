@@ -1,0 +1,408 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{empty000}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=2ecd214db016e0ad63452ae4236e065d}{%
+           family={JD},
+           familyi={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{2ecd214db016e0ad63452ae4236e065d}
+      \strng{fullhash}{2ecd214db016e0ad63452ae4236e065d}
+      \strng{bibnamehash}{2ecd214db016e0ad63452ae4236e065d}
+      \strng{authorbibnamehash}{2ecd214db016e0ad63452ae4236e065d}
+      \strng{authornamehash}{2ecd214db016e0ad63452ae4236e065d}
+      \strng{authorfullhash}{2ecd214db016e0ad63452ae4236e065d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Placeholder citation}
+      \field{year}{0}
+    \endentry
+    \entry{vaswani2023}{misc}{}
+      \name{author}{8}{}{%
+        {{hash=7f28e84700536646dd6620a0db07ad09}{%
+           family={Vaswani},
+           familyi={V\bibinitperiod},
+           given={Ashish},
+           giveni={A\bibinitperiod}}}%
+        {{hash=62efade83d70f0323fe248755e6c90c5}{%
+           family={Shazeer},
+           familyi={S\bibinitperiod},
+           given={Noam},
+           giveni={N\bibinitperiod}}}%
+        {{hash=06649ebab1ea5cac0250746a19764975}{%
+           family={Parmar},
+           familyi={P\bibinitperiod},
+           given={Niki},
+           giveni={N\bibinitperiod}}}%
+        {{hash=831027ee0ebf22375e2a86afc1881909}{%
+           family={Uszkoreit},
+           familyi={U\bibinitperiod},
+           given={Jakob},
+           giveni={J\bibinitperiod}}}%
+        {{hash=2fd2982e30ebcec93ec1cf76e0d797fd}{%
+           family={Jones},
+           familyi={J\bibinitperiod},
+           given={Llion},
+           giveni={L\bibinitperiod}}}%
+        {{hash=27b07e4eacbf4ef7a1438e3badb7dd8d}{%
+           family={Gomez},
+           familyi={G\bibinitperiod},
+           given={Aidan\bibnamedelima N.},
+           giveni={A\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=f2bc899b1160163417da7bf510f15d33}{%
+           family={Kaiser},
+           familyi={K\bibinitperiod},
+           given={Lukasz},
+           giveni={L\bibinitperiod}}}%
+        {{hash=95595a0fefb86187cbc36e551017d332}{%
+           family={Polosukhin},
+           familyi={P\bibinitperiod},
+           given={Illia},
+           giveni={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{7cc810834e9ba19dd5f8b0a37be3172d}
+      \strng{fullhash}{f82970bbd2bdd7a002d2af62b743d5cc}
+      \strng{bibnamehash}{7cc810834e9ba19dd5f8b0a37be3172d}
+      \strng{authorbibnamehash}{7cc810834e9ba19dd5f8b0a37be3172d}
+      \strng{authornamehash}{7cc810834e9ba19dd5f8b0a37be3172d}
+      \strng{authorfullhash}{f82970bbd2bdd7a002d2af62b743d5cc}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.CL}
+      \field{eprinttype}{arXiv}
+      \field{title}{Attention Is All You Need}
+      \field{year}{2023}
+      \verb{eprint}
+      \verb 1706.03762
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1706.03762
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1706.03762
+      \endverb
+    \endentry
+    \entry{chen2024}{article}{}
+      \name{author}{3}{}{%
+        {{hash=dd060cd064f8f607eb1bee6712820270}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Hao},
+           giveni={H\bibinitperiod}}}%
+        {{hash=b2bc6ab135e4aae028003d3234dba15c}{%
+           family={Flores},
+           familyi={F\bibinitperiod},
+           given={Gonzalo\bibnamedelimb E.\bibnamedelimi Constante},
+           giveni={G\bibinitperiod\bibinitdelim E\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=8e6ea9d2aeafe6a7426446dd92acf0ff}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Can},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{fbae51f7fc747eb183ea2edc36b29e95}
+      \strng{fullhash}{fbae51f7fc747eb183ea2edc36b29e95}
+      \strng{bibnamehash}{fbae51f7fc747eb183ea2edc36b29e95}
+      \strng{authorbibnamehash}{fbae51f7fc747eb183ea2edc36b29e95}
+      \strng{authornamehash}{fbae51f7fc747eb183ea2edc36b29e95}
+      \strng{authorfullhash}{fbae51f7fc747eb183ea2edc36b29e95}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Surrogate modeling is used to replace computationally expensive simulations. Neural networks have been widely applied as surrogate models that enable efficient evaluations over complex physical systems. Despite this, neural networks are data-driven models and devoid of any physics. The incorporation of physics into neural networks can improve generalization and data efficiency. The physics-informed neural network (PINN) is an approach to leverage known physical constraints present in the data, but it cannot strictly satisfy them in the predictions. This work proposes a novel physics-informed neural network, KKT-hPINN, which rigorously guarantees hard linear equality constraints through projection layers derived from KKT conditions. Numerical experiments on Aspen models of a continuous stirred-tank reactor (CSTR) unit, an extractive distillation subsystem, and a chemical plant demonstrate that this model can further enhance the prediction accuracy.}
+      \field{issn}{0098-1354}
+      \field{journaltitle}{Computers \& Chemical Engineering}
+      \field{title}{Physics-informed neural networks with hard linear equality constraints}
+      \field{volume}{189}
+      \field{year}{2024}
+      \field{pages}{108764}
+      \range{pages}{1}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.compchemeng.2024.108764
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0098135424001820
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0098135424001820
+      \endverb
+      \keyw{Surrogate modeling,Physics-informed neural network,Artificial intelligence}
+    \endentry
+    \entry{houska2011}{thesis}{}
+      \name{author}{1}{}{%
+        {{hash=b41ef4ad86190f67f0963267eef061a4}{%
+           family={Houska},
+           familyi={H\bibinitperiod},
+           given={B.},
+           giveni={B\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {KU Leuven}%
+      }
+      \strng{namehash}{b41ef4ad86190f67f0963267eef061a4}
+      \strng{fullhash}{b41ef4ad86190f67f0963267eef061a4}
+      \strng{bibnamehash}{b41ef4ad86190f67f0963267eef061a4}
+      \strng{authorbibnamehash}{b41ef4ad86190f67f0963267eef061a4}
+      \strng{authornamehash}{b41ef4ad86190f67f0963267eef061a4}
+      \strng{authorfullhash}{b41ef4ad86190f67f0963267eef061a4}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-94-6018-394-2}
+      \field{title}{Robust Optimization of Dynamic Systems}
+      \field{type}{phdthesis}
+      \field{year}{2011}
+    \endentry
+    \entry{hornik1990}{article}{}
+      \name{author}{1}{}{%
+        {{hash=bec8dd1340457a82c21b54971e4c9417}{%
+           family={Hornik},
+           familyi={H\bibinitperiod},
+           given={Kurt},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{bec8dd1340457a82c21b54971e4c9417}
+      \strng{fullhash}{bec8dd1340457a82c21b54971e4c9417}
+      \strng{bibnamehash}{bec8dd1340457a82c21b54971e4c9417}
+      \strng{authorbibnamehash}{bec8dd1340457a82c21b54971e4c9417}
+      \strng{authornamehash}{bec8dd1340457a82c21b54971e4c9417}
+      \strng{authorfullhash}{bec8dd1340457a82c21b54971e4c9417}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We show that standard multilayer feedforward networks with as few as a single hidden layer and arbitrary bounded and nonconstant activation function are universal approximators with respect to Lp(μ) performance criteria, for arbitrary finite input environment measures μ, provided only that sufficiently many hidden units are available. If the activation function is continuous, bounded and nonconstant, then continuous mappings can be learned uniformly over compact input sets. We also give very general conditions ensuring that networks with sufficiently smooth activation functions are capable of arbitrarily accurate approximation to a function and its derivatives.}
+      \field{issn}{0893-6080}
+      \field{journaltitle}{Neural Networks}
+      \field{number}{2}
+      \field{title}{Approximation capabilities of multilayer feedforward networks}
+      \field{volume}{4}
+      \field{year}{1991}
+      \field{pages}{251\bibrangedash 257}
+      \range{pages}{7}
+      \verb{doi}
+      \verb https://doi.org/10.1016/0893-6080(91)90009-T
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/089360809190009T
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/089360809190009T
+      \endverb
+      \keyw{Multilayer feedforward networks,Activation function,Universal approximation capabilities,Input environment measure,() approximation,Uniform approximation,Sobolev spaces,Smooth approximation}
+    \endentry
+    \entry{mcbride2019}{article}{}
+      \name{author}{2}{}{%
+        {{hash=e6515f3c440e8dd9d2981516a1f1e0a3}{%
+           family={McBride},
+           familyi={M\bibinitperiod},
+           given={Kevin},
+           giveni={K\bibinitperiod}}}%
+        {{hash=a5148fca6c6bde4ba775cee31842e0b4}{%
+           family={Sundmacher},
+           familyi={S\bibinitperiod},
+           given={Kai},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{fab19337b76dd8b564a4bc4b84d8e0a7}
+      \strng{fullhash}{fab19337b76dd8b564a4bc4b84d8e0a7}
+      \strng{bibnamehash}{fab19337b76dd8b564a4bc4b84d8e0a7}
+      \strng{authorbibnamehash}{fab19337b76dd8b564a4bc4b84d8e0a7}
+      \strng{authornamehash}{fab19337b76dd8b564a4bc4b84d8e0a7}
+      \strng{authorfullhash}{fab19337b76dd8b564a4bc4b84d8e0a7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Abstract The ability to accurately model and simulate chemical processes has been paramount to the growing success and efficiency in process design and operation. These improvements usually come with increasing complexity of the underlying models leading to substantial computational effort in their use. It may also occur that the structure of the model is sometimes unknown making optimization and study difficult. To circumvent these issues, mathematically simpler models, commonly known as surrogate models, have been designed and used to successfully replace these complex, underlying models with much success. This technique has seen increasing use within the chemical process engineering field and this article summarizes some popular surrogates and their recent use in this area.}
+      \field{journaltitle}{Chemie Ingenieur Technik}
+      \field{number}{3}
+      \field{title}{Overview of Surrogate Modeling in Chemical Process Engineering}
+      \field{volume}{91}
+      \field{year}{2019}
+      \field{pages}{228\bibrangedash 239}
+      \range{pages}{12}
+      \verb{doi}
+      \verb https://doi.org/10.1002/cite.201800091
+      \endverb
+      \verb{eprint}
+      \verb https://onlinelibrary.wiley.com/doi/pdf/10.1002/cite.201800091
+      \endverb
+      \verb{urlraw}
+      \verb https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.201800091
+      \endverb
+      \verb{url}
+      \verb https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.201800091
+      \endverb
+      \keyw{Process design,Process optimization,Simulations,Surrogate modeling}
+    \endentry
+    \entry{raissi2019}{article}{}
+      \name{author}{3}{}{%
+        {{hash=a3194cb4f8e3959e569236521aa2fd86}{%
+           family={Raissi},
+           familyi={R\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c2e8423b7b49343a85abf9af92ee2a82}{%
+           family={Perdikaris},
+           familyi={P\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod}}}%
+        {{hash=1c2f5930e36485e8d38a87746769fdcc}{%
+           family={Karniadakis},
+           familyi={K\bibinitperiod},
+           given={G.E.},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{a17a0649dc8bad70026488d4ea37c508}
+      \strng{fullhash}{a17a0649dc8bad70026488d4ea37c508}
+      \strng{bibnamehash}{a17a0649dc8bad70026488d4ea37c508}
+      \strng{authorbibnamehash}{a17a0649dc8bad70026488d4ea37c508}
+      \strng{authornamehash}{a17a0649dc8bad70026488d4ea37c508}
+      \strng{authorfullhash}{a17a0649dc8bad70026488d4ea37c508}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
+      \field{issn}{0021-9991}
+      \field{journaltitle}{Journal of Computational Physics}
+      \field{title}{Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations}
+      \field{volume}{378}
+      \field{year}{2019}
+      \field{pages}{686\bibrangedash 707}
+      \range{pages}{22}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.jcp.2018.10.045
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0021999118307125
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0021999118307125
+      \endverb
+      \keyw{Data-driven scientific computing,Machine learning,Predictive modeling,Runge–Kutta methods,Nonlinear dynamics}
+    \endentry
+    \entry{cvxpylayers2019}{inproceedings}{}
+      \name{author}{6}{}{%
+        {{hash=432ef86ebc419d2ed3b9623b268fb496}{%
+           family={Agrawal},
+           familyi={A\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod}}}%
+        {{hash=af93026df98992a920daa1ebda770ac9}{%
+           family={Amos},
+           familyi={A\bibinitperiod},
+           given={B.},
+           giveni={B\bibinitperiod}}}%
+        {{hash=99c9deca43bfbd9ae125a281af52dc7f}{%
+           family={Barratt},
+           familyi={B\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+        {{hash=fdb760b740da8a080df12615e128118d}{%
+           family={Boyd},
+           familyi={B\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+        {{hash=fb1e477d61db9a572b81c2fb8148bdb2}{%
+           family={Diamond},
+           familyi={D\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+        {{hash=9c0a601375a2eba4b1a7c962641cef5d}{%
+           family={Kolter},
+           familyi={K\bibinitperiod},
+           given={Z.},
+           giveni={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{2f66e877c58e6ee278092df3e9f963cc}
+      \strng{fullhash}{3a2e73c8b36fe75431aaa17a99d757a4}
+      \strng{bibnamehash}{3a2e73c8b36fe75431aaa17a99d757a4}
+      \strng{authorbibnamehash}{3a2e73c8b36fe75431aaa17a99d757a4}
+      \strng{authornamehash}{2f66e877c58e6ee278092df3e9f963cc}
+      \strng{authorfullhash}{3a2e73c8b36fe75431aaa17a99d757a4}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Advances in Neural Information Processing Systems}
+      \field{title}{Differentiable Convex Optimization Layers}
+      \field{year}{2019}
+    \endentry
+    \entry{lastrucci2025}{misc}{}
+      \name{author}{4}{}{%
+        {{hash=15fd7dd6da2445310aa00610f7b57637}{%
+           family={Lastrucci},
+           familyi={L\bibinitperiod},
+           given={Giacomo},
+           giveni={G\bibinitperiod}}}%
+        {{hash=800ab7eacf599953004e502166e8dd3f}{%
+           family={Karia},
+           familyi={K\bibinitperiod},
+           given={Tanuj},
+           giveni={T\bibinitperiod}}}%
+        {{hash=07f1b8ae15ae3b8370710f27bb3008f0}{%
+           family={Gromotka},
+           familyi={G\bibinitperiod},
+           given={Zoë},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=2b52d0cf2fd9795ade42fc27669466b9}{%
+           family={Schweidtmann},
+           familyi={S\bibinitperiod},
+           given={Artur\bibnamedelima M.},
+           giveni={A\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{49313e475aea28e0c1cecaeeca32fac6}
+      \strng{fullhash}{2104aea70c64086e1199f6b31029fccf}
+      \strng{bibnamehash}{2104aea70c64086e1199f6b31029fccf}
+      \strng{authorbibnamehash}{2104aea70c64086e1199f6b31029fccf}
+      \strng{authornamehash}{49313e475aea28e0c1cecaeeca32fac6}
+      \strng{authorfullhash}{2104aea70c64086e1199f6b31029fccf}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.LG}
+      \field{eprinttype}{arXiv}
+      \field{title}{Picard-KKT-hPINN: Enforcing Nonlinear Enthalpy Balances for Physically Consistent Neural Networks}
+      \field{year}{2025}
+      \verb{eprint}
+      \verb 2501.17782
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2501.17782
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2501.17782
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

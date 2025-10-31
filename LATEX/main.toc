@@ -1,0 +1,23 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{Abstract}{v}{chapter*.2}%
+\contentsline {chapter}{Notation}{ix}{chapter*.4}%
+\contentsline {chapter}{List of Figures}{xiii}{chapter*.13}%
+\contentsline {chapter}{List of Tables}{xv}{chapter*.14}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Model Predictive Control under Uncertainty}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Robust Optimization}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Robust Model Predictive Control}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Uncertainty}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Multi-Stage MPC}{5}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Surrogate Modeling}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Neural Networks}{7}{section.3.1}%
+\contentsline {chapter}{\numberline {4}Surrogate Modelling}{9}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Physics-Constrained Neural Networks}{9}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{13}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Training Effectivity}{13}{section.5.1}%
+\contentsline {chapter}{\numberline {6}Conclusions}{15}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets}{17}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Parameter for ...}{17}{section.A.1}%
+\contentsline {chapter}{\numberline {B}Proofs}{19}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Proof of Theorem X}{19}{section.B.1}%
+\contentsline {chapter}{Bibliography}{21}{appendix*.17}%

@@ -1,0 +1,56 @@
+# Config file for the Ethylene Oxidation in a PFTR
+
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}
+
+model_name: "ToyModel"
+model_cfg_name: "ToyModel"
+
+simulation:
+  # The following parameters are used to set up the simulation
+  N_finite_diff: 16  #  The number of finite difference points for the simulator model and the mpc model.
+  N_time_steps: 100  # The number of time steps for the simulation
+  t_step: 0.05  # The time step for the simulation
+
+  # Tolerances
+  abstol: 1e-6  # The absolute tolerance for the simulation
+  reltol: 1e-6  # The relative tolerance for the simulation
+
+# MPC settings
+mpc:
+  n_horizon: 2  # prediction horizon
+  mpc_t_step: 0.5
+  n_robust: 2
+  open_loop: 0
+  state_discretization: 'collocation'
+  collocation_type: 'radau'
+  collocation_deg: 2
+  collocation_ni: 2
+  store_full_solution: True
+  
+states:
+  keys: ["x_A", "x_B", "x_C", "T"]  # The abbreviations of the unique states.
+
+inputs:
+  keys: ["u"]
+
+aux:
+  keys: ["sum_x"]
+
+# system model configuration
+system_model:
+  pod:
+    data_path: pod/datasets/data_rigorous_c_E_T.pkl
+    r: 16
+
+# MPC model configuration
+mpc_model:
+  pod:
+    data_path: pod/datasets/data_rigorous_c_E_T.pkl
+
+plotting:
+  y_coordinate_labels: {"x_A": "x_A / -", "x_B": "x_B / -", "x_C": "x_C / -", "T": "T / °C", "u": "u / m s$^{-1}$"}
+  x_coordinate_label: "t / s"
+
+

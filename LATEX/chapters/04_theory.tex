@@ -1,0 +1,187 @@
+\chapter{Model Predictive Control under Uncertainty}
+
+
+Before diving into the application of a special model predictive (MPC) algorithm. Uncertain
+optimization is treated more generally. From economics, over self-driving cars to chemical plants,
+optimization problems are formulated in terms of uncertain variables in countless variations.
+These uncertainties arise in three different types – fluctuating disturbances such as wind or weather conditions,
+parametric offsets such as wrongly determined friction coefficients or model mismatches like unseen side reactions.
+As the straight maximization or minimzation of an objective often puts a problem to its boundaries,
+unforeseen disturbances may lead to \emph{constraint violation} or even \emph{instability} \cite{houska2011}.
+Therefore, \emph{robust} optimization formulations are needed, that are proof against mentioned challenges as
+well as retain the \emph{performance} with respect to the objective function.
+\newline
+
+\section{Robust Optimization}
+
+Considering the following optimization task (\ref{theroy:def: semi-infinite program}).
+\begin{definition} Semi-infinite program with the uncertainty $\vw$.
+    \label{theroy:def: semi-infinite program}
+    \[
+    \begin{gathered}
+        \underset{\vu}{\min} \; \underset{\vw}{\max} \quad F_0(\vu, \vw) \\
+        \text{s.t.} \quad F_i(\vu, \vw) \leq 0 \quad \forall \vw \in \mathbb{W}
+    \end{gathered}
+    \]
+\end{definition}
+
+Here, the optimization of the objective is formulated in a bilevel form. The scalar objective function $F_0$ is to 
+be minimized w.r.t the decision variables $\vu$ for the worst case scenario w.r.t the disturbance
+vector $\vw$. The inequality constraints $F_i$ however, should be satisfied for all possible disturbances, that
+lie in a defined set $\mathbb{W}$. If this set is not finite, the number of possible 
+constraints to be satisifed is infintely big. Thus, this formulation is named as \emph{semi-infinite-program} \cite{houska2011}.
+To reduce the number of constraints, the worst-case estimate can also be applied here (\ref{theroy:def: bi-level program}). 
+
+\begin{definition} Bi-level formulation of the semi-infinite program
+    \label{theroy:def: bi-level program}
+    \[
+    \begin{gathered}
+        \underset{\vu}{\min} \; \underset{\vw}{\max} \quad F_0(\vu, \vw) \\
+        \text{s.t.} \quad \varphi_i(\vu) \coloneq \underset{\vw}{\max} \quad F_i(\vu, \vw) \leq 0
+        \quad \vw \in \mathbb{W}
+    \end{gathered}
+    \]
+\end{definition}
+
+Now, the inequality constraints are also formulated in a bi-level manner. The maximum of $F_i$ is 
+constant in $\vw$ and only a function of the decision variables $\vu$. The function $\varphi_i$
+exactly describes the wost-case for $F_i$ parametrized by $\vu$. In fact, if certain assumptions hold
+regarding the uncertainty set $\mathbb{W}$ and the concavity of the maximization,
+$\varphi_i$ can be exactly computed \cite{empty000}. This would simplify the problem dramatically.
+In reality however, an analytical solution for $\varphi_i$ is not possible to compute.
+But with the universal approximation capability of neural networks (NNs) in mind \cite{hornik1990}, 
+a data-driven approach is promising, that delivers an approximated function $\tilde{\varphi}_i(\vu)$.
+
+\section{Robust Model Predictive Control}
+
+(A short intro to MPC)
+A model predictive control algorithm solves a control optimization task at each time instant.
+The dynamic optimization anticipates the future behavior of the controlled system through
+a mathematical model and determines the control inputs as the solution. Only part of the 
+solution is applied as a control input until the next sampling instant. To yield correct inputs,
+the prediction quality of the underlying model is of crucial importance.
+\newline
+\newline
+
+Coming from this general perspective on robust optimization, \emph{robust MPC} specializes
+this concept to a dynamic closed-loop control environment. First, the continuous-time
+formulation is considered.
+
+\begin{definition} Continuous-time formulation of an MPC task under uncertainty.
+    \label{theory:def: continuous mpc}
+    \[
+        \begin{gathered}
+            \underset{\vu}{\min} \; \underset{\vw}{\max} \quad  J(t_0, t_\text{end}, \vx, \vu, \vw) \\
+            \begin{aligned}
+                \text{s.t.} \quad &\dot{\vx} = f(t, \vx, \vu, \vw) \\
+                & F_i(t, \vx, \vu, \vw) \leq 0 \quad \forall t \in [t_0, t_\text{end}], \; \forall \vw \in \mathbb{W} \\
+                & \vx_0 = \vx_\text{init}
+            \end{aligned}
+        \end{gathered}
+    \]
+\end{definition}
+
+The only difference to the general problem (\ref{theroy:def: semi-infinite program}) is that the states, denoted with $\vx$,
+evolve along some system dynamics that are described by $f$, that also underlie to the uncertainty $\vw$.
+This formulation is now infinite in time and in the uncertain parameters. To make computation feasible,
+the problem is discretized in the time dimension eiher using single shooting, multiple shooting or orthogonal collocation
+on finite elements \cite{}. One possibility to roughly discretize the uncertain parameter set $\mathbb{W}$ is
+done by \emph{multi-stage-MPC} \cite{}. Which is intuitive, but leads to tremendous computational effort, especcialy 
+with growing dimensionality of the uncertainty space.
+
+\begin{definition} Time-discretized multi-stage MPC
+    \label{theory:def: multi-stage-mpc}
+    \[
+        \begin{gathered}
+            \underset{\vu_k, \vx_k}{\min} \; \underset{\vw_k}{\max}  \quad  J(N_\text{p}, \vx_k, \vu_k, \vw_k)
+        \end{gathered}
+    \]
+\end{definition}
+
+
+
+\section{Uncertainty}
+Model uncertainties are a main challenge in MPC. These uncertainties can occur in the form of measurement noise, unknown parameters such as 
+activation energies or fluctuating disturbances such as wind from different directions. In the context of chemical engineering, the
+focus lies on parametric uncertainty of reaction kinetic parameters. Eventhough, the underlying methodlogy can be generalized to any kind of 
+model uncertainty.
+\newline
+The afforementioned uncertainties can be grouped into two types (eq.~\ref{eq: uncertainties}).
+\begin{equation}
+    \label{eq: uncertainties}
+    \begin{aligned}
+        \bm{x}_{k+1} &= f(\bm{x}_k, \bm{u}_k) + \bm{w}_k, \quad \bm{w}_k \in \mathbb{W}
+        \\
+        \bm{x}_{k+1} &= f(\bm{x}_k, \bm{u}_k, \bm{d}_k), \quad \bm{d}_k \in \mathbb{D}
+    \end{aligned}
+\end{equation}
+The first one is additive disturbance and much easier to handle than the second type that propagates the disturbances non-linearly
+through the system \cite{empty000}. The second type is more general and most parametric uncertainties occur according to this type, which is why
+it is investigated in this work. 
+
+Conservartiveess vs Performance
+
+\section{Multi-Stage MPC}
+
+
+
+
+
+
+
+
+\chapter{Surrogate Modeling}
+
+\section{Neural Networks}
+
+Feed forward neural networks (NNs) provide a stunning capability of approximating any non-linear function from any finite dimensional
+space to another. According to the \emph{Universal approximation theorem}, any finite dimensional function can be reproduced if the number of hidden
+layers and respective neurons is high enough, up to an arbitrarily small error \cite{hornik1990}. Thus, NNs play a major role in
+recent developments in machine learning. The breakthrough of large language models such as ChatGPT heavily rely on neural
+networks [\cite{vaswani2023}]. NNs are applied not only in natural lanugage processing but in the chemical process industry.
+Use cases range from thermodynamic property prediction over unit operation design to corporate level decision making [\cite{mcbride2019}].
+Their ability to approximate any non-linear function while beeing differentiable, makes NNs especcialy suitable for dynamic optimization
+such as MPC. In contrast to detailed first principle models, NNs have the advantage of making a prediction in a fraction of the inference time
+of the first principle model. As MPC operates in real time parallel to the system to be controlled, the computation duration is a key measure
+for a succesfull MPC implementation. Thus, surrogate models in form of NNs are a crucial tool for dynamic optimization and heavily investigated
+in current research. May a NN be given as a alternating series of function evaluations (eq.~\ref{eq: neural network}).
+
+\begin{equation}
+    \label{eq: neural network}
+    \begin{aligned}
+        \mathcal{NN}(\bm{x, \bm{\theta}}) &= g_{l+1} \circ h_{l+1} \circ ... \circ g_1 \circ h_1(\bm{x})
+        \\
+        h(\bm{a}_{l-1}) &= \bm{\theta}_{Wl}\bm{a}_{l-1} + \bm{\theta}_{bl}
+        \\
+        \bm{a}_{l} &= g_l(h(\bm{a}_{l-1}))
+    \end{aligned}
+\end{equation}
+
+In fact, a NN is a series of function combinations denoted by the $\circ$-symbol alternating between a linear function $h(\bm{a})$
+and a non-linear activation function $g$. The linear transformation matrices $\bm{\theta}_{Wl}$ and offsets $\bm{\theta}_{bl}$,
+are called weights and biases respectively and are the trainable parameters of a NN. Given a set of training data $\mathbb{D}_\text{train}$,
+the optimal parameters for $\bm{\theta}$ are found by solving an optimization task that involves the minimzation of a prediction loss function (eq.~\ref{eq: loss function}).
+
+\begin{equation}
+    \label{eq: loss function}
+    \begin{aligned}
+        \mathbb{X}_\text{train} &\coloneq \{ \bm{\xi}^{(0)}, \hdots, \bm{\xi}^{(m)} \}
+        \\
+        \mathbb{Y}_\text{train} &\coloneq \{ \bm{y}^{(0)}, \hdots, \bm{y}^{(m)} \} 
+        \\
+        \mathcal{L}(\bm{\theta}, \mathbb{X}_\text{train}, \mathbb{Y}_\text{train}) &=
+        \frac{1}{m} \sum_{i=0}^{m-1} \Big| \Big| \bm{y}^{(i)} - \bm{\tilde{y}}(\bm{\theta}, \bm{\xi}^{(i)}) \Big | \Big|_2^2
+    \end{aligned}
+\end{equation}
+
+In \emph{supervised learning}, the training data is separated in \emph{features} $\mathbb{X}_\text{train}$, the inputs of the NN,
+and \emph{labels} $\mathbb{Y}_\text{train}$, the outputs of the NN. During training, the parameters $\bm{\theta}$ are determined such that
+the NN approximates the data in best possible manner.
+In this example the loss function $\mathcal{L}$ portrays the mean squarred error (MSE) that is used in most regression tasks. 
+The difference between the model prediction, denoted as $\bm{\tilde{y}}$, and the true data point $\bm{y}^{(i)}$ is penalized quadratically.
+The kind of loss function heavily impacts the characteristics of the NN model prediction.
+
+Explain batching
+Batching allows to pass multiple data points forward
+through the NN.
+

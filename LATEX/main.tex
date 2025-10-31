@@ -1,0 +1,86 @@
+\documentclass[a4paper, twoside, 11pt]{book}
+
+\input{config/preamble.tex}
+\input{config/symbols.tex}
+\input{config/header_footer.tex}
+
+\addbibresource{bibliography.bib}
+
+
+% Document must be compiled with XeLatex using Biber.
+
+
+\begin{document}
+
+% Insert your data here: ------
+\setDocumentType{Master's thesis} % Master's thesis or Bachelor's thesis (optional)
+\setDocumentIdent{M01} % Please ask your supervisor for an ident number (optional)
+\setThesisTitle{Physics-Consistent Surrogate Models with Uncertainty Quantification for Model Predictive Control}
+% \setThesisSubTitlel{A subtitle is optional} %(optional)
+\setAuthor{Jan-David Ridder}
+\setMtrkln{217599} 
+\setSupervisor{Prof. Dr.-Ing. Sergio Lucia}
+\setCoSupervisor{Prof. Dr.-Ing Hannsjörg Freund} 
+\setAdvisor{Niklas Kemmerling, M.Sc.} %(optional)
+\setThesisYear{2025} 
+% -----------------------------
+
+\pagestyle{empty} %No headings for the first pages.
+
+\input{config/titlepage}
+  
+\cleardoublepage
+
+\pagenumbering{gobble}
+\pagenumbering{roman}
+
+\newpage
+
+\input{chapters/declaration.tex}
+
+
+\cleardoublepage
+\input{chapters/01_abstract.tex}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\cleardoublepage
+
+\tableofcontents
+\cleardoublepage 
+
+\input{chapters/02_notation.tex}
+\clearpage
+
+%List of Figures
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\clearpage
+
+%List of Tables
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+\cleardoublepage 
+
+\pagenumbering{arabic}
+
+
+\pagestyle{fancy} 
+
+
+\input{chapters/03_intro.tex}
+\input{chapters/04_theory.tex}
+\input{chapters/05_method.tex}
+\input{chapters/06_results.tex}
+\input{chapters/07_conclusion.tex}
+
+
+\input{appendices/appendix.tex}
+
+
+\printbibliography[
+    heading=bibintoc,
+    title={Bibliography},
+]
+
+\end{document}
+

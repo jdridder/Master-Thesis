@@ -1,0 +1,170 @@
+% This file contains all the packages used in the template
+% Remove or add new packages to suit your needs
+
+
+%% Language/Text %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[english]{babel}
+
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+
+%% Features %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[
+	colorlinks=true,
+	linkcolor=black,
+	citecolor=black,
+	filecolor=magenta,  
+	urlcolor=cyan,
+	pdfauthor={TU Dortmund PAS-BCI Student},
+]{hyperref}
+%\hypersetup{
+%	colorlinks=true,
+%	linkcolor=blue,
+%	filecolor=magenta,  
+%	urlcolor=cyan,
+%}
+%\urlstyle{same}
+
+\usepackage{csquotes}
+\usepackage{graphicx} %%For loading graphic files
+\usepackage[skip=2pt]{caption}
+\usepackage{subcaption}
+\usepackage{etoolbox}
+% Math
+\usepackage{bm}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{cases}
+\usepackage{interval}
+%
+\usepackage{psfrag}
+\usepackage{authblk}
+\usepackage{fancyhdr}
+\usepackage[binary-units=true]{siunitx}
+% Improved tables
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{multirow}							
+\usepackage{multicol}
+\usepackage{booktabs}
+% Algorithms, Code etc.
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{listings}
+\lstset{basicstyle=\small\ttfamily,
+breaklines=true
+}
+
+\usepackage{lipsum}
+
+%% Layout / Geometry %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{setspace}
+\singlespacing        %% 1-spacing (default)
+%\onehalfspacing       %% 1,5-spacing
+%\doublespacing        %% 2-spacing
+
+\usepackage[a4paper,
+%showframe, %use for debugging
+bottom=35mm,
+footskip=15mm,
+headsep=10mm,
+marginparwidth=25mm,
+]{geometry}
+
+% Higher penalties to avoid orphans and widows 
+% http://www.texfaq.org/FAQ-widows
+\clubpenalty = 10000
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+
+
+% If you want to use tikz plots exported from pyplot
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,dateplot}
+\usetikzlibrary{patterns,shapes.arrows}
+\pgfplotsset{compat=newest}
+
+% Package for including pdf pages (Used for Affdavit)
+\usepackage{pdfpages}
+
+%% Bibliography %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[
+	backend=biber,
+	sorting=none,
+	style=ieee,
+]{biblatex}
+
+% Remove some fields from bib items. These shouldn't appear in the Bibliography.
+\AtEveryBibitem{%
+	\ifentrytype{book}{
+		\clearfield{url}%
+		\clearfield{urldate}%
+		\clearfield{review}%
+		\clearfield{series}%%
+		\clearfield{issn}%%
+%		\clearfield{doi}%%
+		\clearfield{note}%%
+	}{}
+	\ifentrytype{article}{
+		\clearfield{url}%
+		\clearfield{urldate}%
+		\clearfield{review}%
+		\clearfield{series}%%
+		\clearfield{issn}%%
+%		\clearfield{doi}%%
+		\clearfield{note}%%
+	}{}
+	\ifentrytype{inproceedings}{
+		\clearfield{url}%
+		\clearfield{urldate}%
+		\clearfield{review}%
+		\clearfield{series}%%
+		\clearfield{issn}%%
+%		\clearfield{doi}%%
+		\clearfield{note}%%
+	}{}
+}
+
+
+%% Font %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{anyfontsize}
+\usepackage{fontspec}
+% \setsansfont[Path=config/fonts/,BoldFont=Akkurat-Bold.ttf,ItalicFont=Akkurat-LightItalic.ttf]{Akkurat-Light.ttf}
+% \setmainfont[Path=config/fonts/,BoldFont=Akkurat-Bold.ttf,ItalicFont=Akkurat-LightItalic.ttf]{Akkurat-Light.ttf} 
+
+
+%% User defined commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\setDocumentType}[1]{\def \DocumentType {#1}}
+\newcommand{\setDocumentIdent}[1]{\def \DocumentIdent {#1}}
+\newcommand{\setThesisTitle}[1]{\def \ThesisTitle {#1}}
+\newcommand{\setThesisSubTitlel}[1]{\def \ThesisSubTitlel {#1}}
+\newcommand{\setAuthor}[1]{\def \Author {#1}}
+\newcommand{\setMtrkln}[1]{\def \Mtrkln {#1}}
+\newcommand{\setSupervisor}[1]{\def \Supervisor {#1}}
+\newcommand{\setCoSupervisor}[1]{\def \CoSupervisor {#1}}
+\newcommand{\setAdvisor}[1]{\def \Advisor {#1}}
+\newcommand{\setThesisYear}[1]{\def \ThesisYear {#1}}
+
+\def \DocumentType{}
+\def \ThesisSubTitlel{}
+\def \DocumentIdent{}
+\def \Advisor{}
+
+%% User defined theorems %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% https://en.wikibooks.org/wiki/LaTeX/Theorems
+\theoremstyle{plain} % Style applies to all below until changed.
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{assumption}{Assumption}[chapter]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[chapter]

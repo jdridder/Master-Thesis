@@ -1,0 +1,73 @@
+\begin{titlepage}
+
+\ifdefempty{\DocumentType}{
+% No line for DocumentType if not set.
+}{
+\centering
+\small{\textbf \DocumentType}\\
+\bigskip
+}
+%
+\flushleft
+\Huge{\textbf{\ThesisTitle}}\\
+%
+\ifdefempty{\ThesisSubTitlel}{
+% No subtitle if not set.
+}{
+\medskip
+\ThesisSubTitlel\\ 
+}
+
+\bigskip
+
+\large{\Author}\\ 
+\smallskip
+\small{Matr. \Mtrkln}\\
+
+\vfill
+
+\begin{tabular}{@{}ll}
+First examiner: &  \Supervisor\\
+%
+\ifdefempty{\CoSupervisor}{
+% No line for Co-Supervisor if not set.
+}{
+Second examiner: & \CoSupervisor\\
+}
+%
+\ifdefempty{\Advisor}{
+% No line for Advisor if not set.
+}{
+Advisor: & \Advisor\\
+}
+%
+Year: & \ThesisYear \\
+%
+\ifdefempty{\DocumentIdent}{
+% No line for DocumentIdent if not set.
+}{
+Ident.: & BCI-PAS-\ThesisYear-\DocumentIdent
+}
+\end{tabular}
+
+
+\vspace*{20mm}
+
+\small
+\textbf{Technische Universität Dortmund} \\
+Faculty of Biochemical and Chemical Engineering \\
+Laboratory for Process Automation Systems
+
+\bigskip\hrule 
+\medskip
+
+\parbox[][][b]{0.49\textwidth}{
+\includegraphics[height=1cm]{Figures/Frontpage/tudo_logo_bw}
+}
+\parbox[][][b]{0.49\textwidth}{
+\hfill
+\includegraphics[height=1cm]{Figures/Frontpage/pas_logo_bw_topmargin.pdf}
+}
+\smallskip
+
+\end{titlepage}

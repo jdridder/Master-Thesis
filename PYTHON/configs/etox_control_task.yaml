@@ -1,0 +1,76 @@
+# Config file for the Ethylene Oxidation in a PFTR
+model_name: "EtOxModel"
+model_cfg_name: "EtOxModel"
+
+simulation:
+  # The following parameters are used to set up the simulation
+  N_finite_diff: 128  #  The number of finite difference points for the simulator model and the mpc model.
+  N_time_steps: 100  # The number of time steps for the simulation
+  t_step: 1  # The time step for the simulation in seconds
+  tau_system: 20 # The time constant of the system in seconds
+
+  # Tolerances
+  abstol: 1e-6  # The absolute tolerance for the simulation
+  reltol: 1e-6  # The relative tolerance for the simulation
+
+# MPC settings
+mpc:
+  n_horizon: 20  # prediction horizon
+  mpc_t_step: 1
+  n_robust: 0
+  open_loop: 0
+  state_discretization: 'collocation'
+  collocation_type: 'radau'
+  collocation_deg: 2
+  collocation_ni: 2
+  store_full_solution: True
+
+narx:
+  time_horizon: 6
+  n_measurements: 4
+  
+scales:
+  T: 615
+  c: 80
+
+states:
+  keys: ["chi_E", "chi_O2", "chi_EO", "chi_H2O", "chi_CO2", "T"]  # The abbreviations of the unique states.
+  scales: [1, 1, 1, 1, 1, 1]
+  lower_bounds: [0, 0, 0, 0, 0, 0]
+  upper_bounds: [630]
+
+inputs:
+  keys: ["T_c"]
+  all_keys: ["T_c0", "T_c1", "T_c2", "T_c3"]
+  level_bounds: [500, 700]
+  default: [600, 590, 600, 610, 620]
+
+tvps:
+  keys: ["u"]
+  level_bounds: [0.2, 0.4]
+
+aux:
+  keys: ["S", "X"]
+  lower_bounds: {"X": 0.6}
+
+plotting:
+  ylabels: {
+    "chi_E": "$\\chi_\\mathrm{E}$ / -",
+    "chi_O2": "$\\chi_\\mathrm{O2}$ / -",
+    "chi_CO2": "$\\chi_\\mathrm{CO2}$ / -",
+    "chi_EO": "$\\chi_\\mathrm{EO}$ / -",
+    "chi_H2O": "$\\chi_\\mathrm{H2O}$ / -",
+    "T": "$T'$ / -",
+    "T_c": "$T_w, T_{in}$ / $\\mathrm{K}$",
+    "u": "$u$ / $\\mathrm{m\\,s^{-1}}$",
+    "S": "$S, X$ / -",
+  }
+  x_coordinate_label: "t / s"
+  zlabels: 
+    T: ["$T'(0.25 L)$ / -", "$T'(0.5 L)$ / -", "$T'(0.75 L)$ / -", "$T'(1.0 L)$ / -"]
+    chi_EO: ['$\chi_\mathrm{EO}(0.25 L)$ / -', '$\chi_\mathrm{EO}(0.50 L)$ / -', '$\chi_\mathrm{EO}(0.75 L)$ / -', '$\chi_\mathrm{EO}(1.0 L)$ / -']
+    chi_E: ['$\chi_\mathrm{E}(0.25 L)$ / -', '$\chi_\mathrm{E}(0.50 L)$ / -', '$\chi_\mathrm{E}(0.75 L)$ / -', '$\chi_\mathrm{E}(1.0 L)$ / -']
+    chi_CO2: ['$\chi_\mathrm{CO2}(0.25 L)$ / -', '$\chi_\mathrm{CO2}(0.50 L)$ / -', '$\chi_\mathrm{CO2}(0.75 L)$ / -', '$\chi_\mathrm{CO2}(1.0 L)$ / -']
+
+
+
