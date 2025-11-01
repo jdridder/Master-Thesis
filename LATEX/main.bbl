@@ -216,6 +216,174 @@
       \endverb
       \keyw{Multilayer feedforward networks,Activation function,Universal approximation capabilities,Input environment measure,() approximation,Uniform approximation,Sobolev spaces,Smooth approximation}
     \endentry
+    \entry{salzmann2023}{article}{}
+      \name{author}{6}{}{%
+        {{hash=eb27cafdba112e389cc0cb75baa97b7b}{%
+           family={Salzmann},
+           familyi={S\bibinitperiod},
+           given={Tim},
+           giveni={T\bibinitperiod}}}%
+        {{hash=67c97d80868fd6b133dedb6e929aac2d}{%
+           family={Kaufmann},
+           familyi={K\bibinitperiod},
+           given={Elia},
+           giveni={E\bibinitperiod}}}%
+        {{hash=292b36afab7a67913e42da468e04d6b4}{%
+           family={Arrizabalaga},
+           familyi={A\bibinitperiod},
+           given={Jon},
+           giveni={J\bibinitperiod}}}%
+        {{hash=35318fcd7c56edabda1a4c70f2174048}{%
+           family={Pavone},
+           familyi={P\bibinitperiod},
+           given={Marco},
+           giveni={M\bibinitperiod}}}%
+        {{hash=dac21ab4ede215439fcc6b051be53a11}{%
+           family={Scaramuzza},
+           familyi={S\bibinitperiod},
+           given={Davide},
+           giveni={D\bibinitperiod}}}%
+        {{hash=4b3591f69e427acf5acb3a54bc4ac44d}{%
+           family={Ryll},
+           familyi={R\bibinitperiod},
+           given={Markus},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {Institute of Electrical}%
+        {Electronics Engineers (IEEE)}%
+      }
+      \strng{namehash}{41cb005ff0302918e0593691eef05c38}
+      \strng{fullhash}{7488356e9a821e89b0ce80c8d0cca966}
+      \strng{bibnamehash}{7488356e9a821e89b0ce80c8d0cca966}
+      \strng{authorbibnamehash}{7488356e9a821e89b0ce80c8d0cca966}
+      \strng{authornamehash}{41cb005ff0302918e0593691eef05c38}
+      \strng{authorfullhash}{7488356e9a821e89b0ce80c8d0cca966}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2377-3774}
+      \field{journaltitle}{IEEE Robotics and Automation Letters}
+      \field{month}{4}
+      \field{note}{Signifikante Beschleunigung der MPC backward differentiation des NNs durch eine Taylorreihe zweiter Ordnung.}
+      \field{number}{4}
+      \field{title}{Real-Time Neural MPC: Deep Learning Model Predictive Control for Quadrotors and Agile Robotic Platforms}
+      \field{volume}{8}
+      \field{year}{2023}
+      \field{pages}{2397\bibrangedash 2404}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/lra.2023.3246839
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1109/LRA.2023.3246839
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1109/LRA.2023.3246839
+      \endverb
+    \endentry
+    \entry{lucia2013}{inproceedings}{}
+      \name{author}{2}{}{%
+        {{hash=14d57392f0fda695a4a1f6fb6143073b}{%
+           family={Lucia},
+           familyi={L\bibinitperiod},
+           given={Sergio},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f593c290c432f488e6232f627610ddaa}{%
+           family={Engell},
+           familyi={E\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{fullhash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{bibnamehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{authorbibnamehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{authornamehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{authorfullhash}{3081569fb9bd57eab75348226e74fe2f}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2013 European Control Conference (ECC)}
+      \field{title}{Robust nonlinear model predictive control of a batch bioreactor using multi-stage stochastic programming}
+      \field{year}{2013}
+      \field{pages}{4124\bibrangedash 4129}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.23919/ECC.2013.6669521
+      \endverb
+      \keyw{Uncertainty;Optimization;Robustness;Silicon compounds;Biomass;Substrates;Standards}
+    \endentry
+    \entry{biegler2010}{inbook}{}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This chapter develops dynamic optimization strategies that couple solvers for differential algebraic equations (DAEs) with NLP algorithms developed in the previous chapters. First, to provide a better understanding of DAE solvers, widely used Runge—Kutta and linear multistep methods are described, and a summary of their properties is given. A framework is then described for sequential dynamic optimization approaches that rely on DAE solvers to provide function information to the NLP solver. In addition, gradient information is provided by direct and adjoint sensitivity methods. Both methods are derived and described along with examples. Unfortunately, the sequential approach can fail on unstable and ill-conditioned systems. To deal with this case, we extend the sequential approach through the use of multiple shooting and concepts of boundary value solvers. Finally, a process case study is presented that illustrates both sequential and multiple shooting approaches. 9.1 Introduction Chapter 8 provided an overview of the features of dynamic optimization problems and their optimality conditions. From that chapter, it is clear that the extension to larger dynamic optimization problems requires efficient and reliable numerical algorithms. This chapter addresses this question by developing a popular approach for the optimization of dynamic process systems. Powerful DAE solvers for large-scale initial value problems have led to widely used simulation environments for dynamic nonlinear processes. The ability to develop dynamic process simulation models naturally leads to their extension for optimization studies. Moreover, with the development of reliable and efficient NLP solvers, discussed in Chapter 6, an optimization capability can be implemented for dynamic systems along the lines of modular optimization modes discussed in Chapter 7. With robust simulation models, the implementation of NLP codes can be done in a reasonably straightforward way.}
+      \field{booktitle}{Nonlinear Programming}
+      \field{chapter}{9}
+      \field{title}{Dynamic Optimization Methods with Embedded DAE Solvers}
+      \field{pages}{251\bibrangedash 286}
+      \range{pages}{36}
+      \verb{doi}
+      \verb 10.1137/1.9780898719383.ch9
+      \endverb
+      \verb{eprint}
+      \verb https://epubs.siam.org/doi/pdf/10.1137/1.9780898719383.ch9
+      \endverb
+      \verb{urlraw}
+      \verb https://epubs.siam.org/doi/abs/10.1137/1.9780898719383.ch9
+      \endverb
+      \verb{url}
+      \verb https://epubs.siam.org/doi/abs/10.1137/1.9780898719383.ch9
+      \endverb
+    \endentry
+    \entry{lucia2015}{article}{}
+      \name{author}{2}{}{%
+        {{hash=14d57392f0fda695a4a1f6fb6143073b}{%
+           family={Lucia},
+           familyi={L\bibinitperiod},
+           given={Sergio},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f593c290c432f488e6232f627610ddaa}{%
+           family={Engell},
+           familyi={E\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{fullhash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{bibnamehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{authorbibnamehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{authornamehash}{3081569fb9bd57eab75348226e74fe2f}
+      \strng{authorfullhash}{3081569fb9bd57eab75348226e74fe2f}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Multi-stage Nonlinear Model Predictive Control (NMPC) is a promising strategy for the design of robust NMPC controllers which is based on describing the evolution of the uncertainty as a scenario tree. The scenario tree makes it possible to consider explicitly that the future control inputs can be adapted to the future information (measurements), thus reducing the conservativeness of the robust approach. This paper reviews the multi-stage approach and illustrates its main advantages using a nonlinear CSTR example. We also provide guidelines for possible multi-stage NMPC users that could help to identify the problems where the use of multi-stage NMPC can result in a significant improvement with respect to standard NMPC or other robust NMPC approaches. Finally, we summarize the different modifications that can be done to the multi-stage approach to enhance its performance. The possible enhancements include: improved performance using parameter estimation, rigorous guarantee of constraint satisfaction, and stability guarantees for the case of discrete-valued uncertainties.}
+      \field{issn}{2405-8963}
+      \field{journaltitle}{IFAC-PapersOnLine}
+      \field{note}{9th IFAC Symposium on Advanced Control of Chemical Processes ADCHEM 2015}
+      \field{number}{8}
+      \field{title}{Potential and Limitations of Multi-stage Nonlinear Model Predictive Control}
+      \field{volume}{48}
+      \field{year}{2015}
+      \field{pages}{1015\bibrangedash 1020}
+      \range{pages}{6}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.ifacol.2015.09.101
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S2405896315011829
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S2405896315011829
+      \endverb
+    \endentry
     \entry{mcbride2019}{article}{}
       \name{author}{2}{}{%
         {{hash=e6515f3c440e8dd9d2981516a1f1e0a3}{%
@@ -285,8 +453,8 @@
       \strng{authorbibnamehash}{a17a0649dc8bad70026488d4ea37c508}
       \strng{authornamehash}{a17a0649dc8bad70026488d4ea37c508}
       \strng{authorfullhash}{a17a0649dc8bad70026488d4ea37c508}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{abstract}{We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
@@ -347,8 +515,8 @@
       \strng{authorbibnamehash}{3a2e73c8b36fe75431aaa17a99d757a4}
       \strng{authornamehash}{2f66e877c58e6ee278092df3e9f963cc}
       \strng{authorfullhash}{3a2e73c8b36fe75431aaa17a99d757a4}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{Advances in Neural Information Processing Systems}

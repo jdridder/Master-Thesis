@@ -52,9 +52,59 @@ In reality however, an analytical solution for $\varphi_i$ is not possible to co
 But with the universal approximation capability of neural networks (NNs) in mind \cite{hornik1990}, 
 a data-driven approach is promising, that delivers an approximated function $\tilde{\varphi}_i(\vu)$.
 
+
+\section{Model Predictive Control}
+
+Model predictive control (MPC) is a type of optimization, in which an optimal control problem is solved
+in a dynamic manner. The main goal of this control strategy is to find the best inputs to a system that
+maximize or minimize a defined objective. In a chemical process, for instance, the energy consumption
+for heating should be minimized. It should be minimized in such a way, that other variables remain 
+within their bounds. For example, the product specification and, most importantly, the safety of the process
+such be ensured under all circumstances. In contrast to the \emph{optimal design} of a process, that 
+is done during the engineering phase, an MPC controller operates \emph{online}. It acts on the process
+while it is running. Thus, it is coined \emph{dynamic optimization}. To do so, the optimization
+problem needs to solved recursively at given time instants.
+Chemical plants usually have
+large \emph{time constants}, meaning, they react slowly to their inputs.
+Other physical systems with low time constants, like quadrocopters behave much faster. So, the
+computation time of an MPC algorithm is to be kept low \cite{salzmann2023} to be able to react to the system.
+To predict the future behavior of the system, MPC requires a system model.
+\newline
+\newline
+In total, an MPC controller is based on three pillars – an objective function, a set of constraints and, crucially,
+the model of the system.
+
+\begin{definition} Continuous-time formulation of an MPC problem.
+    \label{theory:def: general mpc}
+    \[
+        \begin{gathered}
+            \underset{\vu}{\min} \quad  J(t_0, t_\text{end}, \vx, \vu) \\
+            \begin{aligned}
+                \text{s.t.} \quad &\dot{\vx} = f(t, \vx, \vu) \\
+                & F_i(t, \vx, \vu) \leq 0 \quad \forall t \in [t_0, t_\text{end}] \\
+                & \vx_0 = \vx_\text{init}
+            \end{aligned}
+        \end{gathered}
+    \]
+\end{definition}
+
+Optimal system inputs $\vu$ are to be determined, that minimize the objective function $J$. This objective
+varies with the inputs and the states on the system $\vx$. It is to be minimized over a time horizon
+from $t_0$ to $t_\text{end}$, called the \emph{prediction horizon}. The states of the system evolve along
+the dynamics of the system, which are described by the system model $f(t, \vx, \vu)$. Thus, the quality
+of the controller heavily depends on the prediction accuracy of this model \cite{lucia2013}.
+The system states however should remain in a set of constraints at all times whereas the inputs
+are bounded, all summarized by the constraints $F_i$. In a physical sense, constraint violation can lead to 
+instability and thus damage of the real system. Here is a vital example.
+For a chemical reactor a \emph{reaction runaway}
+must be avoided at all costs. This happens, if the exothermic heat release exceeds the maximum possible
+cooling rate. Higher temperatures increase the reaction rate exponentially leading to a greater 
+enthalpy release, which again cause a temperature rise. That is why, stability and guaranteed mathematical constraint satisfaction
+are a great field of research in the discipline of optimal control \cite{}.
+
+
 \section{Robust Model Predictive Control}
 
-(A short intro to MPC)
 A model predictive control algorithm solves a control optimization task at each time instant.
 The dynamic optimization anticipates the future behavior of the controlled system through
 a mathematical model and determines the control inputs as the solution. Only part of the 
@@ -85,9 +135,9 @@ The only difference to the general problem (\ref{theroy:def: semi-infinite progr
 evolve along some system dynamics that are described by $f$, that also underlie to the uncertainty $\vw$.
 This formulation is now infinite in time and in the uncertain parameters. To make computation feasible,
 the problem is discretized in the time dimension eiher using single shooting, multiple shooting or orthogonal collocation
-on finite elements \cite{}. One possibility to roughly discretize the uncertain parameter set $\mathbb{W}$ is
-done by \emph{multi-stage-MPC} \cite{}. Which is intuitive, but leads to tremendous computational effort, especcialy 
-with growing dimensionality of the uncertainty space.
+on finite elements \cite{biegler2010}. One possibility to roughly discretize the uncertain parameter set $\mathbb{W}$ is
+done by \emph{multi-stage-MPC} \cite{lucia2015}. 
+
 
 \begin{definition} Time-discretized multi-stage MPC
     \label{theory:def: multi-stage-mpc}
@@ -97,6 +147,20 @@ with growing dimensionality of the uncertainty space.
         \end{gathered}
     \]
 \end{definition}
+
+It generates a scenario tree (fig.~\ref{}) for all 
+possible combinations of disturbances. If the uncertainty is discrete, this formulation is exact.
+In most cases however, when the uncertainties lie in a continuous space, the scenario tree
+is an extremely rough approximation. With a non-linear system, the scenarios are not monotonous regarding the
+disturbance scenarios. This means, even if the scenario branches cover the extreme values of the disturbances
+themselves, they can leave extreme scenarios caused by intermediate parameter combinations. Robust 
+constraint satisfaction is not guaranteed and must be checked via a reachability analysis \cite{lucia2015}.
+Another drawback of multi-stage MPC is, that it includes redundant scenarios not causing extreme cases due to 
+the non-monotonicity. These scenario still are part of the optimization leading to unnecessary complexity.
+On top of this, the number of optimization variables growths exponentially with the \emph{robust horizon} $N_\text{r}$,
+the number of parameters and their respective values. 
+
+
 
 
 

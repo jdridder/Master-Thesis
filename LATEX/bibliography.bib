@@ -198,6 +198,47 @@
   isbn = {978-94-6018-394-2}
 }
 
+% Multi-Stage MPC
+@INPROCEEDINGS{lucia2013,
+  author={Lucia, Sergio and Engell, Sebastian},
+  booktitle={2013 European Control Conference (ECC)}, 
+  title={Robust nonlinear model predictive control of a batch bioreactor using multi-stage stochastic programming}, 
+  year={2013},
+  volume={},
+  number={},
+  pages={4124-4129},
+  keywords={Uncertainty;Optimization;Robustness;Silicon compounds;Biomass;Substrates;Standards},
+  doi={10.23919/ECC.2013.6669521}}
+
+
+@article{lucia2015,
+  title = {Potential and Limitations of Multi-stage Nonlinear Model Predictive Control},
+  journal = {IFAC-PapersOnLine},
+  volume = {48},
+  number = {8},
+  pages = {1015-1020},
+  year = {2015},
+  note = {9th IFAC Symposium on Advanced Control of Chemical Processes ADCHEM 2015},
+  issn = {2405-8963},
+  doi = {https://doi.org/10.1016/j.ifacol.2015.09.101},
+  url = {https://www.sciencedirect.com/science/article/pii/S2405896315011829},
+  author = {Sergio Lucia and Sebastian Engell},
+  abstract = {Multi-stage Nonlinear Model Predictive Control (NMPC) is a promising strategy for the design of robust NMPC controllers which is based on describing the evolution of the uncertainty as a scenario tree. The scenario tree makes it possible to consider explicitly that the future control inputs can be adapted to the future information (measurements), thus reducing the conservativeness of the robust approach. This paper reviews the multi-stage approach and illustrates its main advantages using a nonlinear CSTR example. We also provide guidelines for possible multi-stage NMPC users that could help to identify the problems where the use of multi-stage NMPC can result in a significant improvement with respect to standard NMPC or other robust NMPC approaches. Finally, we summarize the different modifications that can be done to the multi-stage approach to enhance its performance. The possible enhancements include: improved performance using parameter estimation, rigorous guarantee of constraint satisfaction, and stability guarantees for the case of discrete-valued uncertainties.}
+}
+
+% Integration, Initial value problems and boundary condition solvers
+@inbook{biegler2010,
+  title = {Dynamic Optimization Methods with Embedded DAE Solvers},
+  booktitle = {Nonlinear Programming},
+  chapter = {9},
+  pages = {251-286},
+  doi = {10.1137/1.9780898719383.ch9},
+  URL = {https://epubs.siam.org/doi/abs/10.1137/1.9780898719383.ch9},
+  eprint = {https://epubs.siam.org/doi/pdf/10.1137/1.9780898719383.ch9},
+  abstract = { This chapter develops dynamic optimization strategies that couple solvers for differential algebraic equations (DAEs) with NLP algorithms developed in the previous chapters. First, to provide a better understanding of DAE solvers, widely used Runge—Kutta and linear multistep methods are described, and a summary of their properties is given. A framework is then described for sequential dynamic optimization approaches that rely on DAE solvers to provide function information to the NLP solver. In addition, gradient information is provided by direct and adjoint sensitivity methods. Both methods are derived and described along with examples. Unfortunately, the sequential approach can fail on unstable and ill-conditioned systems. To deal with this case, we extend the sequential approach through the use of multiple shooting and concepts of boundary value solvers. Finally, a process case study is presented that illustrates both sequential and multiple shooting approaches. 9.1 Introduction Chapter 8 provided an overview of the features of dynamic optimization problems and their optimality conditions. From that chapter, it is clear that the extension to larger dynamic optimization problems requires efficient and reliable numerical algorithms. This chapter addresses this question by developing a popular approach for the optimization of dynamic process systems. Powerful DAE solvers for large-scale initial value problems have led to widely used simulation environments for dynamic nonlinear processes. The ability to develop dynamic process simulation models naturally leads to their extension for optimization studies. Moreover, with the development of reliable and efficient NLP solvers, discussed in Chapter 6, an optimization capability can be implemented for dynamic systems along the lines of modular optimization modes discussed in Chapter 7. With robust simulation models, the implementation of NLP codes can be done in a reasonably straightforward way. }
+}
+
+
 
 
 
@@ -263,7 +304,7 @@
 % Neural MPC
 
 # Speed up of the backward pass
-@article{Salzmann_2023,
+@article{salzmann2023,
   title     = {Real-Time Neural MPC: Deep Learning Model Predictive Control for Quadrotors and Agile Robotic Platforms},
   volume    = {8},
   issn      = {2377-3774},
