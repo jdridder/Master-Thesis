@@ -178,6 +178,47 @@
       \field{type}{phdthesis}
       \field{year}{2011}
     \endentry
+    \entry{stein2003}{inbook}{}
+      \name{author}{1}{}{%
+        {{hash=e3ad00a456f8b735e402f1a0e7caf74c}{%
+           family={Stein},
+           familyi={S\bibinitperiod},
+           given={Oliver},
+           giveni={O\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Boston, MA}%
+      }
+      \list{publisher}{1}{%
+        {Springer US}%
+      }
+      \strng{namehash}{e3ad00a456f8b735e402f1a0e7caf74c}
+      \strng{fullhash}{e3ad00a456f8b735e402f1a0e7caf74c}
+      \strng{bibnamehash}{e3ad00a456f8b735e402f1a0e7caf74c}
+      \strng{authorbibnamehash}{e3ad00a456f8b735e402f1a0e7caf74c}
+      \strng{authornamehash}{e3ad00a456f8b735e402f1a0e7caf74c}
+      \strng{authorfullhash}{e3ad00a456f8b735e402f1a0e7caf74c}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{From our point of view, a main obstruction in the numerical treatment of semiinfinite optimization problems is that one needs to find global solutions of the lower level problems. As it is well-known, numerically one can at most find local solutions or stationary points unless a certain global problem structure is given. A standard problem structure which global optimization methods exploit is convexity, so that we develop our numerical approach for convex lower level problems. We stress that this convexity assumption with respect to the index variable y is not related to the usual convexity assumption in standard semi-infinite programming, where the upper level defining functions have to be convex with respect to the decision variable x (cf., e.g., [2, 62, 118]). Analogously, in linear semi-infinite programming the linearity is always assumed with respect to the upper level problem.}
+      \field{booktitle}{Bi-Level Strategies in Semi-Infinite Programming}
+      \field{isbn}{978-1-4419-9164-5}
+      \field{title}{Bi-Level Methods for Semi-Infinite Programming}
+      \field{year}{2003}
+      \field{pages}{145\bibrangedash 169}
+      \range{pages}{25}
+      \verb{doi}
+      \verb 10.1007/978-1-4419-9164-5_5
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/978-1-4419-9164-5_5
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/978-1-4419-9164-5_5
+      \endverb
+    \endentry
     \entry{hornik1990}{article}{}
       \name{author}{1}{}{%
         {{hash=bec8dd1340457a82c21b54971e4c9417}{%
@@ -403,8 +444,8 @@
       \strng{authorbibnamehash}{fab19337b76dd8b564a4bc4b84d8e0a7}
       \strng{authornamehash}{fab19337b76dd8b564a4bc4b84d8e0a7}
       \strng{authorfullhash}{fab19337b76dd8b564a4bc4b84d8e0a7}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{abstract}{Abstract The ability to accurately model and simulate chemical processes has been paramount to the growing success and efficiency in process design and operation. These improvements usually come with increasing complexity of the underlying models leading to substantial computational effort in their use. It may also occur that the structure of the model is sometimes unknown making optimization and study difficult. To circumvent these issues, mathematically simpler models, commonly known as surrogate models, have been designed and used to successfully replace these complex, underlying models with much success. This technique has seen increasing use within the chemical process engineering field and this article summarizes some popular surrogates and their recent use in this area.}
@@ -428,6 +469,48 @@
       \verb https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.201800091
       \endverb
       \keyw{Process design,Process optimization,Simulations,Surrogate modeling}
+    \endentry
+    \entry{salzmann2024l4casadi}{inproceedings}{}
+      \name{author}{5}{}{%
+        {{hash=eb27cafdba112e389cc0cb75baa97b7b}{%
+           family={Salzmann},
+           familyi={S\bibinitperiod},
+           given={Tim},
+           giveni={T\bibinitperiod}}}%
+        {{hash=292b36afab7a67913e42da468e04d6b4}{%
+           family={Arrizabalaga},
+           familyi={A\bibinitperiod},
+           given={Jon},
+           giveni={J\bibinitperiod}}}%
+        {{hash=74a48f793c45b9c6c2afef7c942bd89c}{%
+           family={Andersson},
+           familyi={A\bibinitperiod},
+           given={Joel},
+           giveni={J\bibinitperiod}}}%
+        {{hash=35318fcd7c56edabda1a4c70f2174048}{%
+           family={Pavone},
+           familyi={P\bibinitperiod},
+           given={Marco},
+           giveni={M\bibinitperiod}}}%
+        {{hash=4b3591f69e427acf5acb3a54bc4ac44d}{%
+           family={Ryll},
+           familyi={R\bibinitperiod},
+           given={Markus},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{56d723642dec0f1919bb8f8144c07938}
+      \strng{fullhash}{bfff084478c488bab3fb34856cdab6dd}
+      \strng{bibnamehash}{bfff084478c488bab3fb34856cdab6dd}
+      \strng{authorbibnamehash}{bfff084478c488bab3fb34856cdab6dd}
+      \strng{authornamehash}{56d723642dec0f1919bb8f8144c07938}
+      \strng{authorfullhash}{bfff084478c488bab3fb34856cdab6dd}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Learning for Dynamics and Control Conference (L4DC)}
+      \field{title}{Learning for CasADi: Data-driven Models in Numerical Optimization}
+      \field{year}{2024}
     \endentry
     \entry{raissi2019}{article}{}
       \name{author}{3}{}{%
