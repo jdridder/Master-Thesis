@@ -219,6 +219,31 @@
       \verb https://doi.org/10.1007/978-1-4419-9164-5_5
       \endverb
     \endentry
+    \entry{diehl2025}{unpublished}{}
+      \name{author}{1}{}{%
+        {{hash=ec732fd9120f390fd38c8132a3079900}{%
+           family={Diehl},
+           familyi={D\bibinitperiod},
+           given={Moritz},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {University of Freiburg, Germany}%
+      }
+      \strng{namehash}{ec732fd9120f390fd38c8132a3079900}
+      \strng{fullhash}{ec732fd9120f390fd38c8132a3079900}
+      \strng{bibnamehash}{ec732fd9120f390fd38c8132a3079900}
+      \strng{authorbibnamehash}{ec732fd9120f390fd38c8132a3079900}
+      \strng{authornamehash}{ec732fd9120f390fd38c8132a3079900}
+      \strng{authorfullhash}{ec732fd9120f390fd38c8132a3079900}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{Lecture slides, Summer School on Robust Model Predictive Control with CasADi, University of Freiburg, September 15--19, 2025. Slides jointly developed with Titus Quah, Katrin Baumgärtner, and Florian Messerer, based on joint work with B. Houska and some illustrations from his PhD thesis.}
+      \field{title}{Robust Optimization}
+      \field{year}{2025}
+    \endentry
     \entry{hornik1990}{article}{}
       \name{author}{1}{}{%
         {{hash=bec8dd1340457a82c21b54971e4c9417}{%
@@ -357,6 +382,42 @@
       \verb 10.23919/ECC.2013.6669521
       \endverb
       \keyw{Uncertainty;Optimization;Robustness;Silicon compounds;Biomass;Substrates;Standards}
+    \endentry
+    \entry{guttel2021}{book}{}
+      \name{author}{2}{}{%
+        {{hash=2b9dd8488b375973667a87ed3014a29d}{%
+           family={Güttel},
+           familyi={G\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=bb7dbf215b918361b5ab00ec4fe5fff8}{%
+           family={Turek},
+           familyi={T\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{2}{%
+        {Springer Berlin Heidelberg}%
+        {Springer Spektrum}%
+      }
+      \strng{namehash}{c0a793f722ae947a229fd55013418689}
+      \strng{fullhash}{c0a793f722ae947a229fd55013418689}
+      \strng{bibnamehash}{c0a793f722ae947a229fd55013418689}
+      \strng{authorbibnamehash}{c0a793f722ae947a229fd55013418689}
+      \strng{authornamehash}{c0a793f722ae947a229fd55013418689}
+      \strng{authorfullhash}{c0a793f722ae947a229fd55013418689}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{1st ed. 2021}
+      \field{isbn}{978-3-662-63150-8}
+      \field{title}{Chemische Reaktionstechnik}
+      \field{year}{2021}
+      \keyw{Runaway Behavior}
     \endentry
     \entry{biegler2010}{inbook}{}
       \field{sortinit}{1}
@@ -723,8 +784,8 @@
       \strng{authorbibnamehash}{a17a0649dc8bad70026488d4ea37c508}
       \strng{authornamehash}{a17a0649dc8bad70026488d4ea37c508}
       \strng{authorfullhash}{a17a0649dc8bad70026488d4ea37c508}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{abstract}{We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}

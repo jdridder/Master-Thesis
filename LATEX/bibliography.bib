@@ -114,97 +114,6 @@
 }
 
 
-% Heat transfer correlations
-@book{vdiwaermeatlas2010,
-  title     = {VDI-Wärmeatlas},
-  editor    = {VDI-Gesellschaft Verfahrenstechnik und Chemieingenieurwesen (GVC)},
-  edition   = {11},
-  year      = {2010},
-  publisher = {Springer},
-  address   = {Berlin, Heidelberg},
-  isbn      = {978-3-540-77876-9},
-  language  = {german}
-}
-
-% Radial bed heat conductivity
-@article{zehner1970,
-  author   = {Zehner, P. and Schlünder, E. U.},
-  title    = {Wärmeleitfähigkeit von Schüttungen bei mäßigen Temperaturen},
-  journal  = {Chemie Ingenieur Technik},
-  volume   = {42},
-  number   = {14},
-  pages    = {933-941},
-  doi      = {https://doi.org/10.1002/cite.330421408},
-  url      = {https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.330421408},
-  eprint   = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/cite.330421408},
-  abstract = {Abstract Die effektive Wärmeleitfähigkeit nicht durchströmter Schüttungen hängt stark von der Art der Berührung der Partikel ab; sie ist z. B. bei Kugeln und Zylindern unterschiedlich. Aus einem einfachen Modell werden Gleichungen entwickelt, die außer den Wärmeleitfähigkeiten der fluiden Phase und des Feststoffs die Porosität der Schüttung berücksichtigen. Die Gleichungen enthalten einen empirischen Anpassungsparameter, der nur von der Form der Partikel abhängt und aus in der Literatur veröffentlichten Meßwerten bestimmt wird.},
-  year     = {1970}
-}
-
-
-
-% Mass transfer coefficient
-@book{cussler1984diffusion,
-  author    = {Cussler, E.L.},
-  title     = {Diffusion: Mass Transfer in Fluid Systems},
-  year      = {1984},
-  publisher = {Cambridge University Press},
-  address   = {Cambridge}
-}
-
-% Heat capacity and enthalpy of formulation correlations
-@misc{Linstrom2010,
-  author       = {Linstrom, P. J. and Mallard, W. G.},
-  title        = {NIST Chemistry WebBook},
-  year         = {2010},
-  howpublished = {NIST Standard Reference Database Number 69},
-  note         = {[Online; accessed 15-August-2025]},
-  url          = {http://webbook.nist.gov}
-}
-
-% Ethene, O2, EO, H2O, CO2
-@techreport{Chase1998,
-  author      = {Chase, M. W., Jr.},
-  title       = {NIST-JANAF Thermochemical Tables, Fourth Edition},
-  institution = {American Institute of Physics, for the Journal of Physical and Chemical Reference Data Monographs},
-  address     = {Washington, DC \& New York, NY},
-  number      = {Monograph 9},
-  year        = {1998},
-  pages       = {1--1951},
-  doi         = {10.18434/T42S31},
-  note        = {[Online; accessed 15-August-2025]}
-}
-
-
-% EtOx
-@article{pietschak2018,
-  author  = {Pietschak, Alexander and Kaiser, Markus and Freund, Hannsj{\"o}rg},
-  year    = {2018},
-  title   = {Tailored catalyst pellet specification for improved fixed-bed transport characteristics: A shortcut method for the model-based reactor design},
-  pages   = {60--74},
-  volume  = {137},
-  issn    = {02638762},
-  journal = {Chemical Engineering Research and Design},
-  doi     = {10.1016/j.cherd.2018.06.043}
-}
-
-@article{bayat2013,
-  title    = {Dynamic optimal design of an industrial ethylene oxide (EO) reactor via differential evolution algorithm},
-  journal  = {Journal of Natural Gas Science and Engineering},
-  volume   = {12},
-  pages    = {56-64},
-  year     = {2013},
-  issn     = {1875-5100},
-  doi      = {https://doi.org/10.1016/j.jngse.2013.01.004},
-  url      = {https://www.sciencedirect.com/science/article/pii/S187551001300005X},
-  author   = {M. Bayat and M. Hamidi and Z. Dehghani and M.R. Rahimpour},
-  keywords = {Ethylene oxide reactor, Dynamic optimization, Differential evolution method, Long-term catalyst deactivation},
-  abstract = {In this study, the operating conditions of an industrial fixed-bed ethylene oxide reactor are optimized via differential evolution (DE) algorithm to boost the ethylene oxide yield with taking into account the catalyst deactivation. A mathematical heterogenous model of the reactor has been used in order to evaluate the optimal operating conditions, both at steady state and dynamic conditions. Two different cases have been investigated in this regard. In the first case, optimum inlet molar flow rate, inlet pressure of the reaction side and temperatures of shell and tube sides have been obtained within their practical ranges. In the second case, a stepwise approach has been followed in order to determine the optimal temperature profiles for saturated water and gas in three steps during operation. The objective of each optimization case study is to maximize the ethylene oxide production rate. The effect of optimal operating conditions on the reactor performance has been compared with corresponding industrial conditions over a period of three operating years. 1.726% and 4.22% yield enhancement of ethylene oxide production can be achieved by application of first and second optimization case studies, respectively.}
-}
-
-
-
-
 % Uncertainty Quantification in MPC
 @Inbook{stein2003,
   author="Stein, Oliver",
@@ -226,6 +135,14 @@
   school = {KU Leuven},
   year = {2011},
   isbn = {978-94-6018-394-2}
+}
+
+@unpublished{diehl2025,
+  author    = {Moritz Diehl},
+  title     = {Robust Optimization},
+  year      = {2025},
+  note      = {Lecture slides, Summer School on Robust Model Predictive Control with CasADi, University of Freiburg, September 15--19, 2025. Slides jointly developed with Titus Quah, Katrin Baumgärtner, and Florian Messerer, based on joint work with B. Houska and some illustrations from his PhD thesis.},
+  address   = {University of Freiburg, Germany}
 }
 
 % Multi-Stage MPC
@@ -501,6 +418,108 @@
   howpublished = {\url{https://pypi.org/project/torch-incremental-pca/}},
   note         = {PyTorch implementation inspired by scikit-learn's IncrementalPCA and PCAonGPU. Provides GPU-accelerated, memory-efficient incremental PCA for large datasets.},
   keywords     = {Incremental PCA, Dimensionality Reduction, PyTorch, GPU, Machine Learning}
+}
+
+
+
+% ------- Reaction Engineering ---------------
+% --------------------------------------------
+@book{guttel2021,
+  author = {G{\"u}ttel, Robert and Turek, Thomas},
+  year = {2021},
+  title = {Chemische Reaktionstechnik},
+  keywords = {Runaway Behavior},
+  address = {Berlin, Heidelberg},
+  edition = {1st ed. 2021},
+  publisher = {{Springer Berlin Heidelberg} and {Springer Spektrum}},
+  isbn = {978-3-662-63150-8}
+}
+
+
+% Heat transfer correlations
+@book{vdiwaermeatlas2010,
+  title     = {VDI-Wärmeatlas},
+  editor    = {VDI-Gesellschaft Verfahrenstechnik und Chemieingenieurwesen (GVC)},
+  edition   = {11},
+  year      = {2010},
+  publisher = {Springer},
+  address   = {Berlin, Heidelberg},
+  isbn      = {978-3-540-77876-9},
+  language  = {german}
+}
+
+% Radial bed heat conductivity
+@article{zehner1970,
+  author   = {Zehner, P. and Schlünder, E. U.},
+  title    = {Wärmeleitfähigkeit von Schüttungen bei mäßigen Temperaturen},
+  journal  = {Chemie Ingenieur Technik},
+  volume   = {42},
+  number   = {14},
+  pages    = {933-941},
+  doi      = {https://doi.org/10.1002/cite.330421408},
+  url      = {https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.330421408},
+  eprint   = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/cite.330421408},
+  abstract = {Abstract Die effektive Wärmeleitfähigkeit nicht durchströmter Schüttungen hängt stark von der Art der Berührung der Partikel ab; sie ist z. B. bei Kugeln und Zylindern unterschiedlich. Aus einem einfachen Modell werden Gleichungen entwickelt, die außer den Wärmeleitfähigkeiten der fluiden Phase und des Feststoffs die Porosität der Schüttung berücksichtigen. Die Gleichungen enthalten einen empirischen Anpassungsparameter, der nur von der Form der Partikel abhängt und aus in der Literatur veröffentlichten Meßwerten bestimmt wird.},
+  year     = {1970}
+}
+
+% Mass transfer coefficient
+@book{cussler1984diffusion,
+  author    = {Cussler, E.L.},
+  title     = {Diffusion: Mass Transfer in Fluid Systems},
+  year      = {1984},
+  publisher = {Cambridge University Press},
+  address   = {Cambridge}
+}
+
+% Heat capacity and enthalpy of formulation correlations
+@misc{Linstrom2010,
+  author       = {Linstrom, P. J. and Mallard, W. G.},
+  title        = {NIST Chemistry WebBook},
+  year         = {2010},
+  howpublished = {NIST Standard Reference Database Number 69},
+  note         = {[Online; accessed 15-August-2025]},
+  url          = {http://webbook.nist.gov}
+}
+
+% Ethene, O2, EO, H2O, CO2
+@techreport{Chase1998,
+  author      = {Chase, M. W., Jr.},
+  title       = {NIST-JANAF Thermochemical Tables, Fourth Edition},
+  institution = {American Institute of Physics, for the Journal of Physical and Chemical Reference Data Monographs},
+  address     = {Washington, DC \& New York, NY},
+  number      = {Monograph 9},
+  year        = {1998},
+  pages       = {1--1951},
+  doi         = {10.18434/T42S31},
+  note        = {[Online; accessed 15-August-2025]}
+}
+
+
+% EtOx
+@article{pietschak2018,
+  author  = {Pietschak, Alexander and Kaiser, Markus and Freund, Hannsj{\"o}rg},
+  year    = {2018},
+  title   = {Tailored catalyst pellet specification for improved fixed-bed transport characteristics: A shortcut method for the model-based reactor design},
+  pages   = {60--74},
+  volume  = {137},
+  issn    = {02638762},
+  journal = {Chemical Engineering Research and Design},
+  doi     = {10.1016/j.cherd.2018.06.043}
+}
+
+@article{bayat2013,
+  title    = {Dynamic optimal design of an industrial ethylene oxide (EO) reactor via differential evolution algorithm},
+  journal  = {Journal of Natural Gas Science and Engineering},
+  volume   = {12},
+  pages    = {56-64},
+  year     = {2013},
+  issn     = {1875-5100},
+  doi      = {https://doi.org/10.1016/j.jngse.2013.01.004},
+  url      = {https://www.sciencedirect.com/science/article/pii/S187551001300005X},
+  author   = {M. Bayat and M. Hamidi and Z. Dehghani and M.R. Rahimpour},
+  keywords = {Ethylene oxide reactor, Dynamic optimization, Differential evolution method, Long-term catalyst deactivation},
+  abstract = {In this study, the operating conditions of an industrial fixed-bed ethylene oxide reactor are optimized via differential evolution (DE) algorithm to boost the ethylene oxide yield with taking into account the catalyst deactivation. A mathematical heterogenous model of the reactor has been used in order to evaluate the optimal operating conditions, both at steady state and dynamic conditions. Two different cases have been investigated in this regard. In the first case, optimum inlet molar flow rate, inlet pressure of the reaction side and temperatures of shell and tube sides have been obtained within their practical ranges. In the second case, a stepwise approach has been followed in order to determine the optimal temperature profiles for saturated water and gas in three steps during operation. The objective of each optimization case study is to maximize the ethylene oxide production rate. The effect of optimal operating conditions on the reactor performance has been compared with corresponding industrial conditions over a period of three operating years. 1.726% and 4.22% yield enhancement of ethylene oxide production can be achieved by application of first and second optimization case studies, respectively.}
 }
 
 

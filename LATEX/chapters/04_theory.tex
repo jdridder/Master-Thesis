@@ -32,7 +32,7 @@ seeks a minimum solution for the input $\vu$, while the opposing player (nature)
 disturbance variables $\vw$. The inequality constraints $F_i$ in addition, should be satisfied for all possible disturbances, that
 lie in a defined set $\mathbb{W}$. If this set is not finite, the number of possible 
 constraints to be satisifed is infintely big. Thus, this formulation is named as \emph{semi-infinite-program} \cite{stein2003}.
-To reduce the number of constraints, the worst-case estimate can also be applied here (\ref{theroy:def: bi-level program}). 
+To reduce the number of constraints, the worst-case estimate can be applied here (\ref{theroy:def: bi-level program}). 
 
 \begin{definition} Bi-level formulation of the semi-infinite program
     \label{theroy:def: bi-level program}
@@ -49,8 +49,8 @@ Now, the inequality constraints are also formulated in a bi-level manner. The ma
 constant in $\vw$ and only a function of the decision variables $\vu$. The function $\varphi_i$
 exactly describes the wost-case for $F_i$ parametrized by $\vu$. In fact, if certain assumptions hold
 regarding the uncertainty set $\mathbb{W}$ and the concavity of the maximization,
-$\varphi_i$ can be exactly computed \cite{empty000}. This would simplify the problem dramatically.
-In reality however, an analytical solution for $\varphi_i$ is not possible to compute.
+$\varphi_i$ can be exactly computed \cite{diehl2025}. This would simplify the problem dramatically.
+In many real cases however, an analytical solution for $\varphi_i$ is impossible to compute.
 But with the universal approximation capability of neural networks (NNs) in mind \cite{hornik1990}, 
 a data-driven approach is promising, that delivers an approximated function $\tilde{\varphi}_i(\vu)$.
 
@@ -96,13 +96,14 @@ from $t_0$ to $t_\text{end}$, called the \emph{prediction horizon}. The states o
 the dynamics of the system, which are described by the system model $f(t, \vx, \vu)$. Thus, the quality
 of the controller heavily depends on the prediction accuracy of this model \cite{lucia2013}.
 The system states however should remain in a set of constraints at all times whereas the inputs
-are bounded, all summarized by the constraint functions $F_i$. In a physical sense, constraint violation can lead to 
+are bounded, all summarized by the constraint  functions $F_i$. In a physical sense, constraint violation can lead to 
 instability and thus damage of the real system. Here is a vital example.
 For a chemical reactor a \emph{reaction runaway}
 must be avoided at all costs. This happens, if the exothermic heat release exceeds the maximum possible
 cooling rate. Higher temperatures increase the reaction rate exponentially leading to a greater 
-enthalpy release, which again causes a temperature rise. That is why, stability and guaranteed mathematical constraint satisfaction
-are a great field of research in the discipline of optimal control \cite{}.
+enthalpy release, which again causes a self-accelerating temperature rise \cite{guttel2021}. 
+That is why, stability and guaranteed mathematical constraint satisfaction
+are a great field of research in the discipline of optimal control.
 
 
 \section{Multi-Stage Model Predictive Control}
@@ -136,7 +137,7 @@ done by \emph{multi-stage-MPC} \cite{lucia2015}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\textwidth]{Figures/Theory/multi-stage-mpc.pdf}
+    \includegraphics[width=0.9\textwidth]{Figures/Theory/multi-stage-mpc.pdf}
     \caption[Multi-stage MPC scenario tree]
     {Multi-stage MPC discretizies the uncertainty set via user-defined possible cases $w_k^{(\cdot)}$.
     All possible case combinations are branched through the robust horizon $N_\text{r}$. To limit the 
@@ -146,7 +147,7 @@ done by \emph{multi-stage-MPC} \cite{lucia2015}.
     \label{theory:fig: multi-stage-mpc}
 \end{figure}
 
-It generates a scenario tree (fig.~\ref{}) for all 
+It generates a scenario tree (fig.~\ref{theory:fig: multi-stage-mpc}) for all 
 possible combinations of disturbances. If the uncertainty is discrete, this formulation is exact.
 In most cases however, when the uncertainties lie in a continuous space, the scenario tree
 is an extremely rough approximation. With a non-linear system, the scenarios are not monotonous regarding the
@@ -164,7 +165,7 @@ the number of parameters and their respective values (eq.~\ref{theory:eq: number
 \end{equation}
 
 Here, $n_\text{w}$ denotes the number of different disturbances and $\nu_i$ their respective discrete values. $n_\text{s}$
-describes the number of scenarios in the scenario tree (fig.~\ref{}).
+describes the number of scenarios in the scenario tree (fig.~\ref{theory:fig: multi-stage-mpc}).
 
 
 
@@ -175,9 +176,9 @@ describes the number of scenarios in the scenario tree (fig.~\ref{}).
 
 \section{Neural Networks}
  
-\emph{Feed forward neural networks} (NNs), sometimes referred to as \emph{multi-layer-perceptrons},
+\emph{Feed forward neural networks} (NNs), sometimes referred to as \emph{multi-layer-perceptrons} (MLPs),
 provide a stunning capability of approximating any multivariate function from any finite dimensional
-space to another. According to the \emph{Universal approximation theorem}, any finite dimensional function can be reproduced if the number of hidden
+space to another. According to the \emph{Universal Approximation Theorem}, any finite dimensional function can be reproduced if the number of hidden
 layers and respective neurons is high enough, up to an arbitrarily small error \cite{hornik1990}. Thus, NNs play a major role in
 recent developments in machine learning. The breakthrough of large language models such as ChatGPT heavily rely on neural
 networks \cite{vaswani2023}. NNs are not only succesfully applied in natural language processing but in the chemical process industry.
@@ -205,15 +206,15 @@ In fact, a NN is a series of function combinations denoted by the $\circ$-symbol
 and a \emph{non-linear} activation function $g(h(\va))$. The linear transformation matrices $\bm{\theta}_{Wl}$ and offsets $\bm{\theta}_{bl}$,
 are called weights and biases respectively and are the trainable parameters of a NN. The activation functions $g$ are important
 to introduce non-linearity into every linear projection. Otherwise, the complete function combination can be written as one 
-singular linear transformation and the universal approximations capability is lost. Given a set of training data,
+singular linear transformation and the universal approximation capability is lost. Given a set of training data of $m$ data points,
 the optimal parameters for $\bm{\theta}$ are found by solving an optimization task that involves the minimzation of a prediction loss function (eq.~\ref{eq: loss function}).
 
 \begin{equation}
     \label{eq: loss function}
     \begin{aligned}
-        \mathbb{X}_\text{train} &\coloneq \{ \bm{\xi}^{(0)}, \hdots, \bm{\xi}^{(m)} \}
+        \mathbb{X}_\text{train} &\coloneq \{ \bm{\xi}^{(0)}, \hdots, \bm{\xi}^{(m-1)} \}
         \\
-        \mathbb{Y}_\text{train} &\coloneq \{ \bm{y}^{(0)}, \hdots, \bm{y}^{(m)} \} 
+        \mathbb{Y}_\text{train} &\coloneq \{ \bm{y}^{(0)}, \hdots, \bm{y}^{(m-1)} \} 
         \\
         \mathcal{L}(\bm{\theta}, \mathbb{X}_\text{train}, \mathbb{Y}_\text{train}) &=
         \frac{1}{m} \sum_{i=0}^{m-1} \Big| \Big| \bm{y}^{(i)} - \bm{\tilde{y}}(\bm{\theta}, \bm{\xi}^{(i)}) \Big | \Big|_2^2
@@ -254,9 +255,9 @@ the semi-infinite program to an uncertainty-finite-program.
 
 Because of their universal approximation capability \cite{hornik1990} and their differentiability, NNs are well suited
 as \emph{surrogate models} in MPC algorithms to approximate the system behavior represented by the function $f$ (def.~\ref{theory:def: general mpc}).
-This can significantly reduce the solution time in contrast to discretized systems of ordinary differential equations (ODEs) \cite{}.
+This can significantly reduce the solution time in contrast to discretized systems of ordinary differential equations (ODEs) \cite{salzmann2023}.
 
-\begin{definition} Time-discrete form of a NN to predict the future state, based on past information contained in the vector $\bm{\xi}_k$.
+\begin{definition} Time-discrete form of a NN to predict the future state, based on past information.
     \label{theory:def: NARX Model}
     \[
     \begin{aligned}
@@ -268,7 +269,7 @@ This can significantly reduce the solution time in contrast to discretized syste
 
 In the discrete-time notation, the state at the next time instant $\vx_{k+1}$ is calculated by propagating the current
 state $\vx_k$ trough a function $f(\vx_k, \vu_k)$ that discribes the system dynamic (def.~\ref{theory:def: NARX Model}).
-In the original MPC formulation (def.~\ref{theory:def: general mpc}) this is some numerical integration sceme for a system of differential equations \cite{biegler2010}
+In the original MPC formulation (def.~\ref{theory:def: general mpc}) this is some numerical integration scheme for a system of differential equations \cite{biegler2010}
 with the abbreviation \emph{right-hand-side} (rhs).
 The state propagation by the function $f$ is a classical example of a time series extrapolation. NNs have shown significant
 capabilities in time series forecasting. Deep learning based architectures exist for time series forecasting
@@ -277,14 +278,14 @@ time series prediction with varying complexity \cite{benidis2022,vaswani2023}.
 These provide a great possibility to apply deep learning based forecasting within optimal control algorithms, where the next
 state $\bm{\tilde{x}}_{k+1}$ is the output of a neural network $\mathcal{NN}$.
 In context of this work, shallow feedforward NNs or \emph{single-layer perceptrons} (SLPs) are used for this purpose which
-technically do not belong to \emph{deep learning} architectures.
+technically do belong to \emph{shallow learning} architectures.
 \newline
 \newline
 In the realm of control, the non-linear system indendification is summarized with the term
 \emph{Non-linear AutoRegressive with eXogenous inputs} (NARX). Here, the term \emph{autoregressive} means, that
 the future prediction is a function of a series of past system states \{$\vx_k, \vx_{k-1}, ..., \vx_{k-h}$\}, while \emph{exogenous}
 implies, that a series of outside inputs \{$\vu_k, \vu_{k-1}, ..., \vu_{k-h}$\} is passed to the function as well (def.~\ref{theory:def: NARX Model}).
-The hyperparameter $h$ denotes the length of the time horizon of the past inputs. A high value for this parameter includes more
+The hyperparameter $h$ denotes the length of the time horizon of the past series. A high value for this parameter includes more
 past information, which possibly allows better predictions while increasing the network input.
 Between states and inputs, $h$ can be choosen differently. In this work, $h$ is set equal for states and inputs. 
 
@@ -295,23 +296,23 @@ Between states and inputs, $h$ can be choosen differently. In this work, $h$ is 
 \end{equation}
 
 The concatenated input feature vector $\bm{\phi}_k$ contains all past states and inputs within the time horizon $h$, leading
-to a vector length of $(n_x + n_u) \cdot (h+1)$ where $n_x$ and $n_u$ represent the number of states and inputs respectively. 
-For large systems, the input length increases the network size unaccetably quick while the input time serieses often exhibit
+to a vector length of $(n_x + n_u) \cdot (h+1)$, where $n_x$ and $n_u$ represent the number of states and inputs respectively. 
+For large systems, the input length increases the network size unaccetably quick, while the input time serieses often exhibit
 strong redundacies. To reduce the input size, the feature vector $\bm{\phi}_k$ is passed to an \emph{encoder} \cite{kemmerling2025}.
 The encoder is based on feature compression via \emph{principal component analysis} (PCA), that maps the feature space to 
 a lower dimensional subspace. This subspace represents the space of the input data with the most information.
 
 \subsection{Singular Value Decomposition}
-The \emph{singular value decomposition} (SVD) is a fundamental building block in linear algebra. Its applications 
-are extremely versatile from image compression, over exploratory data analysis to model reduction in fluid mechanics.
-The power of the SVD is, that it maps a high dimensional space into a low dimensional subspace. The mapping is achieved by a simplistic matrix
+\emph{Singular value decomposition} (SVD) is a fundamental building block in linear algebra. Its applications 
+are range from image compression, over exploratory data analysis to model reduction in fluid mechanics.
+The power of SVD is, that it maps a high dimensional space into a low dimensional subspace. The mapping is achieved by a simplistic matrix
 transformation. It not only identifies a subspace, it also identifies underlying patterns in the data encoded
 via the respective \emph{singular vectors}. The compression and component indendification is guaranteed
 to exist for every matrix $\bm{X} \in \mathbb{C}^{n \times m}$ in contrast to an eigendecomposition \cite{Brunton2019}.
 \newline
 \newline
 The SVD is extremely useful, when high dimensional data is presented, that embeds some kind of pattern. For example,
-simulations of partial differential equations (PDEs), images as collections of pixels and time series exhibit strong patterns within the data.
+simulations of partial differential equations (PDEs), images as collections of pixels and time serieses exhibit strong patterns within the data.
 This is especcialy true for data points in close temporal or spatial distance. Because the SVD is the basis for
 PCA to compress the feature vector $\bm{\phi}_k$ and \emph{model order reduction} (MOR) of ODEs
 or PDEs it is explained in further detail. According to the SVD, any matrix $\bm{X} \in \mathbb{C}^{n \times m}$ can be decomposed
@@ -330,9 +331,45 @@ The computation in \texttt{python} can be done in \texttt{numpy} via the method 
 directly in a training environment with \texttt{torch.linalg.svd()}. For large data matrices $\bm{X}$, that do not
 fit into memory, a batched or incremental SVD must be considered. A current \texttt{torch} implementation with GPU support
 exists under \texttt{torch\_incremental\_pca} \cite{incrementalpca2025}.
-\newline
-\newline
-The compression itself is done by truncating the 
+The compression itself is done by truncating the yielded matrices by taking the first $r$ columns of $\bm{U}$, the
+first $r$ rows of $\bm{V}^*$ and $r$ diagonal elements of $\bm{\Sigma}$ (eq.~\ref{theory:eq: truncated svd}).
+\begin{equation}
+    \label{theory:eq: truncated svd}
+    \begin{gathered}
+        \bm{X} \approx \bm{\Psi} \bm{\tilde{\Sigma}} \bm{\tilde{V}}^* \\
+        \text{with} \quad \bm{\Psi} \coloneq \bm{U}_{:,:r} \quad \bm{\tilde{\Sigma}} = \bm{\Sigma}_{:r,:r} \quad \bm{\tilde{V}}^* = \bm{V}^*_{:r,:}
+    \end{gathered}
+\end{equation}
+This has the advantage, that an approximation of the data $\bm{X}$ can be stored via the truncated matrices $\bm{\Psi}, \bm{\tilde{\Sigma}}, \bm{\tilde{V}}^*$
+which take up less memory than the original matrix. It also allows to project the original matrix into a subspace
+of dimension $r$ (eq.~\ref{theory:eq: svd projection}).
+\begin{equation}
+    \label{theory:eq: svd projection}
+        \bm{\tilde{X}} = \bm{\Psi}^\top \bm{X} \Longleftrightarrow \bm{X} \approx \bm{\Psi} \bm{\tilde{X}}
+\end{equation}
+The truncated matrix $\bm{\Psi}$ acts as the transformation matrix between the low dimensional space and the original space (eq.~\ref{theory:eq: svd projection}).
+It is important to note, that the back transformation into the original space only yields an approximation of the original data.
+It can be prooven, that this approximation is the best existing one with respect to the Frobenius Norm as it solves following minimization \cite{Brunton2019} (eq.~\ref{theory:eq: svd minimization}).
+\begin{equation}
+    \label{theory:eq: svd minimization}
+    \begin{gathered}
+        \bm{\Psi} = \underset{\bm{\Psi}}{\text{argmin}} \quad ||\bm{X} - \bm{\Psi} \bm{\Psi}^\top \bm{X}||_F \\
+        \text{s.t.} \quad \text{rank}(\bm{\Psi}) = r
+    \end{gathered}
+\end{equation}
+Reentering the concept of neural network NARX models, the large vector of input features $\bm{\phi}_k$ (eq.~\ref{theory:eq: input feature vector})
+can be compressed via SVD into a low dimensional feature vector $\bm{\xi}_k$ that retains the most 
+dominant basis vectors of the original input (fig.~\ref{theory:fig: narx-pca-encoder}). This is done 
+by an \emph{PCA encoder} placed before the first layer of a NARX model to reduce the network size. 
 
-
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Theory/narx-pca-encoder.pdf}
+    \caption[PCA encoder for feature reduction]
+    {The PCA encoder uses SVD to derive a projection matrix $\bm{\Psi}$ that maps the high dimensional feature vector
+    $\bm{\phi}_k$ to a lower dimensional feature vector $\bm{\xi}_k$ which is fed into a NARX model. This reduces the network size significantly,
+    while retaining the most important information about the input.
+    }
+    \label{theory:fig: narx-pca-encoder}
+\end{figure}
 
