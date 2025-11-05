@@ -35,8 +35,8 @@ latex_notation_map = {
     },
     "machine_epsilon": r"$\epsilon_\mathrm{mach} (64 \; \mathrm{bit})$",
 }
-upper_ylims = {"T": 1.5, "c": 1.5}
-lower_ylims = {"T": 0.5, "c": 0}
+upper_ylims = {"T": 1.25, "c": 1.25}
+lower_ylims = {"T": 0.75, "c": 0.25}
 
 
 def set_mpt_settings(font_size: float = 16, figsize=(10, 6)):
@@ -127,7 +127,7 @@ def make_line_cycler(n_styles: int) -> cycler:
 
 
 def make_marker_cyler(n_markers: int) -> cycler:
-    markers = ["+", "o", "x"]
+    markers = ["P", "o", "X"]
     return cycler(marker=markers[:n_markers])
 
 

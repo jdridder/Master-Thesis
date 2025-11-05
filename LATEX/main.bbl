@@ -512,6 +512,193 @@
       \field{title}{Learning for CasADi: Data-driven Models in Numerical Optimization}
       \field{year}{2024}
     \endentry
+    \entry{benidis2022}{article}{}
+      \name{author}{13}{}{%
+        {{hash=d3095e65af4a4f40049359d3f9b83fff}{%
+           family={Benidis},
+           familyi={B\bibinitperiod},
+           given={Konstantinos},
+           giveni={K\bibinitperiod}}}%
+        {{hash=a3edf426c05893fe420aba2808f54985}{%
+           family={Rangapuram},
+           familyi={R\bibinitperiod},
+           given={Syama\bibnamedelima Sundar},
+           giveni={S\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=f059e30caa4d74f8c23070b22386b22e}{%
+           family={Flunkert},
+           familyi={F\bibinitperiod},
+           given={Valentin},
+           giveni={V\bibinitperiod}}}%
+        {{hash=a9292a8838878275e725f037bc757f7e}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Yuyang},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=43bbf63315d5630595dc1194d118eab6}{%
+           family={Maddix},
+           familyi={M\bibinitperiod},
+           given={Danielle},
+           giveni={D\bibinitperiod}}}%
+        {{hash=453c44acc624f19e83afc64fc3f2c7d5}{%
+           family={Turkmen},
+           familyi={T\bibinitperiod},
+           given={Caner},
+           giveni={C\bibinitperiod}}}%
+        {{hash=b41e883686c590f0b90bb2f7d488f6cc}{%
+           family={Gasthaus},
+           familyi={G\bibinitperiod},
+           given={Jan},
+           giveni={J\bibinitperiod}}}%
+        {{hash=788936496107a6d83806631aa1d699c0}{%
+           family={Bohlke-Schneider},
+           familyi={B\bibinithyphendelim S\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=eada397e5f4a2602534e0917e03112c3}{%
+           family={Salinas},
+           familyi={S\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=83fc4e25ebfa5fbdb577e9666d000bab}{%
+           family={Stella},
+           familyi={S\bibinitperiod},
+           given={Lorenzo},
+           giveni={L\bibinitperiod}}}%
+        {{hash=92d8560e8044e162a770414977eca23c}{%
+           family={Aubet},
+           familyi={A\bibinitperiod},
+           given={François-Xavier},
+           giveni={F\bibinithyphendelim X\bibinitperiod}}}%
+        {{hash=65e80339cb84ccaf5a31062291aa2f85}{%
+           family={Callot},
+           familyi={C\bibinitperiod},
+           given={Laurent},
+           giveni={L\bibinitperiod}}}%
+        {{hash=9e5ccec71d72e905905574627253f5f7}{%
+           family={Januschowski},
+           familyi={J\bibinitperiod},
+           given={Tim},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery (ACM)}%
+      }
+      \strng{namehash}{e734b5b35ae4db0bfb7bfdf19537efe8}
+      \strng{fullhash}{e1b7af6385412016b3f12bc8e3957067}
+      \strng{bibnamehash}{e734b5b35ae4db0bfb7bfdf19537efe8}
+      \strng{authorbibnamehash}{e734b5b35ae4db0bfb7bfdf19537efe8}
+      \strng{authornamehash}{e734b5b35ae4db0bfb7bfdf19537efe8}
+      \strng{authorfullhash}{e1b7af6385412016b3f12bc8e3957067}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1557-7341}
+      \field{journaltitle}{ACM Computing Surveys}
+      \field{month}{12}
+      \field{number}{6}
+      \field{title}{Deep Learning for Time Series Forecasting: Tutorial and Literature Survey}
+      \field{volume}{55}
+      \field{year}{2022}
+      \field{pages}{1\bibrangedash 36}
+      \range{pages}{36}
+      \verb{doi}
+      \verb 10.1145/3533382
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1145/3533382
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1145/3533382
+      \endverb
+    \endentry
+    \entry{kemmerling2025}{unpublished}{}
+      \name{author}{2}{}{%
+        {{hash=194e4a064f0b09f0f0cb86fb7284f5c1}{%
+           family={Kemmerling},
+           familyi={K\bibinitperiod},
+           given={Niklas},
+           giveni={N\bibinitperiod}}}%
+        {{hash=14d57392f0fda695a4a1f6fb6143073b}{%
+           family={Lucia},
+           familyi={L\bibinitperiod},
+           given={Sergio},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Dortmund, Germany}%
+      }
+      \strng{namehash}{bb12275f01b644ad89d1726c52ddca2f}
+      \strng{fullhash}{bb12275f01b644ad89d1726c52ddca2f}
+      \strng{bibnamehash}{bb12275f01b644ad89d1726c52ddca2f}
+      \strng{authorbibnamehash}{bb12275f01b644ad89d1726c52ddca2f}
+      \strng{authornamehash}{bb12275f01b644ad89d1726c52ddca2f}
+      \strng{authorfullhash}{bb12275f01b644ad89d1726c52ddca2f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{Manuscript in preparation, TU Dortmund University}
+      \field{title}{Uncertainty-Aware Reduced-Order Modeling for Robust Control of Zeolite Crystallization}
+      \field{year}{2025}
+      \keyw{Model Predictive Control,Model Order Reduction,Uncertainty Quantification,Zeolite Crystallization,Robust Control,Neural Networks,Nonlinear System Identification}
+    \endentry
+    \entry{Brunton2019}{incollection}{}
+      \name{author}{2}{}{%
+        {{hash=572af75cb67759c9684ffbb4d11cddf8}{%
+           family={Brunton},
+           familyi={B\bibinitperiod},
+           given={Steven\bibnamedelima L.},
+           giveni={S\bibinitperiod\bibinitdelim L\bibinitperiod}}}%
+        {{hash=39878c41ca2338687a0064bcc2ba2922}{%
+           family={Kutz},
+           familyi={K\bibinitperiod},
+           given={J.\bibnamedelimi Nathan},
+           giveni={J\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Cambridge University Press}%
+      }
+      \strng{namehash}{30df7fd58c3ce66638d5f915c5667db4}
+      \strng{fullhash}{30df7fd58c3ce66638d5f915c5667db4}
+      \strng{bibnamehash}{30df7fd58c3ce66638d5f915c5667db4}
+      \strng{authorbibnamehash}{30df7fd58c3ce66638d5f915c5667db4}
+      \strng{authornamehash}{30df7fd58c3ce66638d5f915c5667db4}
+      \strng{authorfullhash}{30df7fd58c3ce66638d5f915c5667db4}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Data-Driven Science and Engineering: Machine Learning, Dynamical Systems, and Control}
+      \field{note}{POD for model reduction}
+      \field{title}{Reduced Order Models (ROMs)}
+      \field{year}{2019}
+      \field{pages}{375\bibrangedash 402}
+      \range{pages}{28}
+      \keyw{Reduced Order Models,Machine Learning,Dynamical Systems}
+    \endentry
+    \entry{incrementalpca2025}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=7079c72c21415131774625ba1d64f4b0}{%
+           family={Anonymous},
+           familyi={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{7079c72c21415131774625ba1d64f4b0}
+      \strng{fullhash}{7079c72c21415131774625ba1d64f4b0}
+      \strng{bibnamehash}{7079c72c21415131774625ba1d64f4b0}
+      \strng{authorbibnamehash}{7079c72c21415131774625ba1d64f4b0}
+      \strng{authornamehash}{7079c72c21415131774625ba1d64f4b0}
+      \strng{authorfullhash}{7079c72c21415131774625ba1d64f4b0}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://pypi.org/project/torch-incremental-pca/}}
+      \field{note}{PyTorch implementation inspired by scikit-learn's IncrementalPCA and PCAonGPU. Provides GPU-accelerated, memory-efficient incremental PCA for large datasets.}
+      \field{title}{torch-incremental-pca: A PyTorch Implementation of Incremental PCA}
+      \field{year}{2025}
+      \keyw{Incremental PCA,Dimensionality Reduction,PyTorch,GPU,Machine Learning}
+    \endentry
     \entry{raissi2019}{article}{}
       \name{author}{3}{}{%
         {{hash=a3194cb4f8e3959e569236521aa2fd86}{%
@@ -598,8 +785,8 @@
       \strng{authorbibnamehash}{3a2e73c8b36fe75431aaa17a99d757a4}
       \strng{authornamehash}{2f66e877c58e6ee278092df3e9f963cc}
       \strng{authorfullhash}{3a2e73c8b36fe75431aaa17a99d757a4}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{Advances in Neural Information Processing Systems}
@@ -635,8 +822,8 @@
       \strng{authorbibnamehash}{2104aea70c64086e1199f6b31029fccf}
       \strng{authornamehash}{49313e475aea28e0c1cecaeeca32fac6}
       \strng{authorfullhash}{2104aea70c64086e1199f6b31029fccf}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{eprintclass}{cs.LG}

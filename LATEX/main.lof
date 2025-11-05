@@ -1,10 +1,11 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Multi-stage MPC scenario tree}}{6}{figure.caption.15}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Neural network with physics constrained activation function $g_\text {pc}$}}{11}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Neural network with physics constrained activation function $g_\text {pc}$}}{13}{figure.caption.16}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Validation loss of vanilla NARX vs physics-constrained NARX}}{14}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Validation loss of vanilla NARX vs physics-constrained NARX}}{16}{figure.caption.17}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

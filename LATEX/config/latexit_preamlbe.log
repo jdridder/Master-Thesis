@@ -1,10 +1,10 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  28 OCT 2025 19:26
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  2 NOV 2025 08:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe
-(/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe.tex
+**/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe
+(/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe.tex
 LaTeX2e <2022-11-01> patch level 1
 L3 programming layer <2023-02-22> (/usr/local/texlive/2023/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2022/07/02 v1.4n Standard LaTeX document class
@@ -733,7 +733,7 @@ Package: blx-case-expl3 2023/03/05 v3.19 expl3 case changing code for biblatex
 \c@theorem=\count464
 
 
-/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe.tex:70: LaTeX Error: No counter 'chapter' defined.
+/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe.tex:70: LaTeX Error: No counter 'chapter' defined.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
@@ -747,7 +747,7 @@ or  <return>  to continue without it.
 
 \c@corollary=\count465
 
-/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe.tex:71: LaTeX Error: No counter 'chapter' defined.
+/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe.tex:71: LaTeX Error: No counter 'chapter' defined.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
@@ -761,7 +761,7 @@ or  <return>  to continue without it.
 
 \c@lemma=\count466
 
-/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe.tex:72: LaTeX Error: No counter 'chapter' defined.
+/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe.tex:72: LaTeX Error: No counter 'chapter' defined.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
@@ -775,7 +775,7 @@ or  <return>  to continue without it.
 
 \c@assumption=\count467
 
-/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe.tex:73: LaTeX Error: No counter 'chapter' defined.
+/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe.tex:73: LaTeX Error: No counter 'chapter' defined.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
@@ -789,7 +789,7 @@ or  <return>  to continue without it.
 
 \c@definition=\count468
 
-/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe.tex:75: LaTeX Error: No counter 'chapter' defined.
+/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe.tex:75: LaTeX Error: No counter 'chapter' defined.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
@@ -803,7 +803,7 @@ or  <return>  to continue without it.
 
 \c@remark=\count469
 
-/Users/jandavidridder/Desktop/Masterarbeit/LATEX/config/latexit_preamlbe.tex:77: LaTeX Error: No counter 'chapter' defined.
+/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/LATEX/config/latexit_preamlbe.tex:77: LaTeX Error: No counter 'chapter' defined.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
@@ -817,17 +817,17 @@ or  <return>  to continue without it.
 
 )
 ! Emergency stop.
-<*> .../Masterarbeit/LATEX/config/latexit_preamlbe
+<*> ...Master-Thesis/LATEX/config/latexit_preamlbe
                                                   
 *** (job aborted, no legal \end found)
 
  
 Here is how much of TeX's memory you used:
  24865 strings out of 476683
- 480381 string characters out of 5804048
+ 480423 string characters out of 5804048
  1843018 words of memory out of 5000000
  44863 multiletter control sequences out of 15000+600000
  512655 words of font info for 34 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 72i,0n,76p,1089b,3688s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,0n,76p,1103b,3688s stack positions out of 10000i,1000n,20000p,200000b,200000s
 No pages of output.

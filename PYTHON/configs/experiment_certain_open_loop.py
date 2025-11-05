@@ -31,15 +31,16 @@ data_cfg = {
     },
 }
 
-hidden_unit_list = [[64], [32], [16], [4]]
+hidden_unit_list = [[64], [16], [4]]
 training_cfgs = [
     {
         "input_length": 16,
         "lr": 5e-5,
-        "max_epochs": 512,
+        "early_stopping": True,
+        "max_epochs": 768,
         "batch_size": 1024,
         "training_ratio": 0.8,
-        "n_trajectories": 128,
+        "n_trajectories": -1,
         "save_history": True,
         "pca_encoder": {"name": "pca_encoder"},
         "save_dir": "vanilla",
@@ -62,10 +63,11 @@ training_cfgs = [
     {
         "input_length": 16,
         "lr": 5e-5,
-        "max_epochs": 512,
+        "early_stopping": True,
+        "max_epochs": 768,
         "batch_size": 1024,
         "training_ratio": 0.8,
-        "n_trajectories": 128,
+        "n_trajectories": -1,
         "save_history": True,
         "pca_encoder": {"name": "pca_encoder"},
         "save_dir": "pc",

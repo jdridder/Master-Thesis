@@ -26,7 +26,7 @@ def calculate_state_mses(
     state_mses = {}  # should have structure {"state": {"surrogate_key": (mses, stdevs)}}
     start = 0
     stop = n_measurements * 5
-    # TODO: Make this more elegent do not hard code positions
+    # TODO: Make this more elegant do not hard code positions
     for state_key in states:
         state_wise_predictions = {surr_key: surrogate_pred_data[surr_key][..., :, start:stop] for surr_key in surrogate_pred_data.keys()}
         state_wise_test_data = {surr_key: surrogate_test_data[surr_key][..., :, start:stop] for surr_key in surrogate_test_data.keys()}
@@ -55,7 +55,7 @@ def calculate_state_mse_for_surrogates(
     # the list indices correspond to the state prediction data of each surrogate
     surrogate_mses = {}
     for surr_key, state_trajectories in state_prediction_data.items():
-        test_data = state_test_data[surr_key][..., : state_trajectories.shape[1], :]  # matching the time steps
+        test_data = state_test_data[surr_key]
         mse_result = calculate_state_mse(
             state_test_data=test_data,
             state_prediction_data=state_trajectories,

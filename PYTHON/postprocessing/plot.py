@@ -127,7 +127,7 @@ def plot_open_loop_state(
 
     # --- Annotations and Legend ---
     if annotations and meta_data:
-        complete_meta_data = {**meta_data, "mse": f"{mse.mean():.3f}"} if mse is not None else meta_data
+        complete_meta_data = {**meta_data, "mse": f"{mse.mean():.6f}"} if mse is not None else meta_data
         axes[-1].annotate(complete_meta_data, xy=(0.05, 0.85), xycoords="axes fraction")
 
     if surrogate_results:
@@ -729,8 +729,8 @@ def plot_metric_summary(
         for surrogate_key, metric_dict in metric_summary.items():
             ax.errorbar(
                 metric_dict[xaxis_key],
-                metric_dict[metric_key][:, 0],
-                yerr=metric_dict[metric_key][:, 1],
+                np.log10(metric_dict[metric_key][:, 0]),
+                # yerr=metric_dict[metric_key][:, 1],
                 label=latex_notation_map[surrogate_key]["general"],
                 alpha=0.5,
                 linestyle="none",
@@ -764,16 +764,24 @@ def plot_val_loss(training_history_dict: Dict, hidden_units_list: List[List[int]
     ax.set_prop_cycle(line_cycler * color_cycler)
 
     for surrogate_type, history_list in training_history_dict.items():
-        for history_dict, hidden_units, color in zip(history_list, hidden_units_list, colors):
-            ax.plot(history_dict["epoch"], np.log10(history_dict["val_loss"]), label=f"{latex_notation_map[surrogate_type]["general"]}" + r" $n_\mathrm{hidden}$ = " + f"{hidden_units}", color=color)
+        for hidden_units, color in zip(hidden_units_list, colors):
+            for history_dict in history_list:
+                if hidden_units == history_dict.get("units"):
+                    ax.plot(
+                        history_dict["epoch"],
+                        np.log10(history_dict["val_loss"]),
+                        label=f"{latex_notation_map[surrogate_type]["general"]}" + r" $n_\mathrm{hidden}$ = " + f"{hidden_units}",
+                        color=color,
+                    )
+                    break
 
-    ax.legend()
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows)
     ax.set_xlabel("epoch / -")
     ax.set_ylabel(r"$\mathrm{log}_{10} \; \mathcal{L}_\mathrm{MSE, val}$ / -")
-    
 
+    plt.subplots_adjust(right=0.95, left=0.1, top=0.88, bottom=0.15)
     if save_cfg.get("show_fig", False):
         plt.show()
-
+    os.makedirs(save_dir, exist_ok=True)
     plt.savefig(os.path.join(save_dir, "val_loss.pdf"))
     plt.close()

@@ -158,6 +158,7 @@ def train_narx_module(
             val_loader=val_loader,
             epochs=training_cfg.get("max_epochs", 128),
             lr=training_cfg.get("lr", 5e-5),
+            early_stopping=training_cfg.get("early_stopping", False),
             loss_function=loss_function,
         )
         save_path = individual_cfg.get("save_path")

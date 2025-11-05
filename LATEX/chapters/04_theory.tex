@@ -134,6 +134,18 @@ done by \emph{multi-stage-MPC} \cite{lucia2015}.
 \newline
 \newline
 
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Theory/multi-stage-mpc.pdf}
+    \caption[Multi-stage MPC scenario tree]
+    {Multi-stage MPC discretizies the uncertainty set via user-defined possible cases $w_k^{(\cdot)}$.
+    All possible case combinations are branched through the robust horizon $N_\text{r}$. To limit the 
+    complexity, the uncertainties are considered constant thereafter for the rest of the prediction
+    horizon $N_\text{p}.$
+    }
+    \label{theory:fig: multi-stage-mpc}
+\end{figure}
+
 It generates a scenario tree (fig.~\ref{}) for all 
 possible combinations of disturbances. If the uncertainty is discrete, this formulation is exact.
 In most cases however, when the uncertainties lie in a continuous space, the scenario tree
@@ -233,22 +245,94 @@ The hyperparameter $\tau$ denotes the type and therefore position of the quantil
 $0.05$ or $0.1$, strongly penalizes data points that are below the threshold $y < \tilde{y}(\bm{\theta})$ via the $(1-\tau)$-term
 to keep the quantile small. A high value for $\tau$, e.g. $0.95$, focuses on the penalization of data points above
 the threshold $y \geq \tilde{y}(\bm{\theta})$ to cover a greater amount of points.
+For robust optimization, \emph{quantile regression} can be applied to learn upper or lower bounds for the uncertainty-dependent
+constraints $F_i(\vu, \vw)$ (eq.~\ref{theroy:def: bi-level program}) in terms of confidence quantiles. This would reduce
+the semi-infinite program to an uncertainty-finite-program.
 
 
 \section{NARX Models}
 
-Because of their universal approximation capability and their differentiability, NNs are well suited
+Because of their universal approximation capability \cite{hornik1990} and their differentiability, NNs are well suited
 as \emph{surrogate models} in MPC algorithms to approximate the system behavior represented by the function $f$ (def.~\ref{theory:def: general mpc}).
 This can significantly reduce the solution time in contrast to discretized systems of ordinary differential equations (ODEs) \cite{}.
+
 \begin{definition} Time-discrete form of a NN to predict the future state, based on past information contained in the vector $\bm{\xi}_k$.
     \label{theory:def: NARX Model}
     \[
     \begin{aligned}
-        \vx_{k+1} &= f(\vx_k) \\
-        \bm{\tilde{x}}_{k+1} &= \mathcal{NN}(\bm{\xi}_k)
+        \vx_{k+1} &= f(\bm{x}_k, \vu_k) \\
+        \bm{\tilde{x}}_{k+1} &= \mathcal{NN}(\vx_k, \vx_{k-1}, ..., \vx_{k-h}, \vu_k, \vu_{k-1}, ..., \vu_{k-h})
     \end{aligned}
     \]
 \end{definition}
+
+In the discrete-time notation, the state at the next time instant $\vx_{k+1}$ is calculated by propagating the current
+state $\vx_k$ trough a function $f(\vx_k, \vu_k)$ that discribes the system dynamic (def.~\ref{theory:def: NARX Model}).
+In the original MPC formulation (def.~\ref{theory:def: general mpc}) this is some numerical integration sceme for a system of differential equations \cite{biegler2010}
+with the abbreviation \emph{right-hand-side} (rhs).
+The state propagation by the function $f$ is a classical example of a time series extrapolation. NNs have shown significant
+capabilities in time series forecasting. Deep learning based architectures exist for time series forecasting
+in various complexities. Convolutional NNs (CNNs), Long-Short-Term-Memory (LSTMs) cells and transformers are the most promiment for
+time series prediction with varying complexity \cite{benidis2022,vaswani2023}.
+These provide a great possibility to apply deep learning based forecasting within optimal control algorithms, where the next
+state $\bm{\tilde{x}}_{k+1}$ is the output of a neural network $\mathcal{NN}$.
+In context of this work, shallow feedforward NNs or \emph{single-layer perceptrons} (SLPs) are used for this purpose which
+technically do not belong to \emph{deep learning} architectures.
+\newline
+\newline
+In the realm of control, the non-linear system indendification is summarized with the term
+\emph{Non-linear AutoRegressive with eXogenous inputs} (NARX). Here, the term \emph{autoregressive} means, that
+the future prediction is a function of a series of past system states \{$\vx_k, \vx_{k-1}, ..., \vx_{k-h}$\}, while \emph{exogenous}
+implies, that a series of outside inputs \{$\vu_k, \vu_{k-1}, ..., \vu_{k-h}$\} is passed to the function as well (def.~\ref{theory:def: NARX Model}).
+The hyperparameter $h$ denotes the length of the time horizon of the past inputs. A high value for this parameter includes more
+past information, which possibly allows better predictions while increasing the network input.
+Between states and inputs, $h$ can be choosen differently. In this work, $h$ is set equal for states and inputs. 
+
+\subsection{Input Compression}
+\begin{equation}
+    \label{theory:eq: input feature vector}
+    \bm{\phi}_k \coloneq (\vx_k, \vx_{k-1}, ..., \vx_{k-h}, \vu_k, \vu_{k-1}, ..., \vu_{k-h})
+\end{equation}
+
+The concatenated input feature vector $\bm{\phi}_k$ contains all past states and inputs within the time horizon $h$, leading
+to a vector length of $(n_x + n_u) \cdot (h+1)$ where $n_x$ and $n_u$ represent the number of states and inputs respectively. 
+For large systems, the input length increases the network size unaccetably quick while the input time serieses often exhibit
+strong redundacies. To reduce the input size, the feature vector $\bm{\phi}_k$ is passed to an \emph{encoder} \cite{kemmerling2025}.
+The encoder is based on feature compression via \emph{principal component analysis} (PCA), that maps the feature space to 
+a lower dimensional subspace. This subspace represents the space of the input data with the most information.
+
+\subsection{Singular Value Decomposition}
+The \emph{singular value decomposition} (SVD) is a fundamental building block in linear algebra. Its applications 
+are extremely versatile from image compression, over exploratory data analysis to model reduction in fluid mechanics.
+The power of the SVD is, that it maps a high dimensional space into a low dimensional subspace. The mapping is achieved by a simplistic matrix
+transformation. It not only identifies a subspace, it also identifies underlying patterns in the data encoded
+via the respective \emph{singular vectors}. The compression and component indendification is guaranteed
+to exist for every matrix $\bm{X} \in \mathbb{C}^{n \times m}$ in contrast to an eigendecomposition \cite{Brunton2019}.
+\newline
+\newline
+The SVD is extremely useful, when high dimensional data is presented, that embeds some kind of pattern. For example,
+simulations of partial differential equations (PDEs), images as collections of pixels and time series exhibit strong patterns within the data.
+This is especcialy true for data points in close temporal or spatial distance. Because the SVD is the basis for
+PCA to compress the feature vector $\bm{\phi}_k$ and \emph{model order reduction} (MOR) of ODEs
+or PDEs it is explained in further detail. According to the SVD, any matrix $\bm{X} \in \mathbb{C}^{n \times m}$ can be decomposed
+into three submatrices (th.~\ref{theory:th: singular value decomposition}).
+\begin{theorem} Singular value decomposition of a data matrix $\bm{X}$.
+    \label{theory:th: singular value decomposition}
+    \[
+    \bm{X} = \bm{U} \bm{\Sigma} \bm{V}^*
+    \]
+\end{theorem}
+
+Here, the matrices $\bm{U} \in \mathbb{C}^{n \times n}$ and $\bm{V}^* \in \mathbb{C}^{m \times m}$ are quadratic, orthonormal matrices.
+The real, non-negative, diagonal matrix $\bm{\Sigma} \in \mathbb{R}^{n \times m}$ contains the so called \emph{singular values} of the matrix
+with the biggest as the top-left entry. The notation $\bm{V}^*$ stands for the transposed complex-conjugate of $\bm{V}$.
+The computation in \texttt{python} can be done in \texttt{numpy} via the method \texttt{linalg.svd()} or
+directly in a training environment with \texttt{torch.linalg.svd()}. For large data matrices $\bm{X}$, that do not
+fit into memory, a batched or incremental SVD must be considered. A current \texttt{torch} implementation with GPU support
+exists under \texttt{torch\_incremental\_pca} \cite{incrementalpca2025}.
+\newline
+\newline
+The compression itself is done by truncating the 
 
 
 

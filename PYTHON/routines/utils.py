@@ -110,7 +110,7 @@ def load_json_results_for_all(result_dir: str, n_trajectories: int = -1) -> Dict
     return all_results
 
 
-def filter_test_data_for_surrogates(test_data: np.ndarray, surrogate_results: Dict[str, np.ndarray]):
+def filter_test_data_for_surrogates(test_data: np.ndarray, surrogate_results: Dict[str, Dict[str, np.ndarray]]):
     """
     Filters test data for each surrogate model based on the trajectory indices
     provided in the surrogate results.
@@ -130,4 +130,5 @@ def filter_test_data_for_surrogates(test_data: np.ndarray, surrogate_results: Di
         assert "index" in surr_result.keys(), "The surrogate result dictionary must provide a numpy array that contains the indices of the simulated trajectories."
         filter = surr_result["index"]
         filtered_test_data[surr_key] = test_data[filter]
+
     return filtered_test_data
