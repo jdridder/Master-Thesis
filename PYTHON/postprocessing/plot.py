@@ -246,42 +246,41 @@ def plot_pc_violation_vs_time(
 
     plot_cfg = plot_cfg or {}
     save_cfg = save_cfg or {}
-    n_data_rows = len(pc_violation_dict)
+    final_save_path = os.path.join(save_dir, save_cfg.get("export_name", "pc_violation_vs_time") + ".pdf")
+    if not os.path.exists(final_save_path):
+        print("---- Plotting physics violation vs time. ----")
+        n_data_rows = len(pc_violation_dict)
+        fig, ax = plt.subplots()
+        prop_cylcer = make_line_cycler(n_data_rows) + make_color_cycler(n_data_rows)
+        ax.set_prop_cycle(prop_cylcer)
+        colors = make_colors(n_data_rows, alpha=plot_cfg.get("alpha_all_traj", 0.2))
 
-    print("---- Plotting physics violation vs time. ----")
-    fig, ax = plt.subplots()
-    prop_cylcer = make_line_cycler(n_data_rows) + make_color_cycler(n_data_rows)
-    ax.set_prop_cycle(prop_cylcer)
-    colors = make_colors(n_data_rows, alpha=plot_cfg.get("alpha_all_traj", 0.2))
+        label = r"{}".format(latex_notation_map["b_residual"])
+        ax.axhline(y=np.log10(2.2 * 10**-16), color="gray", ls="--", label=latex_notation_map["machine_epsilon"])
+        [ax.plot(time, np.log10(pc_violation_dict[key].mean(axis=0)), label=latex_notation_map[key]["general"]) for key in pc_violation_dict.keys()]
+        [ax.plot(time, np.log10(pc_violation_trajetories.T), color=color, ls="-") for pc_violation_trajetories, color in zip(pc_violation_dict.values(), colors)]
 
-    label = r"{}".format(latex_notation_map["b_residual"])
-    ax.axhline(y=np.log10(2.2 * 10**-16), color="gray", ls="--", label=latex_notation_map["machine_epsilon"])
-    [ax.plot(time, np.log10(pc_violation_dict[key].mean(axis=0)), label=latex_notation_map[key]["general"]) for key in pc_violation_dict.keys()]
-    [ax.plot(time, np.log10(pc_violation_trajetories.T), color=color, ls="-") for pc_violation_trajetories, color in zip(pc_violation_dict.values(), colors)]
+        [
+            ax.annotate(
+                latex_notation_map[key]["general"] + r": $\langle ||\bm{b}||_2 \rangle_t$ = " + f"{pc_violation_dict[key].mean():.2e}",
+                xy=(0.95, plot_cfg.get("annotations_y", 0.5 - i * 0.1)),
+                xycoords="axes fraction",
+                ha="right",
+                va="center",
+            )
+            for i, key in enumerate(pc_violation_dict.keys())
+        ]
+        ax.set_ylim(-17, -1)
 
-    [
-        ax.annotate(
-            latex_notation_map[key]["general"] + r": $\langle ||\bm{b}||_2 \rangle_t$ = " + f"{pc_violation_dict[key].mean():.2e}",
-            xy=(0.95, plot_cfg.get("annotations_y", 0.5 - i * 0.1)),
-            xycoords="axes fraction",
-            ha="right",
-            va="center",
-        )
-        for i, key in enumerate(pc_violation_dict.keys())
-    ]
-    ax.set_ylim(-17, -1)
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows + 1)
+        ax.set_xlabel(latex_notation_map["time"])
+        ax.set_ylabel(label)
+        # plt.tight_layout()
+        plt.subplots_adjust(right=0.95, left=0.1, top=0.88, bottom=0.15)
 
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows + 1)
-    ax.set_xlabel(latex_notation_map["time"])
-    ax.set_ylabel(label)
-    # plt.tight_layout()
-    plt.subplots_adjust(right=0.95, left=0.1, top=0.88, bottom=0.15)
-
-    if save_dir is not None:
-        final_save_path = os.path.join(save_dir, save_cfg.get("export_name", "pc_violation_vs_time") + ".pdf")
         plt.savefig(final_save_path)
-    if save_cfg.get("show_fig", False):
-        plt.show()
+        if save_cfg.get("show_fig", False):
+            plt.show()
 
 
 def plot_mses_vs_time(
@@ -314,47 +313,41 @@ def plot_mses_vs_time(
     # Initialize configuration dictionaries to avoid errors with None
     plot_cfg = plot_cfg or {}
     save_cfg = save_cfg or {}
+    final_export_path = os.path.join(plot_dir, f"{save_cfg.get("export_name", "mse_vs_time")}.pdf")
+    if not os.path.exists(final_export_path):
+        # --- Plot Initialization ---
+        fig, ax = plt.subplots()
 
-    # --- Plot Initialization ---
-    fig, ax = plt.subplots()
+        # --- Plot Styling ---
+        # Create and set a property cycler for distinct line styles and colors,
+        # ensuring visual clarity for multiple surrogates.
+        num_surrogates = len(mse_data_dict)
+        prop_cycler = make_line_cycler(n_styles=num_surrogates) + make_color_cycler(n_colors=num_surrogates)
+        ax.set_prop_cycle(prop_cycler)
+        # --- Plotting Loop ---
+        # Iterate through each surrogate's data to plot its MSE evolution.
+        for surr_key, (mean_mse, std_mse) in mse_data_dict.items():
+            # Use a graceful fallback for labels if a key is not in the map
+            label = latex_notation_map.get(surr_key, {}).get("general", surr_key)
+            # Plot the mean MSE as a solid line
+            ax.plot(time, mean_mse, label=label)
+            # Add a shaded region to represent the standard deviation (±1 sigma)
+            ax.fill_between(time, mean_mse, mean_mse + std_mse, alpha=0.25)
+        # --- Axes Formatting and Legend ---
+        ax.set_xlabel(latex_notation_map.get("time", "$t$ / s"))
+        ax.set_ylabel("MSE($t$)")
+        ax.set_ylim(*plot_cfg.get("ylims"))
 
-    # --- Plot Styling ---
-    # Create and set a property cycler for distinct line styles and colors,
-    # ensuring visual clarity for multiple surrogates.
-    num_surrogates = len(mse_data_dict)
-    prop_cycler = make_line_cycler(n_styles=num_surrogates) + make_color_cycler(n_colors=num_surrogates)
-    ax.set_prop_cycle(prop_cycler)
-    # --- Plotting Loop ---
-    # Iterate through each surrogate's data to plot its MSE evolution.
-    for surr_key, (mean_mse, std_mse) in mse_data_dict.items():
-        # Use a graceful fallback for labels if a key is not in the map
-        label = latex_notation_map.get(surr_key, {}).get("general", surr_key)
-        # Plot the mean MSE as a solid line
-        ax.plot(time, mean_mse, label=label)
-        # Add a shaded region to represent the standard deviation (±1 sigma)
-        ax.fill_between(time, mean_mse, mean_mse + std_mse, alpha=0.25)
-    # --- Axes Formatting and Legend ---
-    ax.set_xlabel(latex_notation_map.get("time", "$t$ / s"))
-    ax.set_ylabel("MSE($t$)")
-    ax.set_ylim(*plot_cfg.get("ylims"))
+        # Generate and apply custom formatting to the legend
+        ax.legend()
+        ax = format_legend(ax=ax, plot_cfg=plot_cfg)
 
-    # Generate and apply custom formatting to the legend
-    ax.legend()
-    ax = format_legend(ax=ax, plot_cfg=plot_cfg)
-
-    plt.tight_layout()
-
-    # --- Final Figure Export ---
-    # Save the figure if an export name is provided
-    if export_name := save_cfg.get("export_name"):
-        final_export_path = os.path.join(plot_dir, f"{export_name}.pdf")
-        # Note: This will overwrite an existing file with the same name.
+        plt.tight_layout()
         plt.savefig(final_export_path, bbox_inches="tight")
-        print(f"Plot saved to {final_export_path}")
 
-    # Display the figure if configured to do so
-    if save_cfg.get("show_fig", False):
-        plt.show()
+        # Display the figure if configured to do so
+        if save_cfg.get("show_fig", False):
+            plt.show()
 
 
 def plot_mse_distribution(
@@ -390,83 +383,81 @@ def plot_mse_distribution(
     save_cfg = save_cfg or {}
     plot_cfg = plot_cfg or {}
 
-    # Standardize input to always be a list for consistent processing
-    if not isinstance(mse_data_dict_list, list):
-        mse_data_dict_list = [mse_data_dict_list]
+    final_export_path = os.path.join(plot_dir, f"{save_cfg.get("export_name", "mse_dist")}.pdf")
 
-    # --- Plot Initialization ---
-    num_subplots = len(mse_data_dict_list)
-    fig, axes = plt.subplots(ncols=num_subplots, sharex=True, sharey=True)
+    if not os.path.exists(final_export_path):
+        # Standardize input to always be a list for consistent processing
+        if not isinstance(mse_data_dict_list, list):
+            mse_data_dict_list = [mse_data_dict_list]
 
-    # Ensure 'axes' is always iterable, even for a single subplot
-    if num_subplots == 1:
-        axes = [axes]
+        # --- Plot Initialization ---
+        num_subplots = len(mse_data_dict_list)
+        fig, axes = plt.subplots(ncols=num_subplots, sharex=True, sharey=True)
 
-    # --- Plot-wide Configurations ---
-    # Extract surrogate keys and colors from the first data dictionary
-    # (assumes all dictionaries have the same surrogate keys)
-    surrogate_keys = list(mse_data_dict_list[0].keys())
-    surrogate_labels = [latex_notation_map[key]["general"] for key in surrogate_keys]
-    colors = make_colors(len(surrogate_keys))
+        # Ensure 'axes' is always iterable, even for a single subplot
+        if num_subplots == 1:
+            axes = [axes]
 
-    # Get custom plot limits and annotation positions from config
-    annotation_x = plot_cfg.get("annotations_x", [0.1] * len(surrogate_keys))
-    annotation_y = plot_cfg.get("annotations_y", [0.8] * num_subplots)
-    y_lims_lower = plot_cfg.get("y_lower", [None] * num_subplots)
-    y_lims_upper = plot_cfg.get("y_upper", [None] * num_subplots)
+        # --- Plot-wide Configurations ---
+        # Extract surrogate keys and colors from the first data dictionary
+        # (assumes all dictionaries have the same surrogate keys)
+        surrogate_keys = list(mse_data_dict_list[0].keys())
+        surrogate_labels = [latex_notation_map[key]["general"] for key in surrogate_keys]
+        colors = make_colors(len(surrogate_keys))
 
-    # --- Subplot Generation Loop ---
-    # Iterate through each state's data to create a dedicated subplot
-    for i, (ax, state_key, mse_data_dict) in enumerate(zip(axes, state_keys, mse_data_dict_list)):
+        # Get custom plot limits and annotation positions from config
+        annotation_x = plot_cfg.get("annotations_x", [0.1] * len(surrogate_keys))
+        annotation_y = plot_cfg.get("annotations_y", [0.8] * num_subplots)
+        y_lims_lower = plot_cfg.get("y_lower", [None] * num_subplots)
+        y_lims_upper = plot_cfg.get("y_upper", [None] * num_subplots)
 
-        # Unpack data for the current subplot
-        mse_data = list(mse_data_dict.values())
-        means = [mse.mean() for mse in mse_data]
-        stdevs = [mse.std() for mse in mse_data]
-        x_vals = np.arange(1, len(surrogate_keys) + 1)
-        # Use log10 for better visualization of error distribution
-        log_mse_data = [np.log10(mse) for mse in mse_data]
-        # Create violin plot
-        boxplot = ax.boxplot(
-            log_mse_data,
-            positions=x_vals,
-            patch_artist=True,
-            widths=0.6,
-            showfliers=False,
-            medianprops=dict(color="black", linewidth=2),
-        )
-        # Customize boxes with specific colors
-        for box, color in zip(boxplot["boxes"], colors):
-            box.set_facecolor(color)
-            box.set_edgecolor(color)
-            box.set_alpha(0.7)
-        # Overlay mean MSE values as markers and add text annotations
-        for j, (mean, std) in enumerate(zip(means, stdevs)):
-            # ax.scatter(x_vals[j], np.log10(mean), marker="o", s=30, color=colors[j], ec="black", zorder=3)
-            text = rf"$\langle$MSE$\rangle_t = {mean:.2e}$" + "\n " + rf"$\pm {std:.2e}$"
-            ax.annotate(text=text, xy=(annotation_x[j], annotation_y[i]), xycoords="axes fraction", va="center", ha="right")
-        # --- Axes Formatting ---
-        ax.set_xticks(x_vals)
-        ax.set_xticklabels(surrogate_labels)
-        ax.grid(True, linestyle="--", alpha=0.6)
+        # --- Subplot Generation Loop ---
+        # Iterate through each state's data to create a dedicated subplot
+        for i, (ax, state_key, mse_data_dict) in enumerate(zip(axes, state_keys, mse_data_dict_list)):
 
-        # Set y-axis label only for the first subplot
-        if i == 0:
-            ax.set_ylabel(f"log$_{{10}}$ MSE")
-        ax.set_ylim(y_lims_lower[i], y_lims_upper[i])
+            # Unpack data for the current subplot
+            mse_data = list(mse_data_dict.values())
+            means = [mse.mean() for mse in mse_data]
+            stdevs = [mse.std() for mse in mse_data]
+            x_vals = np.arange(1, len(surrogate_keys) + 1)
+            # Use log10 for better visualization of error distribution
+            log_mse_data = [np.log10(mse) for mse in mse_data]
+            # Create violin plot
+            boxplot = ax.boxplot(
+                log_mse_data,
+                positions=x_vals,
+                patch_artist=True,
+                widths=0.6,
+                showfliers=False,
+                medianprops=dict(color="black", linewidth=2),
+            )
+            # Customize boxes with specific colors
+            for box, color in zip(boxplot["boxes"], colors):
+                box.set_facecolor(color)
+                box.set_edgecolor(color)
+                box.set_alpha(0.7)
+            # Overlay mean MSE values as markers and add text annotations
+            for j, (mean, std) in enumerate(zip(means, stdevs)):
+                # ax.scatter(x_vals[j], np.log10(mean), marker="o", s=30, color=colors[j], ec="black", zorder=3)
+                text = rf"$\langle$MSE$\rangle_t = {mean:.2e}$" + "\n " + rf"$\pm {std:.2e}$"
+                ax.annotate(text=text, xy=(annotation_x[j], annotation_y[i]), xycoords="axes fraction", va="center", ha="right")
+            # --- Axes Formatting ---
+            ax.set_xticks(x_vals)
+            ax.set_xticklabels(surrogate_labels)
+            ax.grid(True, linestyle="--", alpha=0.6)
 
-    # --- Final Figure Adjustments and Export ---
-    plt.tight_layout()
+            # Set y-axis label only for the first subplot
+            if i == 0:
+                ax.set_ylabel(f"log$_{{10}}$ MSE")
+            ax.set_ylim(y_lims_lower[i], y_lims_upper[i])
 
-    # Save the figure if an export name is provided
-    if export_name := save_cfg.get("export_name"):
-        final_export_path = os.path.join(plot_dir, f"{export_name}.pdf")
+        # --- Final Figure Adjustments and Export ---
+        plt.tight_layout()
         plt.savefig(final_export_path, bbox_inches="tight")
-        print(f"Plot saved to {final_export_path}")
 
-    # Display the figure if configured to do so
-    if save_cfg.get("show_fig", False):
-        plt.show()
+        # Display the figure if configured to do so
+        if save_cfg.get("show_fig", False):
+            plt.show()
 
 
 def plot_random_trajectories(
@@ -579,48 +570,47 @@ def plot_exec_time_distribution(
             plot (e.g., 'export_name', 'show_fig'). Defaults to {}.
     """
 
-    print("---- Plotting execution time distribution. ----")
     plot_cfg = plot_cfg or {}
     save_cfg = save_cfg or {}
+    final_export_path = os.path.join(plot_dir, f"{save_cfg.get('export_name', "exe_time_dist")}.pdf")
+    if not os.path.exists(final_export_path):
+        print("---- Plotting execution time distribution. ----")
 
-    fig, ax = plt.subplots(figsize=plot_cfg.get("figsize", (10, 6)))
-    colors = make_colors(len(surrogate_result_dict))
-    x_vals = np.arange(1, len(surrogate_result_dict) + 1)
-    boxplot = ax.boxplot(
-        [np.log10(result["t_wall_total"]) for result in surrogate_result_dict.values()],
-        positions=x_vals,
-        patch_artist=True,
-        widths=0.6,
-        showfliers=False,
-        medianprops=dict(color="black", linewidth=2),
-    )
-    for i, result in enumerate(surrogate_result_dict.values()):
-        mean = result["t_wall_total"].mean()
-        ax.annotate(
-            r"$\langle \Delta t_\mathrm{sim}\rangle$ = " + f"{mean:.3f}" + " s",
-            xy=(plot_cfg.get("x_annotations", [0.18, 0.5, 0.82])[i], 0.2),
-            xycoords="axes fraction",
-            ha="center",
-            va="center",
+        fig, ax = plt.subplots(figsize=plot_cfg.get("figsize", (10, 6)))
+        colors = make_colors(len(surrogate_result_dict))
+        x_vals = np.arange(1, len(surrogate_result_dict) + 1)
+        boxplot = ax.boxplot(
+            [np.log10(result["t_wall_total"]) for result in surrogate_result_dict.values()],
+            positions=x_vals,
+            patch_artist=True,
+            widths=0.6,
+            showfliers=False,
+            medianprops=dict(color="black", linewidth=2),
         )
+        for i, result in enumerate(surrogate_result_dict.values()):
+            mean = result["t_wall_total"].mean()
+            ax.annotate(
+                r"$\langle \Delta t_\mathrm{sim}\rangle$ = " + f"{mean:.3f}" + " s",
+                xy=(plot_cfg.get("x_annotations", [0.18, 0.5, 0.82])[i], 0.2),
+                xycoords="axes fraction",
+                ha="center",
+                va="center",
+            )
 
-    ax.set_xticks(x_vals)
-    ax.set_xticklabels([latex_notation_map[key]["general"] for key in surrogate_result_dict.keys()])
-    ax.set_ylabel(r"$\log_{10}\!\left(\frac{\Delta t_{\mathrm{sim}}}{\mathrm{s}}\right)$")
+        ax.set_xticks(x_vals)
+        ax.set_xticklabels([latex_notation_map[key]["general"] for key in surrogate_result_dict.keys()])
+        ax.set_ylabel(r"$\log_{10}\!\left(\frac{\Delta t_{\mathrm{sim}}}{\mathrm{s}}\right)$")
 
-    for box, color in zip(boxplot["boxes"], colors):
-        box.set_facecolor(color)
-        box.set_edgecolor(color)
-        box.set_alpha(0.7)
+        for box, color in zip(boxplot["boxes"], colors):
+            box.set_facecolor(color)
+            box.set_edgecolor(color)
+            box.set_alpha(0.7)
 
-    plt.tight_layout()
+        plt.tight_layout()
 
-    if save_cfg.get("export_name", None):
-        final_export_path = os.path.join(plot_dir, f"{save_cfg.get('export_name')}.pdf")
         plt.savefig(final_export_path)
-
-    if save_cfg.get("show_fig", False):
-        plt.show()
+        if save_cfg.get("show_fig", False):
+            plt.show()
 
 
 def plot_intervall_coverages(

@@ -141,7 +141,6 @@ def configure_dompc_model(model_type: Type[SurrogateTypes], sim_cfg: Dict, data_
         dompc_model = configure_rigorous_model(meta_model=meta_model)
     elif model_type == SurrogateTypes.Vanilla.value or SurrogateTypes.Naive.value or SurrogateTypes.Pc.value:
         with_opt_layer = True if model_type == SurrogateTypes.Naive.value else False
-        print(with_opt_layer)
         nn_module_cls = PCStatePredictor if model_type == SurrogateTypes.Pc.value else StatePredictor
         narx_expressions, dompc_model = get_narx_expressions(
             data_structurizer=data_structurizer,

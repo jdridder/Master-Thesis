@@ -148,12 +148,21 @@ done by \emph{multi-stage-MPC} \cite{lucia2015}.
 \end{figure}
 
 It generates a scenario tree (fig.~\ref{theory:fig: multi-stage-mpc}) for all 
-possible combinations of disturbances. If the uncertainty is discrete, this formulation is exact.
-In most cases however, when the uncertainties lie in a continuous space, the scenario tree
+possible combinations of disturbances. In the algorithm design phase, scenario cases $w_k^{(\cdot)}$ must be
+defined a priori for each independent disturbance that may act on the system. As different disturbances occur
+in different combinations, each possible scenario is represented by a branch. At every time step in the \emph{robust horizon},
+branches for every possible uncertainty scenario are generated. This procedure is coined \emph{scenario generation}.
+In practice, the worst-cases for the disturbances are assumed and sometimes an additional expected or nominal value. Mostly, this yields good results
+with respect to controller performance and robustness \cite{lucia2013}.
+\newline
+\newline
+If the uncertainty is discrete and all cases are considered, the scenario tree formulation (fig.~\ref{theory:fig: multi-stage-mpc}) is exact.
+In most applications however, when the uncertainties lie in a continuous space, the scenario tree
 is an extremely rough approximation. With a non-linear system, the scenarios are not monotonous regarding the
-disturbance scenarios. This means, even if the scenario branches cover the extreme values of the disturbances
+disturbances. This means, even if the scenario branches cover the extreme values of the disturbances
 themselves, they can leave extreme scenarios caused by intermediate parameter combinations. Robust 
 constraint satisfaction is not guaranteed and must be checked via a reachability analysis \cite{lucia2015}.
+This can be an obstacle in safety-relevant applications.
 Another drawback of multi-stage MPC is, that it includes redundant scenarios not causing extreme cases due to 
 the non-monotonicity. These scenarios still are part of the optimization leading to unnecessary complexity.
 On top of this, the number of optimization variables growths exponentially with the \emph{robust horizon} $N_\text{r}$,
@@ -166,11 +175,7 @@ the number of parameters and their respective values (eq.~\ref{theory:eq: number
 
 Here, $n_\text{w}$ denotes the number of different disturbances and $\nu_i$ their respective discrete values. $n_\text{s}$
 describes the number of scenarios in the scenario tree (fig.~\ref{theory:fig: multi-stage-mpc}).
-
-
-
-\section{Conservativeness and Performance}
-
+High order uncertainties lead to optimization problems that are simply impossible to solve in real time.
 
 
 
@@ -321,7 +326,7 @@ into three submatrices (th.~\ref{theory:th: singular value decomposition}).
     \label{theory:th: singular value decomposition}
     \[
     \bm{X} = \bm{U} \bm{\Sigma} \bm{V}^*
-    \]
+    \] 
 \end{theorem}
 
 Here, the matrices $\bm{U} \in \mathbb{C}^{n \times n}$ and $\bm{V}^* \in \mathbb{C}^{m \times m}$ are quadratic, orthonormal matrices.
@@ -372,4 +377,33 @@ by an \emph{PCA encoder} placed before the first layer of a NARX model to reduce
     }
     \label{theory:fig: narx-pca-encoder}
 \end{figure}
+
+\section{Conservation of Atoms}
+
+The derived methology will later be applied to control a \emph{packed-bed tubular reactor} under parametric uncertainty which is
+a common realization for many chemical processes. For this sake, the \emph{conservation of atoms} during chemical reactions
+is introduced. Similar to the conservation of mass or energy, the conservation of atoms demands, that all atoms that enter
+a chemical reaction must also leave this reaction. While they change the species they form, the atoms themselves are conserved.
+This can be expressed as follows.
+\begin{theorem} Conservation of atoms during a chemical reaction.
+    \label{theory:th: conservation of atoms}
+    \[
+    \bm{B} \bm{\Delta n} = \bm{0}
+    \]
+\end{theorem}
+
+Here, $\bm{B}$ denotes the \emph{element-species-matrix} and $\bm{\Delta n}$ the changes in the molar amounts of all participating
+specieses in a reaction network. The sum of all atoms in all species must be equal at all times regardless of how the underlying reactions take place.
+This builds the foundation of reaction network analysis and the determination of key and non-key-components \cite{guttel2021}.
+\begin{equation}
+    \label{theory:eq: element-species-matrix}
+    \bm{B} = \begin{pmatrix}
+        \beta_{1, 1} & \hdots & \beta_{1, \alpha} \\
+        \vdots       & \ddots & \vdots \\ 
+        \beta_{h, 1} & \hdots & \beta_{h, \alpha}
+    \end{pmatrix}   
+\end{equation}
+The element-species-matrix contains the elements $h$ as rows and the species $\alpha$ as columns. $\beta_{h, \alpha}$ describes
+the number of atoms of element $h$ in the species $\alpha$. This implies, that when the initial molar amounts of all species are known,
+all possible combinations of molar amounts must lie in a pre-defined space.
 

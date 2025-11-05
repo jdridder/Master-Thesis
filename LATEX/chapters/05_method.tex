@@ -169,3 +169,23 @@ and the truncation of the dual variables in the solution. The matrix inversion t
 offline and then saved as untrainable model parameter. In \texttt{pytorch} this is can be done using the
 \texttt{register\_buffer()} method. An implementation example of the physics consistent activation can be found in the appendix (XX).
 
+
+
+\section{Control Target}
+
+The goal of this work is to derive a physics-consistent surrogate modelling technique to be applied within a robust MPC algorithm.
+Physics consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
+This reactor type is common in the chemical industry in many processes such as ethylene oxidation, carbon dioxide methanization or steam reforming.
+Especcially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation. For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
+biological resources.
+\newline
+\newline
+For exothermal reactions, \emph{transient behavior} is a mayor safety concern of packed-bed tubular reactors \cite{guttel2021}.
+In a dynamic operating environment, the thermal inertia of the catalytic packed bed can abruptly heat up unreacted feed mixture.
+This can cause a self-accelerating temperature runaway leading to thermal damage or even explosion.
+Furthermore, high temperatures can cause several catalyst deactivation effects such as sintering. Therefore, the temperature
+is considered a safety-crucial state that needs to obey to a maximum constraint in the sense of $F_i \leq 0$ in the original optimization (def.~\ref{theroy:def: bi-level program}) for all possible disturbances $\vw$.
+The maximum of $F_i$ should be approximated by $\tilde{\varphi}_i(\vu)$. This will be achieved by training a NARX model that predicts
+a tuned upper and lower bound for $\tilde{\varphi}_i(\vu)$ independent from the uncertainty $\vw$ using quantile regression.
+Apart from safety, the maximization of the selectivity towards the value product is a reasonable control objective, as the selectivity
+is most correlated to process profitability in many cases. In total, following optimization structure is proposed.
