@@ -193,7 +193,7 @@ conversion is set to be required via a constraint. In total, following general o
 \begin{equation}
     \label{case:eq: general optimization}
     \begin{gathered}
-        \min \; S \\
+        \max \; S \\
         \begin{aligned}
             \text{s.t.} \quad T &\leq T_\text{max} \\
             X &\geq X_\text{min}
@@ -243,8 +243,8 @@ and $T_{\text{ads},j}$ the adsorption temperature. To simulate these kinetics, t
 of the rate determining species ethene, oxygen and carbon dioxide must be known.
 
 \section{Packed-bed tubular Reactor Model}
-The reactor is assumed to be already existend with a fixed design to clearly separate the model derivation
-from an optimal design task (fig.~\ref{case:fig: complete reactor}). 
+The reactor as a packed-bed tubular reactor (TR) is assumed to be already existend with a fixed design to clearly separate the model derivation
+from an optimal design task (fig.~\ref{case:fig: complete reactor}). To ensure thermal stability, the additional temperatureprofile derivation is mandatory. 
 
 \begin{figure}
     \centering
@@ -257,8 +257,9 @@ from an optimal design task (fig.~\ref{case:fig: complete reactor}).
     \label{case:fig: complete reactor}
 \end{figure}
 
-To ensure thermal stability, the additional temperature
-profile derivation is mandatory. 
+
+\subsection{PDE System Derivation}
+
 The technical reactor itself is equipped with four wall cooling sections ($T_{\text{w,1}}$ to $T_{\text{w,4}}$) to manipulate the temperature profile.
 The input flow velocity $u$ can fluctuate due to flexible feed availability such as in carbon dioxide methanization,
 where the throughput heavily relies on the hydrogen supply \cite{}. Because isobaric conditions and a non-compressible phase are assumed,
@@ -290,7 +291,7 @@ A detailed derivation of the model equations can be found in the appendix (XX).
     \label{case:eq: dimensionless component PDE}
     \begin{gathered}
         \frac{\partial \chi_\alpha}{\partial t} = - u \frac{\partial \chi_\alpha}{\partial z}
-        + (1 - \epsilon) \frac{\mathrm{R} T_*}{p x_*} \sum^j \nu_{\alpha,j} r_j(\chi_\alpha, T') \\
+        + (1 - \epsilon) \frac{\mathrm{R} T_*}{p x_*} \sum_j \nu_{\alpha,j} r_j(\chi_\alpha, T') \\
         \text{with} \quad \chi_\alpha = \frac{x_\alpha'}{T'} \quad 
         x_\alpha' = \frac{x_\alpha}{x_*} \quad
         T' = \frac{T}{T_*}
@@ -319,7 +320,40 @@ nor friction, nor dispersive, nor conductive enthalpy transfer.
     \Pi_{j,k} \frac{\partial u_j}{\partial z_k} + \sigma_h
 \end{equation}
 
+The final PDE to describe the temperature field in the reactor is yielded (eq.~\ref{case:eq: dimensionless temperature PDE}).
 \begin{equation}
     \label{case:eq: dimensionless temperature PDE}
-    \frac{\partial T'}{\partial t} = -u \frac{\partial T'}{\partial z}
+    \frac{\partial T'}{\partial t} = -u \frac{\partial T'}{\partial z} +
+    \frac{1}{\rho c_\text{p}} \bigg ( \frac{1-\epsilon}{T_*} \sum_j (-\Delta h_{\text{R},j}) r_j
+    + \frac{4}{d_\text{t}}  \alpha \big (\frac{T_\text{w}}{T_*} - T' \big) \bigg)
 \end{equation}
+Important parameters are the bed void fraction $\epsilon$, the tube diameter $d_\text{t}$, the enthalpy of reaction
+$\Delta h_{\text{R}, j}$, the total density $\rho$ and the total heat capacity $c_\text{p}$. The wall heat transfer
+is assumed to only be governed by the fluid-wall heat transfer coefficient $\alpha$, which is a function
+of the fluid velocity and the radial heat conductivity of the catalytic bed (eq.~\ref{case:eq: heat transfer coefficient}).
+In fact, this parameter abbreviated
+with $\lambda_\text{bed}$ is crucial for the temperature behavior of the TR. Underlying dependecies like
+Reynolds and Prandl expressions are part of the appendix to keep the derivation tidy.
+\begin{equation}
+    \label{case:eq: heat transfer coefficient}
+    \alpha = f(\mathrm{Re}, \mathrm{Pr}, \lambda_\text{bed})
+\end{equation}
+
+\subsection{Discretization}
+
+The system of non-linear PDEs is discretized in $z$-direction via \emph{backward finite differences}.
+\begin{definition} Discretized system of PDEs using backward finite differences to yield an ODE system
+    \label{case:def: discretized system of PDEs}
+    \[
+    \begin{aligned}
+        \frac{d \chi_{\alpha,i}}{d t} &= - u \frac{\chi_{\alpha,i} - \chi_{\alpha,i-1}}{\Delta z}
+        + (1 - \epsilon) \frac{\mathrm{R} T_*}{p x_*} \sum_j \nu_{\alpha,j} r_j(\chi_{\alpha,i}, T'_i) \\
+        \frac{d T'_i}{dt} &= -u \frac{T'_{i} - T'_{i-1}}{\Delta z} +
+        \frac{1}{\rho c_\text{p}} \bigg ( \frac{1-\epsilon}{T_*} \sum_j (-\Delta h_{\text{R},j}) r_j(\chi_{\alpha,i}, T'_i)
+        + \frac{4}{d_\text{t}}  \alpha \big (\frac{T_{\text{w},i}}{T_*} - T'_i \big) \bigg)
+    \end{aligned}
+    \]
+\end{definition}
+
+
+\section{Parametric Uncertainty}
