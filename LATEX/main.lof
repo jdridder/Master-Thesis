@@ -6,8 +6,9 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces Neural network with physics constrained activation function $g_\text {pc}$}}{15}{figure.caption.17}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Catalytic packed-bed flow reactor}}{19}{figure.caption.18}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Validation loss of vanilla NARX vs physics-constrained NARX}}{22}{figure.caption.18}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Validation loss of vanilla NARX vs physics-constrained NARX}}{22}{figure.caption.19}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

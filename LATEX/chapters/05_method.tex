@@ -239,12 +239,37 @@ coefficient follow simple Arrhenius correlations (eq.~\ref{case:eq: collision fa
 \end{equation}
 These introduce a strong non-linearity in the temperature $T$ and the kinetic parameters, the upright letter $\mathrm{R}$ represents the 
 universal gas constant, $E_\text{A}$ the activation energy, $k_{0, j}$ and $K_{0, j}$ the respective pre-exponential factors
-and $T_{\text{ads},j}$ the adsorption temperature.
+and $T_{\text{ads},j}$ the adsorption temperature. To simulate these kinetics, the partial pressures
+of the rate determining species ethene, oxygen and carbon dioxide must be known.
 
 \section{Packed-bed tubular Reactor Model}
 The reactor is assumed to be already existend with a fixed design to clearly separate the model derivation
-from an optimal design task. Using the component balace in local form (eq.~\ref{case:eq: component balance in local form}), a PDE can be derived that
+from an optimal design task (fig.~\ref{case:fig: complete reactor}). 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Reaction-Modelling/reactor-complete.pdf}
+    \caption[Catalytic packed-bed flow reactor]
+    {The packed-bed reactor is assumed to exhibit plug flow behavior (green). Catalyst and gaseous phase are lumped into
+    one pseudo-homogenious reaction phase. The inlet conditions remain constant for the temperature $T$ and the 
+    molar fractions of each component $x_{(\cdot)}$, while the inlet flow speed $u$ can fluctuate due to flexible feed availability.
+    Four cooling sections (blue) are integrated.}
+    \label{case:fig: complete reactor}
+\end{figure}
+
+To ensure thermal stability, the additional temperature
+profile derivation is mandatory. 
+The technical reactor itself is equipped with four wall cooling sections ($T_{\text{w,1}}$ to $T_{\text{w,4}}$) to manipulate the temperature profile.
+The input flow velocity $u$ can fluctuate due to flexible feed availability such as in carbon dioxide methanization,
+where the throughput heavily relies on the hydrogen supply \cite{}. Because isobaric conditions and a non-compressible phase are assumed,
+the simulated states narrow down to the molar fractions of the rate-determining species $x_\alpha$ and the temperature $T$.
+These are considered to be constant at the inlet, which is important for the later application of 
+linear equality constraints in a NN. 
+Using the component balace in local form (eq.~\ref{case:eq: component balance in local form}), a PDE can be derived that
 describes the dynamic concentration gradients of the components $\alpha$.
+Furthermore, the enthalpy balance shall be covered to calculate the temperature field regarding the exothermic
+reactions.
+
 \begin{equation}
     \label{case:eq: component balance in local form}
     \frac{\partial \rho_\alpha}{\partial t} = - \frac{\partial}{\partial z_k} (\rho_\alpha u_k + j_{\alpha, k}) + \sigma_\alpha
@@ -270,4 +295,31 @@ A detailed derivation of the model equations can be found in the appendix (XX).
         x_\alpha' = \frac{x_\alpha}{x_*} \quad
         T' = \frac{T}{T_*}
     \end{gathered}
+\end{equation}
+To improve numerical stability, the mole fractions $x_\alpha$ and the temperature occur in a dimensionless
+form indicated by a prime (') symbol. This is done by diving by a reference value, denoted with a star (*) (eq.~\ref{case:eq: dimensionless component PDE}).
+It not only improves numerical simulation stability, for later training of surrogate models, it also eliminates the need for
+an \emph{output scaler} which simplifies implementation and training. These reference values are defined as follows (eq.~\ref{case:eq: reference values for scaling}).
+\begin{equation}
+    \label{case:eq: reference values for scaling}
+    x_* = x_\text{E,in} \quad T_* = T_\text{in}
+\end{equation}
+Due to the ideal gas behavior (eq.~\ref{case:eq: ideal gas law}), the molar density $\rho_\alpha$ varies not only
+with the molar fraction but also with the temperature. Therefore, an artificial state $\chi_\alpha$ is introduced
+to enable an easy and explicit formulation of the PDE via substitution (eq.~\ref{case:eq: dimensionless component PDE}).
+\newline
+\newline
+The enthalpy balance in local form can be significantly reduced under isobaric conditions with neither volume forces,
+nor friction, nor dispersive, nor conductive enthalpy transfer.
+\begin{equation}
+    \label{case:eq: enthalpy balance local form}
+    \frac{\partial (\rho h)}{\partial t} - \frac{\partial p }{\partial t} = 
+    -\frac{\partial}{\partial z_k} \bigg (\rho h u_k + q_k' \bigg) + 
+    u_k \frac{\partial p}{\partial z_k} + \sum_i j_{k,i} f_{k,i} -
+    \Pi_{j,k} \frac{\partial u_j}{\partial z_k} + \sigma_h
+\end{equation}
+
+\begin{equation}
+    \label{case:eq: dimensionless temperature PDE}
+    \frac{\partial T'}{\partial t} = -u \frac{\partial T'}{\partial z}
 \end{equation}

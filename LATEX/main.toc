@@ -26,4 +26,4 @@
 \contentsline {section}{\numberline {A.1}Parameter for ...}{25}{section.A.1}%
 \contentsline {chapter}{\numberline {B}Proofs}{27}{appendix.B}%
 \contentsline {section}{\numberline {B.1}Proof of Theorem X}{27}{section.B.1}%
-\contentsline {chapter}{Bibliography}{29}{appendix*.19}%
+\contentsline {chapter}{Bibliography}{29}{appendix*.20}%
