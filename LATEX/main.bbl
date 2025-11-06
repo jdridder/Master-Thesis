@@ -974,6 +974,50 @@
       \endverb
       \keyw{Ethenoxidation;Kinetik}
     \endentry
+    \entry{zehner1970}{article}{}
+      \name{author}{2}{}{%
+        {{hash=55522f462601cda2ab636161e3be4f83}{%
+           family={Zehner},
+           familyi={Z\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod}}}%
+        {{hash=08512fc8ed330920ebb8552ed8f43520}{%
+           family={Schlünder},
+           familyi={S\bibinitperiod},
+           given={E.\bibnamedelimi U.},
+           giveni={E\bibinitperiod\bibinitdelim U\bibinitperiod}}}%
+      }
+      \strng{namehash}{c5171255c0669e333dc715e4a10d156a}
+      \strng{fullhash}{c5171255c0669e333dc715e4a10d156a}
+      \strng{bibnamehash}{c5171255c0669e333dc715e4a10d156a}
+      \strng{authorbibnamehash}{c5171255c0669e333dc715e4a10d156a}
+      \strng{authornamehash}{c5171255c0669e333dc715e4a10d156a}
+      \strng{authorfullhash}{c5171255c0669e333dc715e4a10d156a}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Abstract Die effektive Wärmeleitfähigkeit nicht durchströmter Schüttungen hängt stark von der Art der Berührung der Partikel ab; sie ist z. B. bei Kugeln und Zylindern unterschiedlich. Aus einem einfachen Modell werden Gleichungen entwickelt, die außer den Wärmeleitfähigkeiten der fluiden Phase und des Feststoffs die Porosität der Schüttung berücksichtigen. Die Gleichungen enthalten einen empirischen Anpassungsparameter, der nur von der Form der Partikel abhängt und aus in der Literatur veröffentlichten Meßwerten bestimmt wird.}
+      \field{journaltitle}{Chemie Ingenieur Technik}
+      \field{number}{14}
+      \field{title}{Wärmeleitfähigkeit von Schüttungen bei mäßigen Temperaturen}
+      \field{volume}{42}
+      \field{year}{1970}
+      \field{pages}{933\bibrangedash 941}
+      \range{pages}{9}
+      \verb{doi}
+      \verb https://doi.org/10.1002/cite.330421408
+      \endverb
+      \verb{eprint}
+      \verb https://onlinelibrary.wiley.com/doi/pdf/10.1002/cite.330421408
+      \endverb
+      \verb{urlraw}
+      \verb https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.330421408
+      \endverb
+      \verb{url}
+      \verb https://onlinelibrary.wiley.com/doi/abs/10.1002/cite.330421408
+      \endverb
+    \endentry
   \enddatalist
 \endrefsection
 \endinput

@@ -20,13 +20,14 @@
 \contentsline {section}{\numberline {4.1}Reaction Kinetics}{17}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Packed-bed tubular Reactor Model}{18}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}PDE System Derivation}{18}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Discretization}{20}{subsection.4.2.2}%
 \contentsline {section}{\numberline {4.3}Parametric Uncertainty}{21}{section.4.3}%
-\contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{23}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Training Effectivity}{23}{section.5.1}%
-\contentsline {chapter}{\numberline {6}Conclusions}{25}{chapter.6}%
-\contentsline {chapter}{\numberline {A}Datasheets}{27}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Parameter for ...}{27}{section.A.1}%
-\contentsline {chapter}{\numberline {B}Proofs}{29}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Proof of Theorem X}{29}{section.B.1}%
-\contentsline {chapter}{Bibliography}{31}{appendix*.20}%
+\contentsline {subsection}{\numberline {4.3.1}Radial bed heat conductivity}{21}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Activation Energies and Pre-exponential factors}{21}{subsection.4.3.2}%
+\contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{25}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Training Effectivity}{25}{section.5.1}%
+\contentsline {chapter}{\numberline {6}Conclusions}{27}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets}{29}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Parameter for ...}{29}{section.A.1}%
+\contentsline {chapter}{\numberline {B}Proofs}{31}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Proof of Theorem X}{31}{section.B.1}%
+\contentsline {chapter}{Bibliography}{33}{appendix*.22}%

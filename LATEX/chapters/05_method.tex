@@ -338,9 +338,6 @@ Reynolds and Prandl expressions are part of the appendix to keep the derivation 
     \label{case:eq: heat transfer coefficient}
     \alpha = f(\mathrm{Re}, \mathrm{Pr}, \lambda_\text{bed})
 \end{equation}
-
-\subsection{Discretization}
-
 The system of non-linear PDEs is discretized in $z$-direction via \emph{backward finite differences}.
 \begin{definition} Discretized system of PDEs using backward finite differences to yield an ODE system
     \label{case:def: discretized system of PDEs}
@@ -357,3 +354,69 @@ The system of non-linear PDEs is discretized in $z$-direction via \emph{backward
 
 
 \section{Parametric Uncertainty}
+
+Because model parameters such as the activation energy or the pre-exponential collision factor are mostly fitted
+by laboratory experiments that exhibit some kind of measurement uncertainty, the parameters themselves cannot be
+exactly determined. They lie in a confidence space. Furthermore, fitting results with counteracting mechanisms
+produce cross-correlations between parameters. For example, when a higher activation energy is determined, simutaneously
+the according pre-exponential factor must be also higher to compensate for the reduced reaction speed. In this case study,
+five first principle model parameters should be treated as uncertain. These are the radial bed heat conductivity $\lambda_\text{bed}$,
+the activation energies $E_{\text{A},1}, E_{\text{A},2}$ and their respective pre-exponential collision factors $k_{0,1}, k_{0,2}$ for the main and the side reaction.
+
+\subsection{Radial bed heat conductivity}
+The radial bed heat conductivity is set to follow a normal distribution with a mean of $0.404~\;~\mathrm{W \; m^{-1} \; K^{-1}}$ calculated by a correlation by Zehner et al. \cite{zehner1970}
+and a rather high standard deviation of $0.08~\;~\mathrm{W \; m^{-1} \; K^{-1}}$ (fig.~\ref{case:fig: lambda bed distribution}).
+\begin{definition} Normal distribition of the radial heat conductivity of the catalytic bed
+    \label{case:def: heat conductivity distribution}
+    \[
+        \lambda_\text{bed} \sim \mathcal{N}(\mu_\lambda, \sigma_\lambda)
+    \]
+\end{definition}
+
+\subsection{Activation Energies and Pre-exponential factors}
+The activation energies and pre-exponential factors are assumed to arise from a multi-variate normal distribution, which
+can be determined for a cross-correlated parameter fitting (def.~\ref{case:def: multi-variate distribution}).
+\begin{definition} Multi-variate normal distribution of cross-correlated kinetic parameters
+    \label{case:def: multi-variate distribution}
+    \[
+        \begin{pmatrix}
+            \ln k_{0,1} \\ E_{\text{A}, 1} \\ \ln k_{0,2} \\ E_{\text{A}, 2} 
+        \end{pmatrix} \sim \mathcal{N}(\bm{\mu}, \bm{\Sigma})
+    \]
+\end{definition}
+To calculate the mean vector $\bm{\mu}$ and the covariance matrix $\bm{\Sigma}$, an actual parameter fitting with emulated
+measurement noise has been executed using a \emph{berty} reactor model. All probabilistic terms are summarized (tab.~\ref{}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Reaction-Modelling/lambda_histogram.pdf}
+    \caption[Parameter distribution for the radial heat conductivity.]
+    {The radial heat conductivity of the packed bed follows a normal distribution with its mean 
+    calculated by the correlation of Zehner et al. \cite{zehner1970} and a standard deviation of 
+    $\sigma = 0.08 \; \mathrm{W m^{-1} K^{-1}}$, shown for $1000$ sampling points.}
+    \label{case:fig: lambda bed distribution}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Reaction-Modelling/kinetic_cross_correlation_k1_EA1.pdf}
+    \caption[Parameter distribution for the activation energy and the collision factor.]
+    {Due to the multi-variate normal distribution caused by an experimental parameter fitting and the non-linearity
+    of the Arrhenius-Ansatz (eq.~\ref{case:eq: collision factor}), the activation energy and the pre-exponential
+    factor show severe non-linear uncertainty. The nominal value is marked in yellow.}
+    \label{case:fig: kinetic parameter distribution}
+\end{figure}
+
+\begin{tabular}{lr | rrrr}
+\multicolumn{2}{c}{$\bm{\mu}$} & \multicolumn{5}{c}{$\bm{\Sigma}$} \\ 
+\cmidrule(l){3-6}
+\multicolumn{1}{c} $x$ & 1 & $\ln k_{0,1}$ & $E_{\text{A}, 1}$ & $\ln k_{0,2}$ & $E_{\text{A}, 2}$ \\
+\midrule
+$\ln k_{0,1}$ & 15.621453 & 0.351544 & 1768.109910 & 0.380453 & 1913.304578 \\
+$E_{\text{A}, 1}$ & 74856.339000 & 1768.109910 & 9031744.980000 & 1913.445056 & 9773020.700000 \\
+$\ln k_{0,2}$ & 16.272557 & 0.380453 & 1913.445056 & 0.411795 & 2070.851800 \\
+$E_{\text{A}, 2}$ & 89853.839400 & 1913.304578 & 9773020.700000 & 2070.851800 & 10576522.400000 \\
+\bottomrule
+\end{tabular}
+

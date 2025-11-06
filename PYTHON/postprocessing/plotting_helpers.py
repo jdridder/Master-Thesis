@@ -48,7 +48,7 @@ def set_mpt_settings(font_size: float = 16, figsize=(10, 6)):
             "font.size": font_size,
             "axes.labelsize": "large",
             "figure.figsize": figsize,
-            "axes.grid": True,
+            "axes.grid": False,
             "lines.markersize": 10,
             "axes.unicode_minus": False,
             "ps.fonttype": 42,  # Avoid type 3 fonts
