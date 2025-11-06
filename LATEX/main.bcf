@@ -2406,6 +2406,8 @@
     <bcf:citekey order="38" intorder="1">chen2024</bcf:citekey>
     <bcf:citekey order="39" intorder="1">lastrucci2025</bcf:citekey>
     <bcf:citekey order="40" intorder="1">guttel2021</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">pietschak2018</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">alsaleh1988</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

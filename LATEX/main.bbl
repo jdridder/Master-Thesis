@@ -901,6 +901,79 @@
       \verb https://arxiv.org/abs/2501.17782
       \endverb
     \endentry
+    \entry{pietschak2018}{article}{}
+      \name{author}{3}{}{%
+        {{hash=53f462491cec67413e933b89f999abb1}{%
+           family={Pietschak},
+           familyi={P\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=0f019c7b09af02ba32a249c802e180d8}{%
+           family={Kaiser},
+           familyi={K\bibinitperiod},
+           given={Markus},
+           giveni={M\bibinitperiod}}}%
+        {{hash=102cbead52536912b0777dd4764f35f7}{%
+           family={Freund},
+           familyi={F\bibinitperiod},
+           given={Hannsjörg},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{e81e041386a3f1a61ccbda15a08b7f3b}
+      \strng{fullhash}{e81e041386a3f1a61ccbda15a08b7f3b}
+      \strng{bibnamehash}{e81e041386a3f1a61ccbda15a08b7f3b}
+      \strng{authorbibnamehash}{e81e041386a3f1a61ccbda15a08b7f3b}
+      \strng{authornamehash}{e81e041386a3f1a61ccbda15a08b7f3b}
+      \strng{authorfullhash}{e81e041386a3f1a61ccbda15a08b7f3b}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{02638762}
+      \field{journaltitle}{Chemical Engineering Research and Design}
+      \field{title}{Tailored catalyst pellet specification for improved fixed-bed transport characteristics: A shortcut method for the model-based reactor design}
+      \field{volume}{137}
+      \field{year}{2018}
+      \field{pages}{60\bibrangedash 74}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1016/j.cherd.2018.06.043
+      \endverb
+    \endentry
+    \entry{alsaleh1988}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=28a0bb18bc462c47a7484390e13f233d}{%
+           family={{M.A. Al-Saleh M.S. Al-Ahmadi M.A. Shalabi}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {King Fahd University of Petroleum and Minerals}%
+      }
+      \strng{namehash}{28a0bb18bc462c47a7484390e13f233d}
+      \strng{fullhash}{28a0bb18bc462c47a7484390e13f233d}
+      \strng{bibnamehash}{28a0bb18bc462c47a7484390e13f233d}
+      \strng{authorbibnamehash}{28a0bb18bc462c47a7484390e13f233d}
+      \strng{authornamehash}{28a0bb18bc462c47a7484390e13f233d}
+      \strng{authorfullhash}{28a0bb18bc462c47a7484390e13f233d}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{37}
+      \field{title}{Kinetic study of ethylene oxidation in a Berty reactor}
+      \field{year}{1988}
+      \field{dateera}{ce}
+      \verb{doi}
+      \verb 10.1016/0300-9467(88)80004-2
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/0300946788800042
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/0300946788800042
+      \endverb
+      \keyw{Ethenoxidation;Kinetik}
+    \endentry
   \enddatalist
 \endrefsection
 \endinput

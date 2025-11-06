@@ -171,7 +171,7 @@ offline and then saved as untrainable model parameter. In \texttt{pytorch} this 
 
 
 
-\section{Control Target}
+\chapter{Case Study}
 
 The goal of this work is to derive a physics-consistent surrogate modelling technique to be applied within a robust MPC algorithm.
 Physics consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
@@ -188,4 +188,86 @@ is considered a safety-crucial state that needs to obey to a maximum constraint 
 The maximum of $F_i$ should be approximated by $\tilde{\varphi}_i(\vu)$. This will be achieved by training a NARX model that predicts
 a tuned upper and lower bound for $\tilde{\varphi}_i(\vu)$ independent from the uncertainty $\vw$ using quantile regression.
 Apart from safety, the maximization of the selectivity towards the value product is a reasonable control objective, as the selectivity
-is most correlated to process profitability in many cases. In total, following optimization structure is proposed.
+is most correlated to process profitability in many cases. To achieve a reasonable turnover from educts to products, a minimum 
+conversion is set to be required via a constraint. In total, following general optimization structure is proposed.
+\begin{equation}
+    \label{case:eq: general optimization}
+    \begin{gathered}
+        \min \; S \\
+        \begin{aligned}
+            \text{s.t.} \quad T &\leq T_\text{max} \\
+            X &\geq X_\text{min}
+        \end{aligned}
+    \end{gathered}
+\end{equation}
+
+\section{Reaction Kinetics}
+To focus on the surrogate modelling methology, the example system is kept rather simplistic. 
+The \emph{ethylene oxidation} process consists of only two parallel reactions. Parametric data
+is readily available due to extensive literature about this reaction system. Further, the reaction and 
+reactor configuration is taken from an optimal reactor design study by Pietschak et al. \cite{pietschak2018} and
+adjusted for the needs at hand. Thus, some proposed operating conditions may be unrealistic due to safety concerns
+or over-simplifications.
+\newline
+\newline
+Ethene is partially oxidized to ethylene oxide, while the total oxidation (combustion) of ethene takes place
+as a parallel reaction to carbon dioxide and water (eq.~\ref{case:eq: reaction equation}). According to the kinetics of Al-Saleh et al. \cite{alsaleh1988},
+the consecutive reaction from ethylene oxide to water and carbon dioxide can be neglected.
+\begin{equation}
+    \label{case:eq: reaction equation}
+    \begin{gathered}
+        \mathrm{C_2H_4} + \frac{1}{2} \; \mathrm{O_2} \rightarrow \mathrm{C_2H_4O} \\
+        \mathrm{C_2H_4} + 3 \; \mathrm{O_2} \rightarrow 2 \; \mathrm{CO_2} + 2 \; \mathrm{H_2O} \\
+        \mathrm{C_2H_4O} + \frac{5}{2} \mathrm{O_2} \rightarrow 2 \mathrm{CO_2} + 2 \; \mathrm{H_2O}
+    \end{gathered}
+\end{equation}
+The reaction rates can be described using following rate expression (eq.~\ref{case:eq: reaction rate}).
+\begin{equation}
+    \label{case:eq: reaction rate}
+    r_j = \frac{k_j p_\text{E}^{n_j^{(\text{E})}} p_\text{O2}^{n_j^{(\text{O2})}}}{1 + K_j p_\text{CO2}}
+\end{equation}
+Here, $r_j$ denotes the reaction rate of reaction $j$, $k_j$ the collision factor, $p_\alpha$ the partial pressures of
+component $\alpha$ and $K_j$ the adsorption coefficient for carbon dioxide. The collision factor and the adsorption
+coefficient follow simple Arrhenius correlations (eq.~\ref{case:eq: collision factor},~\ref{case:eq: adsorption coefficient}).
+\begin{equation}
+    \label{case:eq: collision factor}
+    k_j = k_{0, j} \exp \bigg ( \frac{-E_{\text{A},j}}{\mathrm{R} T} \bigg)
+\end{equation}
+\begin{equation}
+    \label{case:eq: adsorption coefficient}
+    K_j = K_{0, j} \exp \bigg ( \frac{T_{\text{ads},j}}{T} \bigg)
+\end{equation}
+These introduce a strong non-linearity in the temperature $T$ and the kinetic parameters, the upright letter $\mathrm{R}$ represents the 
+universal gas constant, $E_\text{A}$ the activation energy, $k_{0, j}$ and $K_{0, j}$ the respective pre-exponential factors
+and $T_{\text{ads},j}$ the adsorption temperature.
+
+\section{Packed-bed tubular Reactor Model}
+The reactor is assumed to be already existend with a fixed design to clearly separate the model derivation
+from an optimal design task. Using the component balace in local form (eq.~\ref{case:eq: component balance in local form}), a PDE can be derived that
+describes the dynamic concentration gradients of the components $\alpha$.
+\begin{equation}
+    \label{case:eq: component balance in local form}
+    \frac{\partial \rho_\alpha}{\partial t} = - \frac{\partial}{\partial z_k} (\rho_\alpha u_k + j_{\alpha, k}) + \sigma_\alpha
+\end{equation}
+The general component density $\rho_\alpha$ is expressed in mol/m$^3$, while $\partial z_k$ indicates
+the spatial derivative in direction $k$. $u_k$ and $j_{\alpha, k}$ denote the convective velocity and the 
+diffusive mass transport in direction $k$. The source or sink term $\sigma_\alpha$ allows to consider chemical reations.
+Ideal gas behavior is considered (eq.~\ref{case:eq: ideal gas law}).
+\begin{equation}
+    \label{case:eq: ideal gas law}
+    p_\alpha = \rho_\alpha \mathrm{R} T
+\end{equation}
+Moreover, \emph{plug flow} and constant pressure are assumed. 
+Under the consideration of a 1D-pseudo-homogenious model with gradients only in axial direction and no
+diffusive mass transfer, this equation reduces to an ideal \emph{plug flow tubular reactor} (PFTR) (eq.~\ref{case:eq: dimensionless component PDE}).
+A detailed derivation of the model equations can be found in the appendix (XX). 
+\begin{equation}
+    \label{case:eq: dimensionless component PDE}
+    \begin{gathered}
+        \frac{\partial \chi_\alpha}{\partial t} = - u \frac{\partial \chi_\alpha}{\partial z}
+        + (1 - \epsilon) \frac{\mathrm{R} T_*}{p x_*} \sum^j \nu_{\alpha,j} r_j(\chi_\alpha, T') \\
+        \text{with} \quad \chi_\alpha = \frac{x_\alpha'}{T'} \quad 
+        x_\alpha' = \frac{x_\alpha}{x_*} \quad
+        T' = \frac{T}{T_*}
+    \end{gathered}
+\end{equation}

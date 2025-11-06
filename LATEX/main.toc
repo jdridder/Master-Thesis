@@ -16,12 +16,14 @@
 \contentsline {section}{\numberline {2.6}Conservation of Atoms}{11}{section.2.6}%
 \contentsline {chapter}{\numberline {3}Surrogate Modelling}{13}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Physics-Constrained Neural Networks}{13}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Control Target}{16}{section.3.2}%
-\contentsline {chapter}{\numberline {4}Results on Surrogate Model Performance}{17}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Training Effectivity}{17}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Conclusions}{19}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Datasheets}{21}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Parameter for ...}{21}{section.A.1}%
-\contentsline {chapter}{\numberline {B}Proofs}{23}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Proof of Theorem X}{23}{section.B.1}%
-\contentsline {chapter}{Bibliography}{25}{appendix*.19}%
+\contentsline {chapter}{\numberline {4}Case Study}{17}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Reaction Kinetics}{17}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Packed-bed tubular Reactor Model}{18}{section.4.2}%
+\contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{21}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Training Effectivity}{21}{section.5.1}%
+\contentsline {chapter}{\numberline {6}Conclusions}{23}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets}{25}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Parameter for ...}{25}{section.A.1}%
+\contentsline {chapter}{\numberline {B}Proofs}{27}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Proof of Theorem X}{27}{section.B.1}%
+\contentsline {chapter}{Bibliography}{29}{appendix*.19}%
