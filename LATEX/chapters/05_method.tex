@@ -169,6 +169,8 @@ and the truncation of the dual variables in the solution. The matrix inversion t
 offline and then saved as untrainable model parameter. In \texttt{pytorch} this is can be done using the
 \texttt{register\_buffer()} method. An implementation example of the physics consistent activation can be found in the appendix (XX).
 
+\section{Surrogate Assembly}
+
 
 
 \chapter{Case Study}
@@ -176,7 +178,7 @@ offline and then saved as untrainable model parameter. In \texttt{pytorch} this 
 The goal of this work is to derive a physics-consistent surrogate modelling technique to be applied within a robust MPC algorithm.
 Physics consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
 This reactor type is common in the chemical industry in many processes such as ethylene oxidation, carbon dioxide methanization or steam reforming.
-Especcially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation. For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
+Especcially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}. For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
 biological resources.
 \newline
 \newline
@@ -227,8 +229,11 @@ The reaction rates can be described using following rate expression (eq.~\ref{ca
     r_j = \frac{k_j p_\text{E}^{n_j^{(\text{E})}} p_\text{O2}^{n_j^{(\text{O2})}}}{1 + K_j p_\text{CO2}}
 \end{equation}
 Here, $r_j$ denotes the reaction rate of reaction $j$, $k_j$ the collision factor, $p_\alpha$ the partial pressures of
-component $\alpha$ and $K_j$ the adsorption coefficient for carbon dioxide. The collision factor and the adsorption
+component $\alpha$ and $K_j$ the adsorption coefficient for carbon dioxide. 
+The reaction orders w.r.t ethene and oxygen are expressed by $n_j^{(\text{E})}$ and $n_j^{(\text{O2})}$ respectively.
+The collision factor and the adsorption
 coefficient follow simple Arrhenius correlations (eq.~\ref{case:eq: collision factor},~\ref{case:eq: adsorption coefficient}).
+
 \begin{equation}
     \label{case:eq: collision factor}
     k_j = k_{0, j} \exp \bigg ( \frac{-E_{\text{A},j}}{\mathrm{R} T} \bigg)
@@ -237,14 +242,15 @@ coefficient follow simple Arrhenius correlations (eq.~\ref{case:eq: collision fa
     \label{case:eq: adsorption coefficient}
     K_j = K_{0, j} \exp \bigg ( \frac{T_{\text{ads},j}}{T} \bigg)
 \end{equation}
-These introduce a strong non-linearity in the temperature $T$ and the kinetic parameters, the upright letter $\mathrm{R}$ represents the 
+These introduce a strong non-linearity in the temperature $T$ and the kinetic parameters. The upright letter $\mathrm{R}$ represents the 
 universal gas constant, $E_\text{A}$ the activation energy, $k_{0, j}$ and $K_{0, j}$ the respective pre-exponential factors
 and $T_{\text{ads},j}$ the adsorption temperature. To simulate these kinetics, the partial pressures
 of the rate determining species ethene, oxygen and carbon dioxide must be known.
+The kinetic parameters are listed below (tab.~\ref{case:tab: true kinetic parameters}) and will further underly probabilistic uncertainty. 
 
-\section{Packed-bed tubular Reactor Model}
+\section{Packed-bed Tubular Reactor Model}
 The reactor as a packed-bed tubular reactor (TR) is assumed to be already existend with a fixed design to clearly separate the model derivation
-from an optimal design task (fig.~\ref{case:fig: complete reactor}). To ensure thermal stability, the additional temperatureprofile derivation is mandatory. 
+from an optimal design task (fig.~\ref{case:fig: complete reactor}). To ensure thermal stability, the additional enthalpy balance is mandatory. 
 
 \begin{figure}
     \centering
@@ -260,9 +266,9 @@ from an optimal design task (fig.~\ref{case:fig: complete reactor}). To ensure t
 
 \subsection{PDE System Derivation}
 
-The technical reactor itself is equipped with four wall cooling sections ($T_{\text{w,1}}$ to $T_{\text{w,4}}$) to manipulate the temperature profile.
+The technical reactor itself is equipped with four wall cooling sections ($T_{\text{w,1}}$ to $T_{\text{w,4}}$) to manipulate the temperature profile (blue).
 The input flow velocity $u$ can fluctuate due to flexible feed availability such as in carbon dioxide methanization,
-where the throughput heavily relies on the hydrogen supply \cite{}. Because isobaric conditions and a non-compressible phase are assumed,
+where the throughput heavily relies on the hydrogen supply \cite{fischer2021}. Because isobaric conditions and a non-compressible phase are assumed,
 the simulated states narrow down to the molar fractions of the rate-determining species $x_\alpha$ and the temperature $T$.
 These are considered to be constant at the inlet, which is important for the later application of 
 linear equality constraints in a NN. 
@@ -299,7 +305,7 @@ A detailed derivation of the model equations can be found in the appendix (XX).
 \end{equation}
 To improve numerical stability, the mole fractions $x_\alpha$ and the temperature occur in a dimensionless
 form indicated by a prime (') symbol. This is done by diving by a reference value, denoted with a star (*) (eq.~\ref{case:eq: dimensionless component PDE}).
-It not only improves numerical simulation stability, for later training of surrogate models, it also eliminates the need for
+It not only improves numerical simulation stability. For the later training of surrogate models, it also eliminates the need for
 an \emph{output scaler} which simplifies implementation and training. These reference values are defined as follows (eq.~\ref{case:eq: reference values for scaling}).
 \begin{equation}
     \label{case:eq: reference values for scaling}
@@ -310,7 +316,7 @@ with the molar fraction but also with the temperature. Therefore, an artificial 
 to enable an easy and explicit formulation of the PDE via substitution (eq.~\ref{case:eq: dimensionless component PDE}).
 \newline
 \newline
-The enthalpy balance in local form can be significantly reduced under isobaric conditions with neither volume forces,
+The general enthalpy balance in local form (eq.~\ref{case:eq: enthalpy balance local form}) can be significantly reduced under isobaric conditions with neither volume forces,
 nor friction, nor dispersive, nor conductive enthalpy transfer.
 \begin{equation}
     \label{case:eq: enthalpy balance local form}
@@ -338,6 +344,9 @@ Reynolds and Prandl expressions are part of the appendix to keep the derivation 
     \label{case:eq: heat transfer coefficient}
     \alpha = f(\mathrm{Re}, \mathrm{Pr}, \lambda_\text{bed})
 \end{equation}
+
+\subsection{Discretization}
+
 The system of non-linear PDEs is discretized in $z$-direction via \emph{backward finite differences}.
 \begin{definition} Discretized system of PDEs using backward finite differences to yield an ODE system
     \label{case:def: discretized system of PDEs}
@@ -352,20 +361,48 @@ The system of non-linear PDEs is discretized in $z$-direction via \emph{backward
     \]
 \end{definition}
 
+The nodes of the discretization are choosen to be equidistant. For a reactor length of $L=10 \; \mathrm{m}$, $128$
+points are used. This results in a length of $\Delta z = 0.0781 \; \mathrm{m}$ for each element.
+As the finite difference method exhibits a significant truncation error of $\mathcal{O}(\Delta z)$, more accurate discretization
+methods such as finite volumes should be used for a real application.
 
 \section{Parametric Uncertainty}
 
 Because model parameters such as the activation energy or the pre-exponential collision factor are mostly fitted
 by laboratory experiments that exhibit some kind of measurement uncertainty, the parameters themselves cannot be
-exactly determined. They lie in a confidence space. Furthermore, fitting results with counteracting mechanisms
+exactly determined. They lie in a confidence intervall. Furthermore, fitting results with counteracting mechanisms
 produce cross-correlations between parameters. For example, when a higher activation energy is determined, simutaneously
 the according pre-exponential factor must be also higher to compensate for the reduced reaction speed. In this case study,
 five first principle model parameters should be treated as uncertain. These are the radial bed heat conductivity $\lambda_\text{bed}$,
-the activation energies $E_{\text{A},1}, E_{\text{A},2}$ and their respective pre-exponential collision factors $k_{0,1}, k_{0,2}$ for the main and the side reaction.
+the activation energies $E_{\text{A},1}, E_{\text{A},2}$ and their respective pre-exponential collision factors $k_{0,1}, k_{0,2}$ for the main, and the side reaction.
+The true values for all kinetic parameters are listed (tab.~\ref{case:tab: true kinetic parameters}).
+
+\begin{table}
+\caption[True kinetic parameters.]{True kinetic parameters for the ethene oxidation kinetics \cite{alsaleh1988}.}
+\label{case:tab: true kinetic parameters}
+\begin{center}
+    \begin{tabular}{c c c}
+        \toprule
+        \multirow{2}{*}{\textbf{parameter}} & \multicolumn{2}{c}{\textbf{value}}\\ \cmidrule{2-3}
+        & main reaction & side reaction \\
+        \midrule
+        $k_{0,j}$ & $6.275\times 10^6  \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{1.1} \; s^{-1}}$ & $1.206\times10^7 \; \mathrm{mol \; kg_{cat}^{-1} \; Pa \; s^{-1}}$ \\
+        $E_{\text{A},j}$ & \SI{74900}{\joule \; \mole^{-1}}  & \SI{89900}{\joule \; \mole^{-1}} \\
+        $K_{0,j}$ & \SI{1.985e2}{\pascal^{-1}}  & \SI{1.08e2}{\pascal^{-1}} \\
+        $T_{\text{ads},j}$ & \SI{2400}{\kelvin}  & \SI{1530}{\kelvin} \\
+        $\Delta h_{\text{R},j}$ & \SI{-1.07e5}{\joule \; \mole^{-1}}  & \SI{-1.323e6}{\joule \; \mole^{-1}} \\
+        $n_j^{(\text{E})}$ & \num{0.6} & \num{0.5} \\
+        $n_j^{(\text{O2})}$ & \num{0.5} & \num{0.5} \\
+        \bottomrule
+    \end{tabular} 
+\end{center}
+\end{table}
 
 \subsection{Radial bed heat conductivity}
 The radial bed heat conductivity is set to follow a normal distribution with a mean of $0.404~\;~\mathrm{W \; m^{-1} \; K^{-1}}$ calculated by a correlation by Zehner et al. \cite{zehner1970}
 and a rather high standard deviation of $0.08~\;~\mathrm{W \; m^{-1} \; K^{-1}}$ (fig.~\ref{case:fig: lambda bed distribution}).
+Its values range from $0.2$ to $0.6 ~\;~\mathrm{W \; m^{-1} \; K^{-1}}$.
+
 \begin{definition} Normal distribition of the radial heat conductivity of the catalytic bed
     \label{case:def: heat conductivity distribution}
     \[
@@ -375,7 +412,7 @@ and a rather high standard deviation of $0.08~\;~\mathrm{W \; m^{-1} \; K^{-1}}$
 
 \subsection{Activation Energies and Pre-exponential factors}
 The activation energies and pre-exponential factors are assumed to arise from a multi-variate normal distribution, which
-can be determined for a cross-correlated parameter fitting (def.~\ref{case:def: multi-variate distribution}).
+can be determined from a cross-correlated parameter fitting (def.~\ref{case:def: multi-variate distribution}).
 \begin{definition} Multi-variate normal distribution of cross-correlated kinetic parameters
     \label{case:def: multi-variate distribution}
     \[
@@ -384,8 +421,14 @@ can be determined for a cross-correlated parameter fitting (def.~\ref{case:def: 
         \end{pmatrix} \sim \mathcal{N}(\bm{\mu}, \bm{\Sigma})
     \]
 \end{definition}
+The activation energy of the main reaction is plotted against its pre-exponential collision factor (fig.~\ref{case:fig: kinetic parameter distribution}).
+While the true parameter combination is marked with a yellow point, the blue crosses indicate
+the possible parameter combinations by sampling the multi-variate normal distribution (eq.~\ref{case:def: multi-variate distribution}).
+The sampling is done $1000$ times. Activation enegies can range between \SI{65000}{} and \SI{85000}{\joule \; \mole^{-1}},
+whereas the pre-exponential factor varies between \SI{1.5e6}{} and $3.0 \times 10^7 \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{1.1} \; s^{-1}}$.
 To calculate the mean vector $\bm{\mu}$ and the covariance matrix $\bm{\Sigma}$, an actual parameter fitting with emulated
-measurement noise has been executed using a \emph{berty} reactor model. All probabilistic terms are summarized (tab.~\ref{}).
+measurement noise has been executed using a \emph{berty} reactor model.
+Mean and covariance can be consulted in the appendix (tab.~\ref{app:tab: mean and covariance}).
 
 \begin{figure}
     \centering
@@ -404,19 +447,60 @@ measurement noise has been executed using a \emph{berty} reactor model. All prob
     \caption[Parameter distribution for the activation energy and the collision factor.]
     {Due to the multi-variate normal distribution caused by an experimental parameter fitting and the non-linearity
     of the Arrhenius-Ansatz (eq.~\ref{case:eq: collision factor}), the activation energy and the pre-exponential
-    factor show severe non-linear uncertainty. The nominal value is marked in yellow.}
+    factor show a non-linear uncertainty. The nominal value is marked in yellow.}
     \label{case:fig: kinetic parameter distribution}
 \end{figure}
 
-\begin{tabular}{lr | rrrr}
-\multicolumn{2}{c}{$\bm{\mu}$} & \multicolumn{5}{c}{$\bm{\Sigma}$} \\ 
-\cmidrule(l){3-6}
-\multicolumn{1}{c} $x$ & 1 & $\ln k_{0,1}$ & $E_{\text{A}, 1}$ & $\ln k_{0,2}$ & $E_{\text{A}, 2}$ \\
-\midrule
-$\ln k_{0,1}$ & 15.621453 & 0.351544 & 1768.109910 & 0.380453 & 1913.304578 \\
-$E_{\text{A}, 1}$ & 74856.339000 & 1768.109910 & 9031744.980000 & 1913.445056 & 9773020.700000 \\
-$\ln k_{0,2}$ & 16.272557 & 0.380453 & 1913.445056 & 0.411795 & 2070.851800 \\
-$E_{\text{A}, 2}$ & 89853.839400 & 1913.304578 & 9773020.700000 & 2070.851800 & 10576522.400000 \\
-\bottomrule
-\end{tabular}
+\section{Conservation of Atoms}
+
+To formulate the conservation of atoms (th.~\ref{theory:th: conservation of atoms}) for the
+ethene oxidation, the element-species-matrix $\bm{B}$ needs to be set up (def.~\ref{case:def: element-species-matrix}).
+\begin{definition} Element-species-matrix for the ethene oxidation.
+    \label{case:def: element-species-matrix}
+    \[
+    \bm{B} = \begin{pmatrix}
+        4 & 0 & 4 & 2 & 0 \\
+        2 & 0 & 2 & 0 & 1 \\
+        0 & 2 & 1 & 1 & 2 \\
+    \end{pmatrix}
+    \]
+\end{definition}
+Here, the columns are ordered as follows: ethene, oxygen molecule, ethylene oxide, water and carbon dioxide.
+The rows indicate elementary hydrogen, elementary carbon and elementary oxygen.
+Under the assumptions taken earlier, mainly as ideal gas behavior and incompressibility, the change in molar amount
+can be expressed in terms of the dimensionless state $\chi_i$ (eq.~\ref{case:ed: molar amount difference}).
+\begin{equation}
+    \label{case:ed: molar amount difference}
+    \Delta n_i = ( \chi_{i,0} - \chi_{i} ) \frac{pV}{\mathrm{R}} \frac{x_*}{T_*}
+\end{equation}
+Thus, the original conservation law is yielded as follows.
+
+\begin{corollary} Conservation of atoms with a dimensionless concentration measure.
+    \label{case:cor: conservation of atoms}
+    \[
+        \bm{B} \bm{\Delta \chi} = \bm{0}
+    \]
+\end{corollary} 
+Where, $\bm{\Delta \chi}$ marks the vector of the dimensionless changes for all components divided by the temperature.
+
+
+\section{Measurement Positions}
+
+For surrogate modelling, four measurement positions are introduced into the TR, where the temperature
+and the dimensionless concentration measure $\chi_i$ should be measured and predicted (fig.~\ref{case:fig: measurement positions}).
+The distribution is done equidistantly. Taking all system states into account, meaning the concentration
+measure for all five components and the temperature, $6 \cdot 4 = 24$
+measurements form. This denotes the output size of a surrogate model. Using the backward finite difference method with $128$ points,
+the states at the positions $32, 64, 96$ and $128$ are considered as the measurements.
+Regarding the contraint satisfaction of the temperature, it is suitable to use the maximum temperature in the reactor as
+a measurement instead of discretizing spatially in a real-world scenario. The outlet states are of major interest in all cases.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Reaction-Modelling/reactor-measurements.pdf}
+    \caption[Measurement positions in the tubular reactor.]
+    {The four measurement positions $\vy_{(\cdot)}$ are located equidistant in axial direction.}
+    \label{case:fig: measurement positions}
+\end{figure}
 

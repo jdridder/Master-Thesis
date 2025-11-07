@@ -6,9 +6,40 @@
 Did your work require long tables of parameters, e.g. to configure a system model. This table would distract the main part of the thesis but including it is an important aspect of scientific work. Please attach it here.
 
 \section{Parameter for ...}
-...
+
+\begin{table}
+    \label{app:tab: mean and covariance}
+    \caption[Mean and covariance of the parameters]{
+        Mean and covariance matrix of the activation energies and pre-exponential collision factors.
+    }
+    \begin{tabular}{l r | r r r r}
+        \toprule
+        \multicolumn{2}{c|}{$\boldsymbol{\mu}$} & \multicolumn{4}{c}{$\boldsymbol{\Sigma}$} \\ 
+        \cmidrule(lr){3-6}
+        \multicolumn{1}{c}{} & \multicolumn{1}{c|}{} & 
+        \multicolumn{1}{c}{$\ln k_{0,1}$} & 
+        \multicolumn{1}{c}{$E_{\text{A},1}$} & 
+        \multicolumn{1}{c}{$\ln k_{0,2}$} & 
+        \multicolumn{1}{c}{$E_{\text{A},2}$} \\
+        \midrule
+        $\ln k_{0,1}$ & 15.621453 & 0.351544 & 1768.109910 & 0.380453 & 1913.304578 \\
+        $E_{\text{A},1}$ & 74856.339000 & 1768.109910 & 9031744.980000 & 1913.445056 & 9773020.700000 \\
+        $\ln k_{0,2}$ & 16.272557 & 0.380453 & 1913.445056 & 0.411795 & 2070.851800 \\
+        $E_{\text{A},2}$ & 89853.839400 & 1913.304578 & 9773020.700000 & 2070.851800 & 10576522.400000 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \chapter{Proofs}
+
+\begin{equation}
+    \begin{aligned}
+        \Delta n_i &= x_{i,0} n_0 - x_i n = x_{i,0} \frac{p_0 V_0}{\mathrm{R} T_0} - x_i \frac{p V}{\mathrm{R} T} \quad | \; \text{isobaric, non-compressible} \\
+                &= \bigg ( \frac{x_{i,0}}{T_0} - \frac{x_i}{T} \bigg ) \frac{pV}{\mathrm{R}}
+                = \bigg ( \frac{x'_{i,0}}{T'_0} - \frac{x'_i}{T'} \bigg ) \frac{pV}{\mathrm{R}} \frac{x_*}{T_*} \\
+                &= ( \chi_{i,0} - \chi_{i} ) \frac{pV}{\mathrm{R}} \frac{x_*}{T_*}
+    \end{aligned}
+\end{equation}
 
 Did you introduce  lemmas or theorems with lengthy proofs? Including them in the main part of the thesis might be distracting. You can also include them in the appendix.
 
