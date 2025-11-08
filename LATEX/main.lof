@@ -9,9 +9,9 @@
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Catalytic packed-bed flow reactor}}{19}{figure.caption.18}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Parameter distribution for the radial heat conductivity.}}{23}{figure.caption.20}%
 \contentsline {figure}{\numberline {4.3}{\ignorespaces Parameter distribution for the activation energy and the collision factor.}}{23}{figure.caption.21}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Measurement positions in the tubular reactor.}}{24}{figure.caption.22}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Measurement positions in the tubular reactor.}}{25}{figure.caption.22}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Validation loss of vanilla NARX vs physics-constrained NARX}}{26}{figure.caption.23}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Validation loss of vanilla NARX vs physics-constrained NARX}}{28}{figure.caption.23}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

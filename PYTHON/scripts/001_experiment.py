@@ -10,7 +10,7 @@ import yaml
 CURR_DIR = os.path.dirname(__file__)
 ROOT_DIR = os.path.abspath(os.path.join(CURR_DIR, ".."))
 sys.path.insert(0, ROOT_DIR)
-from configs.experiment_certain_open_loop import data_cfg, hidden_unit_list, test_cfg_list, training_cfgs
+from configs.experiment_open_loop import data_cfg, hidden_unit_list, test_cfg_list, training_cfgs
 from models import EtOxModel
 from postprocessing.performance_metrics import calculate_state_mses, calculate_state_physics_vio
 from postprocessing.plot import plot_exec_time_distribution, plot_metric_summary, plot_mse_distribution, plot_mses_vs_time, plot_pc_violation_vs_time, plot_random_trajectories, plot_val_loss

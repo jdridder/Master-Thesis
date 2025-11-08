@@ -10,7 +10,7 @@ import yaml
 CURR_DIR = os.path.dirname(__file__)
 ROOT_DIR = os.path.abspath(os.path.join(CURR_DIR, ".."))
 sys.path.insert(0, ROOT_DIR)
-from configs.experiment_uncertain_open_loop import data_cfg, test_cfg_list, training_cfg
+from configs.uncertainty_quantification import data_cfg, test_cfg_list, training_cfgs
 from models import EtOxModel
 from postprocessing.performance_metrics import calculate_intervall_width, separate_into_state_by_slice
 from postprocessing.plot import plot_intervall_coverages, plot_intervall_widths, plot_random_trajectories
@@ -28,18 +28,17 @@ def run_uncertain_open_loop_experiment(
     meta_model: EtOxModel,
     data_structurizer: DataStructurizer,
     measurements_to_plot: Optional[List[int]] = [0, 3],
-    n_time_steps_test: int = 480,
-    n_test_trajectories: int = -1,
+    n_test_trajectories: int = 1,
 ):
     # make directory
-    exp_name = "002_uncertain_open_loop_kpis"
+    exp_name = "002_uncertainty_quantification"
     experiment_dir = os.path.join(experiments_directory, exp_name)
     current_experiment_working_dir = os.path.join(experiment_dir, get_directory_for_today(experiment_dir))
     os.makedirs(current_experiment_working_dir, exist_ok=True)
 
     # generate uncertain training data
     for data_purpose, data_specs in data_cfg.items():
-        data_target_dir = os.path.join(current_experiment_working_dir, "data", data_purpose)
+        data_target_dir = os.path.join(experiment_dir, "..", "" "data", data_purpose)
         if not os.path.exists(data_target_dir):
             print(f"----- Generating data for {data_purpose}. -----")
             os.makedirs(data_target_dir, exist_ok=True)
@@ -48,18 +47,21 @@ def run_uncertain_open_loop_experiment(
     # train uncertainty models
     # train the narx and rom models
     trained_model_dir = os.path.join(current_experiment_working_dir, "trained_models")
-    training_data_dir = os.path.join(current_experiment_working_dir, "data", "train")
+    training_data_dir = os.path.join(experiment_dir, "..", "data", "train")
     os.makedirs(trained_model_dir, exist_ok=True)
-    run_training(
-        model_parameter_dir=trained_model_dir,
-        training_data_dir=training_data_dir,
-        data_structurizer=data_structurizer,
-        training_cfg=training_cfg,
-    )
+    for training_cfg in training_cfgs:
+        final_model_dir = os.path.join(trained_model_dir, training_cfg.get("save_dir"))
+        os.makedirs(final_model_dir, exist_ok=True)
+        run_training(
+            model_parameter_dir=final_model_dir,
+            training_data_dir=training_data_dir,
+            data_structurizer=data_structurizer,
+            training_cfg=training_cfg,
+        )
 
-    # simulate open loop with uncertainty models
+    # # simulate open loop with uncertainty models
     result_directory = os.path.join(current_experiment_working_dir, "results")
-    test_data_dir = os.path.join(current_experiment_working_dir, "data", "test")
+    test_data_dir = os.path.join(experiment_dir, "..", "data", "test")
     test_data = data_structurizer.load_data(data_dir=test_data_dir, num_trajectories=n_test_trajectories)
 
     if not os.path.exists(result_directory):
@@ -67,74 +69,75 @@ def run_uncertain_open_loop_experiment(
         for specs in test_cfg_list:
             # run simulation batches
             specs["n_trajectories"] = test_data.shape[0]
+            final_model_dir = os.path.join(trained_model_dir, specs.get("surrogate_type"))
             run_open_loop_for_specs(
                 specs=specs,
                 meta_model=meta_model,
                 data_structurizer=data_structurizer,
                 sim_cfg=sim_cfg,
-                model_parameter_dir=trained_model_dir,
+                model_parameter_dir=final_model_dir,
                 save_dir=result_directory,
                 initialization_data=test_data,
             )
 
-    # is the PC NARX better in predicting the state uncertainty ?
-    # load upper and lower bound
-    # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
-    result_dict = {}
-    # ----- Load result data -----
-    for surrogate_entry in os.scandir(result_directory):
-        results_for_surrogate = load_json_results_for_all(result_dir=surrogate_entry.path)
-        # test_data_for_surrogate = filter_test_data_for_surrogates(test_data=test_data, surrogate_results=results_for_surrogate)
-        # only keep the states and reduce them to the 24 measurements
-        only_states = {}
-        for key, result in results_for_surrogate.items():
-            states = data_structurizer.get_states_from_data(result["_x"])
-            # get the states only at the respective measurments and filter them
-            only_states[key] = data_structurizer.get_states_at_measurements(states)[..., measurements_to_plot, :]
-            # shape is (n_trajects, t_steps, n_states, n_measurements)
-        result_dict[surrogate_entry.name] = only_states
+    # # is the PC NARX better in predicting the state uncertainty ?
+    # # load upper and lower bound
+    # # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
+    # result_dict = {}
+    # # ----- Load result data -----
+    # for surrogate_entry in os.scandir(result_directory):
+    #     results_for_surrogate = load_json_results_for_all(result_dir=surrogate_entry.path)
+    #     # test_data_for_surrogate = filter_test_data_for_surrogates(test_data=test_data, surrogate_results=results_for_surrogate)
+    #     # only keep the states and reduce them to the 24 measurements
+    #     only_states = {}
+    #     for key, result in results_for_surrogate.items():
+    #         states = data_structurizer.get_states_from_data(result["_x"])
+    #         # get the states only at the respective measurments and filter them
+    #         only_states[key] = data_structurizer.get_states_at_measurements(states)[..., measurements_to_plot, :]
+    #         # shape is (n_trajects, t_steps, n_states, n_measurements)
+    #     result_dict[surrogate_entry.name] = only_states
 
-    # ----- Calculate intervall widths -----
-    intervall_widths = calculate_intervall_width(result_dict)
-    intervall_widths_by_state = separate_into_state_by_slice(
-        intervall_widths,
-        state_slices=[slice(None, 5), slice(5, None)],
-        scaling_factors=[sim_cfg["scales"].get("c"), sim_cfg["scales"].get("T")],
-        apply=[np.mean, None],
-        axes=[-1, None],
-    )
+    # # ----- Calculate intervall widths -----
+    # intervall_widths = calculate_intervall_width(result_dict)
+    # intervall_widths_by_state = separate_into_state_by_slice(
+    #     intervall_widths,
+    #     state_slices=[slice(None, 5), slice(5, None)],
+    #     scaling_factors=[sim_cfg["scales"].get("c"), sim_cfg["scales"].get("T")],
+    #     apply=[np.mean, None],
+    #     axes=[-1, None],
+    # )
 
-    # coverages = {}
-    # reduced_test_data = data_structurizer.reduce_measurements(test_data)
-    # test_data_states = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(reduced_test_data)[:, :n_time_steps_test])
+    # # coverages = {}
+    # # reduced_test_data = data_structurizer.reduce_measurements(test_data)
+    # # test_data_states = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(reduced_test_data)[:, :n_time_steps_test])
 
-    # states_upper = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(results_for_surrogate["upper"]["_x"]))
-    # states_lower = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(results_for_surrogate["lower"]["_x"]))
+    # # states_upper = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(results_for_surrogate["upper"]["_x"]))
+    # # states_lower = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(results_for_surrogate["lower"]["_x"]))
 
-    # states_lower.shape == states_upper.shape == test_data_states.shape
-    # # ----- Calculation of coverages. -------
-    # states_inside = np.logical_and(absolute_upper >= test_data_states, test_data_states >= absolute_lower)
-    # coverage = np.count_nonzero(states_inside, axis=0) / states_inside.shape[0]
-    # coverages[surrogate_entry.name] = coverage
+    # # states_lower.shape == states_upper.shape == test_data_states.shape
+    # # # ----- Calculation of coverages. -------
+    # # states_inside = np.logical_and(absolute_upper >= test_data_states, test_data_states >= absolute_lower)
+    # # coverage = np.count_nonzero(states_inside, axis=0) / states_inside.shape[0]
+    # # coverages[surrogate_entry.name] = coverage
 
-    # ---- Plotting functions
-    time = np.arange(0, n_time_steps_test, sim_cfg["simulation"]["t_step"])
+    # # ---- Plotting functions
+    # time = np.arange(0, n_time_steps_test, sim_cfg["simulation"]["t_step"])
     plot_dir = os.path.join(current_experiment_working_dir, "plots")
     os.makedirs(plot_dir, exist_ok=True)
-    for key, intervall_state_slice in zip(["states", "temp"], intervall_widths_by_state):
-        plot_intervall_widths(
-            time=time,
-            intervall_widths_dict=intervall_state_slice,
-            save_dir=plot_dir,
-            plot_cfg={
-                "ylabels": [r"$z = 0.25 L$", r"$z = L$"],
-                "legend_y_pos": 1.3,
-                "legend_cols": 4,
-            },
-            save_cfg={
-                "export_name": f"intervall_widths_{key}",
-            },
-        )
+    # for key, intervall_state_slice in zip(["states", "temp"], intervall_widths_by_state):
+    #     plot_intervall_widths(
+    #         time=time,
+    #         intervall_widths_dict=intervall_state_slice,
+    #         save_dir=plot_dir,
+    #         plot_cfg={
+    #             "ylabels": [r"$z = 0.25 L$", r"$z = L$"],
+    #             "legend_y_pos": 1.3,
+    #             "legend_cols": 4,
+    #         },
+    #         save_cfg={
+    #             "export_name": f"intervall_widths_{key}",
+    #         },
+    #     )
 
     # coverage_for_state_slice = {surr_key: cov[:, state_slice].reshape((n_time_steps_test, -1)).mean(axis=-1) for surr_key, cov in coverages.items()}
     #     plot_intervall_coverages(
@@ -166,7 +169,7 @@ def run_uncertain_open_loop_experiment(
             result_dir=result_directory,
             save_to_dir=traj_validation_dir,
             test_data=test_data,
-            filter_test_trajectories=True,
+            filter_test_trajectories=False,
             plot_cfg={
                 "t_steps": 480,
                 "legend_y_pos": 1.35,
@@ -181,7 +184,7 @@ def run_uncertain_open_loop_experiment(
             },
         )
 
-    print("---- experiment 002 uncertain open loop finished. -----")
+    print(f"---- {exp_name} finished. -----")
 
 
 if __name__ == "__main__":
@@ -192,7 +195,7 @@ if __name__ == "__main__":
     model_cfg_directory = os.path.abspath(os.path.join(ROOT_DIR, "models", sim_cfg["model_name"]))
     with open(os.path.join(model_cfg_directory, "EtOxModel.yaml"), "r") as f:
         model_cfg = yaml.safe_load(f)
-    experiments_directory = os.path.abspath(os.path.join(ROOT_DIR, "..", "..", "experiments"))
+    experiments_directory = os.path.abspath(os.path.join(ROOT_DIR, "..", "experiments"))
 
     meta_model = EtOxModel(
         model_cfg=model_cfg,

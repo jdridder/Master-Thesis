@@ -19,6 +19,54 @@ from .Visualizer import Visualizer
 set_mpt_settings()
 
 
+# ------- Plots for Neural Network Training --------
+
+
+def plot_val_loss(
+    training_history_dict: Dict,
+    hidden_units_list: List[List[int]],
+    save_dir: str,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    save_cfg = save_cfg or {}
+    plot_cfg = plot_cfg or {}
+
+    fig, ax = plt.subplots(1)
+    n_data_rows = len(hidden_units_list)
+    n_types = len(training_history_dict)
+    colors = make_colors(n_colors=len(hidden_units_list))
+    line_cycler = make_line_cycler(n_types)
+    color_cycler = make_color_cycler(n_colors=n_data_rows)
+    ax.set_prop_cycle(line_cycler * color_cycler)
+
+    for surrogate_type, history_list in training_history_dict.items():
+        for hidden_units, color in zip(hidden_units_list, colors):
+            for history_dict in history_list:
+                if hidden_units == history_dict.get("units"):
+                    ax.plot(
+                        history_dict["epoch"],
+                        np.log10(history_dict["val_loss"]),
+                        label=f"{latex_notation_map[surrogate_type]["general"]}" + r" $n_\mathrm{hidden}$ = " + f"{hidden_units}",
+                        color=color,
+                    )
+                    break
+
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows)
+    ax.set_xlabel("epoch / -")
+    ax.set_ylabel(r"$\mathrm{log}_{10} \; \mathcal{L}_\mathrm{MSE, val}$ / -")
+
+    plt.subplots_adjust(right=0.95, left=0.1, top=0.88, bottom=0.15)
+    if save_cfg.get("show_fig", False):
+        plt.show()
+    os.makedirs(save_dir, exist_ok=True)
+    plt.savefig(os.path.join(save_dir, "val_loss.pdf"))
+    plt.close()
+
+
+# ------- Plots for System Trajectories ----------
+
+
 def plot_open_loop_state(
     sim_cfg: Dict[str, Any],
     surrogate_results: Dict[str, Dict],
@@ -236,53 +284,96 @@ def plot_loop(
     return fig
 
 
-def plot_pc_violation_vs_time(
-    time: np.ndarray,
-    pc_violation_dict: Dict[str, np.ndarray],
-    save_dir: str = None,
+def plot_random_trajectories(
+    sim_cfg: Dict,
+    n_trajectories: int,
+    result_dir: str,
+    save_to_dir: str,
+    test_data: np.ndarray,
+    filter_test_trajectories: bool = True,
+    states: List[str] = ["T", "chi_E"],
     plot_cfg: Optional[Dict] = None,
     save_cfg: Optional[Dict] = None,
-) -> plt.figure:
+):
 
-    plot_cfg = plot_cfg or {}
-    save_cfg = save_cfg or {}
-    final_save_path = os.path.join(save_dir, save_cfg.get("export_name", "pc_violation_vs_time") + ".pdf")
-    if not os.path.exists(final_save_path):
-        print("---- Plotting physics violation vs time. ----")
-        n_data_rows = len(pc_violation_dict)
-        fig, ax = plt.subplots()
-        prop_cylcer = make_line_cycler(n_data_rows) + make_color_cycler(n_data_rows)
-        ax.set_prop_cycle(prop_cylcer)
-        colors = make_colors(n_data_rows, alpha=plot_cfg.get("alpha_all_traj", 0.2))
+    if plot_cfg is None:
+        plot_cfg = {}
+    if save_cfg is None:
+        save_cfg = {}
 
-        label = r"{}".format(latex_notation_map["b_residual"])
-        ax.axhline(y=np.log10(2.2 * 10**-16), color="gray", ls="--", label=latex_notation_map["machine_epsilon"])
-        [ax.plot(time, np.log10(pc_violation_dict[key].mean(axis=0)), label=latex_notation_map[key]["general"]) for key in pc_violation_dict.keys()]
-        [ax.plot(time, np.log10(pc_violation_trajetories.T), color=color, ls="-") for pc_violation_trajetories, color in zip(pc_violation_dict.values(), colors)]
+    for entry in os.scandir(result_dir):
+        sub_dir_name = entry.name
+        sub_dir_path = entry.path
+        output_sub_dir = os.path.join(save_to_dir, sub_dir_name)
 
-        [
-            ax.annotate(
-                latex_notation_map[key]["general"] + r": $\langle ||\bm{b}||_2 \rangle_t$ = " + f"{pc_violation_dict[key].mean():.2e}",
-                xy=(0.95, plot_cfg.get("annotations_y", 0.5 - i * 0.1)),
-                xycoords="axes fraction",
-                ha="right",
-                va="center",
-            )
-            for i, key in enumerate(pc_violation_dict.keys())
-        ]
-        ax.set_ylim(-17, -1)
+        if entry.is_dir():
+            if list(os.scandir(entry.path))[0].is_dir():  # dir contains sub dirs
+                plot_random_trajectories(
+                    sim_cfg=sim_cfg,
+                    n_trajectories=n_trajectories,
+                    result_dir=sub_dir_path,
+                    save_to_dir=output_sub_dir,
+                    test_data=test_data,
+                    filter_test_trajectories=filter_test_trajectories,
+                    states=states,
+                    plot_cfg=plot_cfg,
+                    save_cfg=save_cfg,
+                )
 
-        ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows + 1)
-        ax.set_xlabel(latex_notation_map["time"])
-        ax.set_ylabel(label)
-        # plt.tight_layout()
-        plt.subplots_adjust(right=0.95, left=0.1, top=0.88, bottom=0.15)
+            else:
+                if not os.path.exists(output_sub_dir):
+                    os.makedirs(output_sub_dir, exist_ok=True)
+                    json_files = [f for f in os.listdir(sub_dir_path) if f.endswith(".json") and "meta" not in f]
 
-        plt.savefig(final_save_path)
-        if save_cfg.get("show_fig", False):
-            plt.show()
+                    if not json_files:
+                        print(f"No .json files in {sub_dir_path} found. Skipping.")
+                        continue
+
+                    n_to_select = min(n_trajectories, len(json_files))
+                    files_to_plot = np.random.choice(json_files, size=n_to_select, replace=False)
+
+                    try:
+                        meta_data = _load_single_json(os.path.join(sub_dir_path, "meta_data.json"))
+                    except FileNotFoundError:
+                        print(f"Warning: No meta_data.json in {sub_dir_path} found.")
+                        meta_data = {}
+                    surrogate_type = meta_data.get("surrogate_type")
+
+                    for filename in files_to_plot:
+                        file_path = os.path.join(sub_dir_path, filename)
+                        surrogate_result = _load_single_json(file_path)
+
+                        if filter_test_trajectories:
+                            test_data_index = surrogate_result.get("meta_data", {}).get("index")
+                            if test_data_index is None:
+                                print(f"Warning: Metadata {filename} has no index key. Cannot plot test data.")
+                                continue
+                            test_data_to_plot = test_data[test_data_index]
+                        else:
+                            test_data_to_plot = test_data
+
+                        for state in states:
+                            # Kopie erstellen, um Seiteneffekte zu vermeiden
+                            current_save_cfg = save_cfg.copy()
+                            export_name = filename.replace(".json", f"_{state}")
+                            current_save_cfg.update({"save_dir": output_sub_dir, "export_name": export_name})
+                            plot_open_loop_state(
+                                sim_cfg=sim_cfg,
+                                surrogate_results={f"{sub_dir_name}": surrogate_result},
+                                test_data=test_data_to_plot,
+                                state=state,
+                                surrogate_type=surrogate_type,
+                                positions=[0, 3],  # Beispielpositionen
+                                meta_data=meta_data,
+                                plot_cfg=plot_cfg,
+                                save_cfg=current_save_cfg,
+                            )
 
 
+# ------- Plots for performance Analyis over time ---------
+
+
+# ---- Mean squared error of the nominal surrogates
 def plot_mses_vs_time(
     mse_data_dict: Dict[str, Tuple[np.ndarray, np.ndarray]],
     time: np.ndarray,
@@ -346,6 +437,271 @@ def plot_mses_vs_time(
         plt.savefig(final_export_path, bbox_inches="tight")
 
         # Display the figure if configured to do so
+        if save_cfg.get("show_fig", False):
+            plt.show()
+
+
+# ---- Physical Correctness
+def plot_pc_violation_vs_time(
+    time: np.ndarray,
+    pc_violation_dict: Dict[str, np.ndarray],
+    save_dir: str = None,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+) -> plt.figure:
+
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+    final_save_path = os.path.join(save_dir, save_cfg.get("export_name", "pc_violation_vs_time") + ".pdf")
+    if not os.path.exists(final_save_path):
+        print("---- Plotting physics violation vs time. ----")
+        n_data_rows = len(pc_violation_dict)
+        fig, ax = plt.subplots()
+        prop_cylcer = make_line_cycler(n_data_rows) + make_color_cycler(n_data_rows)
+        ax.set_prop_cycle(prop_cylcer)
+        colors = make_colors(n_data_rows, alpha=plot_cfg.get("alpha_all_traj", 0.2))
+
+        label = r"{}".format(latex_notation_map["b_residual"])
+        ax.axhline(y=np.log10(2.2 * 10**-16), color="gray", ls="--", label=latex_notation_map["machine_epsilon"])
+        [ax.plot(time, np.log10(pc_violation_dict[key].mean(axis=0)), label=latex_notation_map[key]["general"]) for key in pc_violation_dict.keys()]
+        [ax.plot(time, np.log10(pc_violation_trajetories.T), color=color, ls="-") for pc_violation_trajetories, color in zip(pc_violation_dict.values(), colors)]
+
+        [
+            ax.annotate(
+                latex_notation_map[key]["general"] + r": $\langle ||\bm{b}||_2 \rangle_t$ = " + f"{pc_violation_dict[key].mean():.2e}",
+                xy=(0.95, plot_cfg.get("annotations_y", 0.5 - i * 0.1)),
+                xycoords="axes fraction",
+                ha="right",
+                va="center",
+            )
+            for i, key in enumerate(pc_violation_dict.keys())
+        ]
+        ax.set_ylim(-17, -1)
+
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows + 1)
+        ax.set_xlabel(latex_notation_map["time"])
+        ax.set_ylabel(label)
+        # plt.tight_layout()
+        plt.subplots_adjust(right=0.95, left=0.1, top=0.88, bottom=0.15)
+
+        plt.savefig(final_save_path)
+        if save_cfg.get("show_fig", False):
+            plt.show()
+
+
+# ---- Uncertainty Quantification performance
+def plot_intervall_coverages(
+    coverages_dict: Dict[str, np.ndarray],
+    time: np.ndarray,
+    save_dir: str,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+    final_save_path = os.path.join(save_dir, f"{save_cfg.get("export_name", "coverages")}.pdf")
+
+    # if not os.path.exists(final_save_path):
+    print("---- Plotting intervall coverages. ----")
+    fig, ax = plt.subplots(1)
+    n_data_rows = len(coverages_dict.keys())
+    prop_cycler = make_color_cycler(n_data_rows) + make_line_cycler(n_data_rows)
+    ax.set_prop_cycle(prop_cycler)
+
+    for surrogate_key, coverage_arr in coverages_dict.items():
+        ax.plot(time, coverage_arr, label=latex_notation_map[surrogate_key]["general"])
+
+    ax.axhline(0.8, label="ideal coverage", color="gray", ls="dashed")
+    ax.set_xlabel(latex_notation_map.get("time", "t"))
+    ax.set_ylabel(r"$\mathrm{coverage}$ / -")
+    ax.set_ylim(0, 1)
+    ax.legend()
+    ax = format_legend(ax, plot_cfg=plot_cfg)
+
+    plt.tight_layout()
+    plt.savefig(final_save_path)
+    if save_cfg.get("show_fig", False):
+        plt.show()
+
+
+def plot_intervall_widths(
+    intervall_widths_dict: Dict[str, np.ndarray],
+    time: np.ndarray,
+    save_dir: str,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    plot_cfg = plot_cfg or {}
+    ylabels = plot_cfg.get("ylabels", ["z1", "z2", "z3", "z4"])
+    save_cfg = save_cfg or {}
+    final_save_path = os.path.join(save_dir, f"{save_cfg.get("export_name", "coverages")}.pdf")
+
+    # incoming shape is {"surrogate": np.ndaarray (trajects, n_t_steps, n_measurements)}
+
+    # if not os.path.exists(final_save_path):
+    n_measurements = list(intervall_widths_dict.values())[0].shape[-1]
+    fig, axes = plt.subplots(n_measurements, sharex=True, sharey=True)
+    n_data_rows = len(intervall_widths_dict.keys())
+    # colors = make_colors(n_data_rows, alpha=1)
+    prop_cylcer = make_color_cycler(n_data_rows) + make_line_cycler(n_data_rows)
+
+    for i, ax in enumerate(axes):
+        ax.set_prop_cycle(prop_cylcer)
+        for surrogate_key, intervall_width_arr in intervall_widths_dict.items():
+            mean = intervall_width_arr.mean(axis=0)
+            std = intervall_width_arr.std(axis=0)
+
+            surrogate_label = latex_notation_map[surrogate_key]["general"]
+            ax.plot(time, mean[:, i], label=surrogate_label)
+            ax.fill_between(time, mean[:, i] + std[:, i], mean[:, i] - std[:, i], label=rf"$\pm \sigma(${surrogate_label})", alpha=0.3)
+            ax.set_ylabel(ylabels[i])
+
+    axes[-1].set_xlabel(latex_notation_map.get("time", "t"))
+    # ax.set_ylim(0, 1)
+    axes[0].legend()
+    axes[0] = format_legend(axes[0], plot_cfg=plot_cfg)
+    fig.text(0.02, 0.5, "rel. intervall width / -", va="center", rotation="vertical")
+
+    plt.subplots_adjust(right=0.95, left=0.15, top=0.88, bottom=0.15)
+    # plt.tight_layout()
+    print("---- Saving intervall widths plot. ----")
+    plt.savefig(final_save_path)
+    if save_cfg.get("show_fig", False):
+        plt.show()
+
+
+# -------- Summarization plots -----------
+
+
+def plot_general_metric_summary(
+    metric_keys: List[str],
+    xaxis_key: str,
+    metric_summary: Dict[str, Dict[str, np.ndarray]],
+    save_dir: str,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    """
+    Generates a figure with multiple subplots to summarize and compare various
+    performance metrics across different surrogate model types.
+
+    It plots one metric key per subplot against a common x-axis variable.
+
+    Args:
+        metric_keys: A list of metric names (strings) to be plotted on separate subplots.
+        xaxis_key: The key corresponding to the data to be used for the x-axis (e.g.,
+                   number of training samples, model size).
+        metric_summary: A nested dictionary containing the data to be plotted.
+                        Structure: {surrogate_type: {metric_key: np.ndarray, ...}}.
+                        Metric values are expected to be arrays where the first column
+                        is the mean and the second column (optional/commented out) is the standard deviation.
+        save_dir: The directory path where the resulting plot PDF will be saved.
+        plot_cfg: Optional dictionary for plot customization, potentially including
+                  "xlabel", "ylabels", "titles", and "ylims".
+        save_cfg: Optional dictionary for save/show customization, potentially including
+                  "show_fig" and "export_name".
+    """
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+
+    n_data_rows = len(metric_summary.keys())
+    prop_cycler = make_color_cycler(n_data_rows) + make_marker_cyler(n_data_rows)
+    fig, axes = plt.subplots(1, len(metric_keys), sharex=True, sharey=True)
+    if not isinstance(axes, np.ndarray):
+        axes = np.array([axes])
+
+    ylabels = plot_cfg.get("ylabels", None)
+    titles = plot_cfg.get("titles", None)
+    for i, (ax, metric_key) in enumerate(zip(axes, metric_keys)):
+        ax.set_prop_cycle(prop_cycler)
+        for surrogate_key, metric_dict in metric_summary.items():
+            ax.errorbar(
+                metric_dict[xaxis_key],
+                np.log10(metric_dict[metric_key][:, 0]),
+                # yerr=metric_dict[metric_key][:, 1],
+                label=latex_notation_map[surrogate_key]["general"],
+                alpha=0.5,
+                linestyle="none",
+            )  # mean  # std
+        ax.set_xlabel(plot_cfg.get("xlabel"))
+        ax.set_ylabel(ylabels[i]) if ylabels is not None else 0
+        ax.set_title(titles[i])
+        ax.set_ylim(*plot_cfg.get("ylims", (None, None)))
+    axes[-1].legend()
+
+    plt.tight_layout()
+    if save_cfg.get("show_fig", False):
+        plt.show()
+
+    os.makedirs(save_dir, exist_ok=True)
+    final_export_path = os.path.join(save_dir, f"{save_cfg.get("export_name", "metric_summary")}.pdf")
+    plt.savefig(final_export_path)
+    plt.close(fig)
+
+
+def plot_exec_time_distribution(
+    surrogate_result_dict: Dict[str, Dict],
+    plot_dir: str,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    """
+    Plots the distribution of total wall clock simulation times for different surrogate models.
+
+    The plot is a box plot showing the distribution of log-transformed simulation times.
+    Mean simulation time is annotated for each model.
+
+    Args:
+        surrogate_result_dict (Dict[str, Dict]): A dictionary where keys are model
+            names (str) and values are dictionaries containing simulation results.
+            Each result dict must contain the key 't_wall_total', which holds a
+            numpy array of wall clock times (in seconds).
+        plot_dir (str): Directory where the plot will be saved.
+        plot_cfg (Optional[Dict]): Configuration dictionary for plot aesthetics
+            (e.g., 'figsize', 'x_annotations'). Defaults to {}.
+        save_cfg (Optional[Dict]): Configuration dictionary for saving/showing the
+            plot (e.g., 'export_name', 'show_fig'). Defaults to {}.
+    """
+
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+    final_export_path = os.path.join(plot_dir, f"{save_cfg.get('export_name', "exe_time_dist")}.pdf")
+    if not os.path.exists(final_export_path):
+        print("---- Plotting execution time distribution. ----")
+
+        fig, ax = plt.subplots(figsize=plot_cfg.get("figsize", (10, 6)))
+        colors = make_colors(len(surrogate_result_dict))
+        x_vals = np.arange(1, len(surrogate_result_dict) + 1)
+        boxplot = ax.boxplot(
+            [np.log10(result["t_wall_total"]) for result in surrogate_result_dict.values()],
+            positions=x_vals,
+            patch_artist=True,
+            widths=0.6,
+            showfliers=False,
+            medianprops=dict(color="black", linewidth=2),
+        )
+        for i, result in enumerate(surrogate_result_dict.values()):
+            mean = result["t_wall_total"].mean()
+            ax.annotate(
+                r"$\langle \Delta t_\mathrm{sim}\rangle$ = " + f"{mean:.3f}" + " s",
+                xy=(plot_cfg.get("x_annotations", [0.18, 0.5, 0.82])[i], 0.2),
+                xycoords="axes fraction",
+                ha="center",
+                va="center",
+            )
+
+        ax.set_xticks(x_vals)
+        ax.set_xticklabels([latex_notation_map[key]["general"] for key in surrogate_result_dict.keys()])
+        ax.set_ylabel(r"$\log_{10}\!\left(\frac{\Delta t_{\mathrm{sim}}}{\mathrm{s}}\right)$")
+
+        for box, color in zip(boxplot["boxes"], colors):
+            box.set_facecolor(color)
+            box.set_edgecolor(color)
+            box.set_alpha(0.7)
+
+        plt.tight_layout()
+
+        plt.savefig(final_export_path)
         if save_cfg.get("show_fig", False):
             plt.show()
 
@@ -458,320 +814,3 @@ def plot_mse_distribution(
         # Display the figure if configured to do so
         if save_cfg.get("show_fig", False):
             plt.show()
-
-
-def plot_random_trajectories(
-    sim_cfg: Dict,
-    n_trajectories: int,
-    result_dir: str,
-    save_to_dir: str,
-    test_data: np.ndarray,
-    filter_test_trajectories: bool = True,
-    states: List[str] = ["T", "chi_E"],
-    plot_cfg: Optional[Dict] = None,
-    save_cfg: Optional[Dict] = None,
-):
-
-    if plot_cfg is None:
-        plot_cfg = {}
-    if save_cfg is None:
-        save_cfg = {}
-
-    for entry in os.scandir(result_dir):
-        sub_dir_name = entry.name
-        sub_dir_path = entry.path
-        output_sub_dir = os.path.join(save_to_dir, sub_dir_name)
-
-        if entry.is_dir():
-            if list(os.scandir(entry.path))[0].is_dir():  # dir contains sub dirs
-                plot_random_trajectories(
-                    sim_cfg=sim_cfg,
-                    n_trajectories=n_trajectories,
-                    result_dir=sub_dir_path,
-                    save_to_dir=output_sub_dir,
-                    test_data=test_data,
-                    filter_test_trajectories=filter_test_trajectories,
-                    states=states,
-                    plot_cfg=plot_cfg,
-                    save_cfg=save_cfg,
-                )
-
-            else:
-                if not os.path.exists(output_sub_dir):
-                    os.makedirs(output_sub_dir, exist_ok=True)
-                    json_files = [f for f in os.listdir(sub_dir_path) if f.endswith(".json") and "meta" not in f]
-
-                    if not json_files:
-                        print(f"No .json files in {sub_dir_path} found. Skipping.")
-                        continue
-
-                    n_to_select = min(n_trajectories, len(json_files))
-                    files_to_plot = np.random.choice(json_files, size=n_to_select, replace=False)
-
-                    try:
-                        meta_data = _load_single_json(os.path.join(sub_dir_path, "meta_data.json"))
-                    except FileNotFoundError:
-                        print(f"Warning: No meta_data.json in {sub_dir_path} found.")
-                        meta_data = {}
-                    surrogate_type = meta_data.get("surrogate_type")
-
-                    for filename in files_to_plot:
-                        file_path = os.path.join(sub_dir_path, filename)
-                        surrogate_result = _load_single_json(file_path)
-
-                        if filter_test_trajectories:
-                            test_data_index = surrogate_result.get("meta_data", {}).get("index")
-                            if test_data_index is None:
-                                print(f"Warning: Metadata {filename} has no index key. Cannot plot test data.")
-                                continue
-                            test_data_to_plot = test_data[test_data_index]
-                        else:
-                            test_data_to_plot = test_data
-
-                        for state in states:
-                            # Kopie erstellen, um Seiteneffekte zu vermeiden
-                            current_save_cfg = save_cfg.copy()
-                            export_name = filename.replace(".json", f"_{state}")
-                            current_save_cfg.update({"save_dir": output_sub_dir, "export_name": export_name})
-                            plot_open_loop_state(
-                                sim_cfg=sim_cfg,
-                                surrogate_results={f"{sub_dir_name}": surrogate_result},
-                                test_data=test_data_to_plot,
-                                state=state,
-                                surrogate_type=surrogate_type,
-                                positions=[0, 3],  # Beispielpositionen
-                                meta_data=meta_data,
-                                plot_cfg=plot_cfg,
-                                save_cfg=current_save_cfg,
-                            )
-
-
-def plot_exec_time_distribution(
-    surrogate_result_dict: Dict[str, Dict],
-    plot_dir: str,
-    plot_cfg: Optional[Dict] = None,
-    save_cfg: Optional[Dict] = None,
-):
-    """
-    Plots the distribution of total wall clock simulation times for different surrogate models.
-
-    The plot is a box plot showing the distribution of log-transformed simulation times.
-    Mean simulation time is annotated for each model.
-
-    Args:
-        surrogate_result_dict (Dict[str, Dict]): A dictionary where keys are model
-            names (str) and values are dictionaries containing simulation results.
-            Each result dict must contain the key 't_wall_total', which holds a
-            numpy array of wall clock times (in seconds).
-        plot_dir (str): Directory where the plot will be saved.
-        plot_cfg (Optional[Dict]): Configuration dictionary for plot aesthetics
-            (e.g., 'figsize', 'x_annotations'). Defaults to {}.
-        save_cfg (Optional[Dict]): Configuration dictionary for saving/showing the
-            plot (e.g., 'export_name', 'show_fig'). Defaults to {}.
-    """
-
-    plot_cfg = plot_cfg or {}
-    save_cfg = save_cfg or {}
-    final_export_path = os.path.join(plot_dir, f"{save_cfg.get('export_name', "exe_time_dist")}.pdf")
-    if not os.path.exists(final_export_path):
-        print("---- Plotting execution time distribution. ----")
-
-        fig, ax = plt.subplots(figsize=plot_cfg.get("figsize", (10, 6)))
-        colors = make_colors(len(surrogate_result_dict))
-        x_vals = np.arange(1, len(surrogate_result_dict) + 1)
-        boxplot = ax.boxplot(
-            [np.log10(result["t_wall_total"]) for result in surrogate_result_dict.values()],
-            positions=x_vals,
-            patch_artist=True,
-            widths=0.6,
-            showfliers=False,
-            medianprops=dict(color="black", linewidth=2),
-        )
-        for i, result in enumerate(surrogate_result_dict.values()):
-            mean = result["t_wall_total"].mean()
-            ax.annotate(
-                r"$\langle \Delta t_\mathrm{sim}\rangle$ = " + f"{mean:.3f}" + " s",
-                xy=(plot_cfg.get("x_annotations", [0.18, 0.5, 0.82])[i], 0.2),
-                xycoords="axes fraction",
-                ha="center",
-                va="center",
-            )
-
-        ax.set_xticks(x_vals)
-        ax.set_xticklabels([latex_notation_map[key]["general"] for key in surrogate_result_dict.keys()])
-        ax.set_ylabel(r"$\log_{10}\!\left(\frac{\Delta t_{\mathrm{sim}}}{\mathrm{s}}\right)$")
-
-        for box, color in zip(boxplot["boxes"], colors):
-            box.set_facecolor(color)
-            box.set_edgecolor(color)
-            box.set_alpha(0.7)
-
-        plt.tight_layout()
-
-        plt.savefig(final_export_path)
-        if save_cfg.get("show_fig", False):
-            plt.show()
-
-
-def plot_intervall_coverages(
-    coverages_dict: Dict[str, np.ndarray],
-    time: np.ndarray,
-    save_dir: str,
-    plot_cfg: Optional[Dict] = None,
-    save_cfg: Optional[Dict] = None,
-):
-    plot_cfg = plot_cfg or {}
-    save_cfg = save_cfg or {}
-    final_save_path = os.path.join(save_dir, f"{save_cfg.get("export_name", "coverages")}.pdf")
-
-    # if not os.path.exists(final_save_path):
-    print("---- Plotting intervall coverages. ----")
-    fig, ax = plt.subplots(1)
-    n_data_rows = len(coverages_dict.keys())
-    prop_cycler = make_color_cycler(n_data_rows) + make_line_cycler(n_data_rows)
-    ax.set_prop_cycle(prop_cycler)
-
-    for surrogate_key, coverage_arr in coverages_dict.items():
-        ax.plot(time, coverage_arr, label=latex_notation_map[surrogate_key]["general"])
-
-    ax.axhline(0.8, label="ideal coverage", color="gray", ls="dashed")
-    ax.set_xlabel(latex_notation_map.get("time", "t"))
-    ax.set_ylabel(r"$\mathrm{coverage}$ / -")
-    ax.set_ylim(0, 1)
-    ax.legend()
-    ax = format_legend(ax, plot_cfg=plot_cfg)
-
-    plt.tight_layout()
-    plt.savefig(final_save_path)
-    if save_cfg.get("show_fig", False):
-        plt.show()
-
-
-def plot_intervall_widths(
-    intervall_widths_dict: Dict[str, np.ndarray],
-    time: np.ndarray,
-    save_dir: str,
-    plot_cfg: Optional[Dict] = None,
-    save_cfg: Optional[Dict] = None,
-):
-    plot_cfg = plot_cfg or {}
-    ylabels = plot_cfg.get("ylabels", ["z1", "z2", "z3", "z4"])
-    save_cfg = save_cfg or {}
-    final_save_path = os.path.join(save_dir, f"{save_cfg.get("export_name", "coverages")}.pdf")
-
-    # incoming shape is {"surrogate": np.ndaarray (trajects, n_t_steps, n_measurements)}
-
-    # if not os.path.exists(final_save_path):
-    n_measurements = list(intervall_widths_dict.values())[0].shape[-1]
-    fig, axes = plt.subplots(n_measurements, sharex=True, sharey=True)
-    n_data_rows = len(intervall_widths_dict.keys())
-    # colors = make_colors(n_data_rows, alpha=1)
-    prop_cylcer = make_color_cycler(n_data_rows) + make_line_cycler(n_data_rows)
-
-    for i, ax in enumerate(axes):
-        ax.set_prop_cycle(prop_cylcer)
-        for surrogate_key, intervall_width_arr in intervall_widths_dict.items():
-            mean = intervall_width_arr.mean(axis=0)
-            std = intervall_width_arr.std(axis=0)
-
-            surrogate_label = latex_notation_map[surrogate_key]["general"]
-            ax.plot(time, mean[:, i], label=surrogate_label)
-            ax.fill_between(time, mean[:, i] + std[:, i], mean[:, i] - std[:, i], label=rf"$\pm \sigma(${surrogate_label})", alpha=0.3)
-            ax.set_ylabel(ylabels[i])
-
-    axes[-1].set_xlabel(latex_notation_map.get("time", "t"))
-    # ax.set_ylim(0, 1)
-    axes[0].legend()
-    axes[0] = format_legend(axes[0], plot_cfg=plot_cfg)
-    fig.text(0.02, 0.5, "rel. intervall width / -", va="center", rotation="vertical")
-
-    plt.subplots_adjust(right=0.95, left=0.15, top=0.88, bottom=0.15)
-    # plt.tight_layout()
-    print("---- Saving intervall widths plot. ----")
-    plt.savefig(final_save_path)
-    if save_cfg.get("show_fig", False):
-        plt.show()
-
-
-def plot_metric_summary(
-    metric_keys: List[str],
-    xaxis_key: str,
-    metric_summary: Dict[str, Dict[str, np.ndarray]],
-    save_dir: str,
-    plot_cfg: Optional[Dict] = None,
-    save_cfg: Optional[Dict] = None,
-):
-    plot_cfg = plot_cfg or {}
-    save_cfg = save_cfg or {}
-
-    # metric summary is of shape {surrogate_type: {metric1: np.ndarray, metric2: ... }, }
-
-    n_data_rows = len(metric_summary.keys())
-    prop_cycler = make_color_cycler(n_data_rows) + make_marker_cyler(n_data_rows)
-    fig, axes = plt.subplots(1, len(metric_keys), sharex=True, sharey=True)
-    if not isinstance(axes, np.ndarray):
-        axes = np.array([axes])
-
-    ylabels = plot_cfg.get("ylabels", None)
-    titles = plot_cfg.get("titles", None)
-    for i, (ax, metric_key) in enumerate(zip(axes, metric_keys)):
-        ax.set_prop_cycle(prop_cycler)
-        for surrogate_key, metric_dict in metric_summary.items():
-            ax.errorbar(
-                metric_dict[xaxis_key],
-                np.log10(metric_dict[metric_key][:, 0]),
-                # yerr=metric_dict[metric_key][:, 1],
-                label=latex_notation_map[surrogate_key]["general"],
-                alpha=0.5,
-                linestyle="none",
-            )  # mean  # std
-        ax.set_xlabel(plot_cfg.get("xlabel"))
-        ax.set_ylabel(ylabels[i]) if ylabels is not None else 0
-        ax.set_title(titles[i])
-        ax.set_ylim(*plot_cfg.get("ylims", (None, None)))
-    axes[-1].legend()
-
-    plt.tight_layout()
-    if save_cfg.get("show_fig", False):
-        plt.show()
-
-    os.makedirs(save_dir, exist_ok=True)
-    final_export_path = os.path.join(save_dir, f"{save_cfg.get("export_name", "metric_summary")}.pdf")
-    plt.savefig(final_export_path)
-    plt.close(fig)
-
-
-def plot_val_loss(training_history_dict: Dict, hidden_units_list: List[List[int]], save_dir: str, plot_cfg: Optional[Dict] = None, save_cfg: Optional[Dict] = None):
-    save_cfg = save_cfg or {}
-    plot_cfg = plot_cfg or {}
-
-    fig, ax = plt.subplots(1)
-    n_data_rows = len(hidden_units_list)
-    n_types = len(training_history_dict)
-    colors = make_colors(n_colors=len(hidden_units_list))
-    line_cycler = make_line_cycler(n_types)
-    color_cycler = make_color_cycler(n_colors=n_data_rows)
-    ax.set_prop_cycle(line_cycler * color_cycler)
-
-    for surrogate_type, history_list in training_history_dict.items():
-        for hidden_units, color in zip(hidden_units_list, colors):
-            for history_dict in history_list:
-                if hidden_units == history_dict.get("units"):
-                    ax.plot(
-                        history_dict["epoch"],
-                        np.log10(history_dict["val_loss"]),
-                        label=f"{latex_notation_map[surrogate_type]["general"]}" + r" $n_\mathrm{hidden}$ = " + f"{hidden_units}",
-                        color=color,
-                    )
-                    break
-
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows)
-    ax.set_xlabel("epoch / -")
-    ax.set_ylabel(r"$\mathrm{log}_{10} \; \mathcal{L}_\mathrm{MSE, val}$ / -")
-
-    plt.subplots_adjust(right=0.95, left=0.1, top=0.88, bottom=0.15)
-    if save_cfg.get("show_fig", False):
-        plt.show()
-    os.makedirs(save_dir, exist_ok=True)
-    plt.savefig(os.path.join(save_dir, "val_loss.pdf"))
-    plt.close()

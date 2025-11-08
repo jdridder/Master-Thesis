@@ -48,36 +48,67 @@ def calculate_state_mse_for_surrogates(
     state_test_data: Dict[str, np.ndarray],
     state_scale: float = 1,
     keep: str = "time",
-) -> List[Dict[str, Tuple[np.ndarray, np.ndarray]]]:
-    # assert len(specs_list) == len(state_prediction_data), f"The number of specs {len(specs_list)} must equal the number of surrogate predictions {len(state_prediction_data)}."
-    # state_prediction_data has the form {"surrogate": [{"state": np.ndarray with shape (n_time_steps, states)}]} with the list indices correspond to the specs
-    # it returns a list of dictionaries with the mean and std MSE as a function of time for each state in the form [{"state": (np.ndarray mean(t), np.ndarray std(t))}]
-    # the list indices correspond to the state prediction data of each surrogate
+) -> Dict[str, Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]]:
+    """
+    Calculates the time-dependent MSE for a batch of surrogate model predictions.
+
+    It iterates through a dictionary of prediction and test data pairs (keyed by
+    surrogate name) and applies `calculate_state_mse` to each pair.
+
+    Args:
+        state_prediction_data: Dictionary where keys are surrogate names (str)
+                               and values are predicted state trajectories (np.ndarray).
+                               Shape of values: (batch, time, features) or (time, features).
+        state_test_data: Dictionary of corresponding ground truth state trajectories.
+                         Keys must match those in `state_prediction_data`.
+        state_scale: Scaling factor passed to `calculate_state_mse`. Defaults to 1.
+        keep: Passed to `calculate_state_mse`. Defaults to "time".
+
+    Returns:
+        Dict[str, Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]]: A dictionary
+        where keys are surrogate names and values are the resulting MSE(t).
+        The value format depends on the shape of the input data (see `calculate_state_mse`):
+        - Tuple[np.ndarray, np.ndarray] (mean, std) if batched input.
+        - np.ndarray (MSE) if single trajectory input.
+    """
     surrogate_mses = {}
-    for surr_key, state_trajectories in state_prediction_data.items():
-        test_data = state_test_data[surr_key]
+
+    # Iterate over each surrogate's prediction data
+    for surr_key, prediction_trajectories in state_prediction_data.items():
+        # Retrieve the corresponding ground truth data
+        if surr_key not in state_test_data:
+            raise KeyError(f"Missing test data for surrogate key: '{surr_key}' in state_test_data.")
+
+        test_trajectories = state_test_data[surr_key]
+
+        # Calculate the MSE for this specific surrogate
         mse_result = calculate_state_mse(
-            state_test_data=test_data,
-            state_prediction_data=state_trajectories,
+            state_test_data=test_trajectories,
+            state_prediction_data=prediction_trajectories,
             state_scale=state_scale,
             keep=keep,
         )
         surrogate_mses[surr_key] = mse_result
+
     return surrogate_mses
 
 
 def calculate_state_mse(state_test_data: np.ndarray, state_prediction_data: np.ndarray, state_scale: float = 1, keep: str = "time") -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """
-    Calculates a time-dependent, L2 norm-based error between test and prediction.
-    mse = 1/n_features * ||state(z)||_2^2
-    The mse is a function of time.
+    Calculates the time-dependent Mean Squared Error (MSE) between true and predicted
+    state trajectories, normalized by the number of features.
+
+    mse(t) = 1/N_features * ||(test(t) - pred(t)) / scale||_2^2
 
     Args:
-        state_test_data: Ground truth data. Shape: (batch, time, feats) or (time, feats).
-        state_prediction_data: Predicted data. Shape: (batch, time, feats).
+        state_test_data: Ground truth data. Shape: (batch, time, features) or (time, features).
+        state_prediction_data: Predicted data. Shape: (batch, time, features) or (time, features).
+        state_scale: Factor to scale the difference by. Defaults to 1.
+        keep: Specifies which dimension to retain (only 'time' is implemented for batched output).
 
     Returns:
-        The mean and std of the error if test data is batched, otherwise the error itself.
+        If batched (2D input): (mean_mse_over_batch, std_mse_over_batch) vs. time.
+        If single trajectory (1D input): Array of MSE values vs. time.
     """
     assert (
         state_test_data.shape == state_prediction_data.shape
@@ -92,20 +123,6 @@ def calculate_state_mse(state_test_data: np.ndarray, state_prediction_data: np.n
     return mse.flatten()  # is scaled
 
 
-def calculate_aux_from_states(state_matrix: np.ndarray) -> np.ndarray:
-    "Calculates selectivity and conversion directly from the concentrations."
-    states_inlet = structurizer.get_states_at_measurement_from_data(reduced_data=state_matrix, measurement=0)
-    states_outlet = structurizer.get_states_at_measurement_from_data(reduced_data=state_matrix, measurement=3)
-    # 2 == EO, 0 == E
-    c_E_in = 29.099769529825323
-    delta_EO = states_outlet[:, 2]
-    delta_E = -states_outlet[:, 0] + c_E_in
-    conversion = delta_E / c_E_in
-    selectivity = delta_EO / delta_E
-    aux = np.array([selectivity, conversion]).T
-    return aux
-
-
 def calculate_mean_selectivity(results: Union[List[Dict], Dict]) -> np.ndarray:
     """Averages the selectivity across the time of one control trajectory.
     It uses the selectivities of the real model, because this is the variable that counts in reality."""
@@ -118,8 +135,30 @@ def calculate_mean_selectivity(results: Union[List[Dict], Dict]) -> np.ndarray:
 
 
 def calculate_mean_constraint_vio(results: Union[List[Dict], Dict], X_min: float, T_max: float) -> np.ndarray:
-    """Calculates the contraint violation of the simulator system. This is the mean distance of points, that violate the constraints.
-    Points, that satisfy the constraint are counted with zero."""
+    """
+    Calculates the mean constraint violation for 'X' (conversion) and 'T' (temperature)
+    across a list of simulation results.
+
+    For points violating the constraint, the violation distance is measured.
+    Points satisfying the constraint are counted as zero violation.
+
+    The mean violation for 'X' is the time-averaged relative violation across the
+    single final measurement point. The mean violation for 'T' is the time-averaged
+    L2 norm of the relative violation across all discretization points.
+
+    Args:
+        results: A single dictionary or list of dictionaries containing simulation
+                 results. Expected keys for violation calculation:
+                 - 'simulator': {'_aux', 'X'} for conversion 'X'.
+                 - 'simulator': {'_x', 'T'} for temperature 'T'.
+        X_min: The minimum allowed value for the conversion variable 'X'.
+        T_max: The maximum allowed value for the temperature variable 'T'.
+
+    Returns:
+        Dict[str, np.ndarray]: A dictionary with keys "X" and "T". Each value is
+        a 1D array of mean constraint violations corresponding to the input
+        list of simulation results.
+    """
     if isinstance(results, Dict):
         results = [results]
     mean_violations = {"X": np.zeros(len(results)), "T": np.zeros(len(results))}
@@ -138,54 +177,6 @@ def calculate_mean_constraint_vio(results: Union[List[Dict], Dict], X_min: float
         mean_temp_vio = temp_vio.mean(axis=0)  # average over time
         mean_violations["X"][i], mean_violations["T"][i] = mean_conversion_vio[0], mean_temp_vio
     return mean_violations
-
-
-def calculate_control_effort(results: Union[List[Dict], Dict], T_max: float) -> np.ndarray:
-    if isinstance(results, Dict):
-        results = [results]
-    control_effort = np.zeros(len(results))
-    for i, result in enumerate(results):
-        control_signal = result["simulator"]["_u"]
-        n_time_steps = control_signal.shape[0]
-        delta_u = np.linalg.norm(control_signal[1:] - control_signal[0:-1], ord=2, axis=0) ** 2
-        effort = np.linalg.norm(delta_u)
-        control_effort[i] = effort / (n_time_steps * T_max)
-    return control_effort
-
-
-def calculate_mean_cputime(results_list: List[Dict]) -> np.ndarray:
-    mean_cpu_times = np.zeros(len(results_list))
-    for i, result in enumerate(results_list):
-        mean_cpu_times[i] = result["mpc"]["t_wall_total"].mean()
-    return mean_cpu_times
-
-
-def calculate_physics_violation(X_pred: np.ndarray, A: np.ndarray, n_measurements: int, x_in: np.ndarray) -> np.ndarray:
-    """Calculates the violation of the physics consistency constraints
-
-    Args:
-        X_pred (np.ndarray): The prediction vector of a surrogate model. Has shape (t_steps, n_states * n_measurements).
-        A (np.ndarray): The matrix of the linear equality constraints that satisfy the balance laws. It has shape (n_laws, n_states)
-        n_measurements: int: The number of the measurements.
-        x_in (np.ndarrary): The states at the inlet for every time step. It has shape (t_steps, n_states).
-
-    Returns:
-        np.ndarray: The average across the states and time at each position in the reactor of the residual vector b of the constraint equation Az - b = 0 (it must equal to zero).
-    """
-    assert X_pred.shape[0] == x_in.shape[0], f"X and x_in must have the same number of time steps. You have {X_pred.shape} and {x_in.shape}"
-    # calculate the absolute change of the states with respect to their inlet values for all time steps
-
-    X_pred = X_pred.reshape((X_pred.shape[0], -1, n_measurements))
-    x_in = x_in.reshape((X_pred.shape[0], -1, 1))
-    dx = X_pred - x_in
-    violations = np.zeros((X_pred.shape[0], n_measurements))
-    for i, dx_i in enumerate(dx):
-        delta_b = A @ dx_i
-        # average over the constrains, positions are conserverd
-        err = np.linalg.norm(delta_b, ord=2)
-        violations[i] = err
-    # only for concentrations violation is in mol/m3
-    return violations
 
 
 def calculate_state_physics_vio(
@@ -256,92 +247,6 @@ def calculate_state_physics_vio(
         physics_violation = np.linalg.norm(violation, ord=2, axis=-1)
         physics_violations.append(physics_violation)
     return physics_violations
-
-
-def calculate_prediction_physics_vio(model_cfg: Dict, results_list: List[Dict[str, MPCData]], keep: Optional[str] = None) -> np.ndarray:
-    """Calculates the violation of stoichiometric constraints from MPC predictions.
-
-    This function quantifies how well the predicted states from a Model
-    Predictive Control (MPC) simulation adhere to the system's linear physical
-    constraints. These constraints, representing principles like mass conservation,
-    are derived from the null space of the stoichiometric matrix.
-
-    The violation is calculated as the L2 norm (Euclidean norm) of the residual
-    vector `b` in the equation `A @ x = b`. Here, `A` is the constraint matrix
-    and `x` is the difference between the predicted state and the inlet conditions.
-    Ideally, `b` should be a zero vector.
-
-    The resulting metric is then averaged across different dimensions based on the
-    `keep` parameter to allow for targeted analysis.
-
-    Args:
-        results_list (List[Dict[str, Any]]):
-            A list containing the simulation results for each trajectory. Each
-            element is a dictionary that must hold an 'mpc' object. This object
-            is expected to have a `prediction` method to retrieve state data.
-        keep (Optional[str], optional):
-            Specifies how to average the final metric. Defaults to `None`.
-            - "position": Averages over the prediction horizon and returns the
-              violation for each measurement position.
-            - "horizon": Averages over the measurement positions and returns the
-              violation for each time step of the prediction horizon.
-            - `None`: Averages over both positions and horizon, which returns a
-              single scalar.
-
-    Returns:
-        np.ndarray:
-            The calculated physics violation in [mol/m³]. The shape of the
-            array depends on the `keep` argument:
-            - `(n_measurements,)` if `keep="position"`.
-            - `(horizon_length,)` if `keep="horizon"`.
-            - A scalar if `keep=None`.
-
-    Notes:
-        This function depends on the variables `model_cfg` and `n_measurements`
-        being defined in the calling scope.
-        - `model_cfg` (dict): Must contain the key "stoiciometric_matrix".
-        - `n_measurements` (int): The number of spatial measurement positions.
-    """
-    # Calculate the constraint matrix from the stoichiometric space
-    A = get_stoic_matrix(model_cfg)
-
-    time = results_list[0]["mpc"]["_time"]
-    n_trajectories = len(results_list)
-    inlet_vector = get_inlet_vector()
-    n_states, horizon_length, n_scenarios = results_list[0]["mpc"].prediction(("_x", "x")).shape
-
-    # Pre-allocate array for all predictions
-    # Shape: (trajectory, simulation_step, scenario, horizon_step, state)
-    predictions = np.zeros((n_trajectories, time.shape[0], n_scenarios, horizon_length, n_states))
-    for trajectory in range(n_trajectories):
-        for t_ind in range(predictions.shape[1]):
-            predictions_at_t_ind = np.zeros((n_states, horizon_length, n_scenarios))
-            for i, state_key in enumerate(sim_cfg["states"]["keys"]):
-                print(results_list[trajectory]["mpc"].prediction(("_x", state_key), t_ind))
-                # predictions_at_t_ind[i] = results_list[trajectory]["mpc"].prediction(("_x", state_key), t_ind)
-                # TODO: Fix the querying of the states they are not lumped into a giant state "x" they are seperated by their keys.
-
-            # predictions[trajectory, t_ind] = predictions_at_t_ind.T  # Transpose to (scenario, horizon, state)
-
-    # Reshape to separate spatial measurement positions
-    predictions = predictions.reshape(*predictions.shape[:-1], -1, n_measurements)
-
-    # Calculate the L2 norm of the residual vector A @ (x_pred - x_inlet)
-    # The norm is taken over the components of the residual vector (axis=-2)
-    physics_violation = np.linalg.norm(A @ (predictions - inlet_vector), ord=2, axis=-2)
-
-    # Average over simulation time steps and scenarios
-    # Shape becomes (trajectory, horizon_step, measurement_position)
-    physics_violation = physics_violation.mean(axis=(1, 2))
-
-    if keep == "position":  # Average over the prediction horizon
-        physics_violation = physics_violation.mean(axis=1)
-    elif keep == "horizon":  # Average over the measurement positions
-        physics_violation = physics_violation.mean(axis=-1)
-    else:  # Average over both position and prediction horizon
-        physics_violation = physics_violation.mean(axis=(1, -1))
-
-    return physics_violation  # Unit is mol/m³
 
 
 def calculate_intervall_width(
@@ -425,53 +330,3 @@ def separate_into_state_by_slice(
         )
         # This line is 100% self made :). My most beautiful dense line of code so far.
     return separated
-
-
-def main():
-    path_to_results = "/Users/jandavidridder/Desktop/Masterarbeit/PYTHON/MYCODE/results"
-    loaded_results = []
-    names = []
-    for file_name in os.listdir(path_to_results):
-        if file_name.endswith(".pkl"):
-            names.append(file_name.replace(".pkl", ""))
-            loaded_results.append(load_results(f"{path_to_results}/{file_name}"))
-
-    constr_viol = calculate_mean_constraint_vio(results_list=loaded_results)
-    performance_results = {
-        "surrogate": names,
-        "mean selectivity": calculate_mean_selectivity(results_list=loaded_results),
-        "mean contr vio T": constr_viol["T"],
-        "mean contr vio X": constr_viol["X"],
-        # "phy vio": calculate_prediction_physics_vio(loaded_results, keep=None),
-        "mean cpu time": calculate_mean_cputime(loaded_results),
-    }
-
-    as_data_frame = pd.DataFrame(performance_results)
-    print(as_data_frame)
-    # print(as_data_frame.to_latex())
-
-
-if __name__ == "__main__":
-    CURR_DIR = os.path.dirname(__file__)
-    ROOT_DIR = os.path.abspath(os.path.join(CURR_DIR, ".."))
-    CONFIG_NAME = "etox_control_task.yaml"
-    CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, "configs", CONFIG_NAME))
-    MODEL_CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, "models", "EtOxModel", "EtOxModel.yaml"))
-    sys.path.append(ROOT_DIR)
-
-    n_measurements = 4
-    n_discretization = 128
-    with open(CONFIG_PATH, "r") as f:
-        sim_cfg = yaml.safe_load(f)
-    with open(MODEL_CONFIG_PATH, "r") as f:
-        model_cfg = yaml.safe_load(f)
-
-    structurizer = DataStructurizer(
-        n_measurements=n_measurements,
-        time_horizon=8,
-        state_keys=sim_cfg["states"]["keys"],
-        input_keys=sim_cfg["inputs"]["all_keys"],
-        tvp_keys=sim_cfg["tvps"]["keys"],
-    )
-    vis = Visualizer(sim_cfg, cmap="magma")
-    main()

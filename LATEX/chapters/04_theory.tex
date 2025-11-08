@@ -1,7 +1,7 @@
 \chapter{Model Predictive Control under Uncertainty}
 
 
-Before diving into the application of a special model predictive (MPC) algorithm. Uncertain
+Before diving into the application of a special model predictive control (MPC) algorithm. Uncertain
 optimization is treated more generally. From economics, over self-driving cars to chemical plants,
 optimization problems are formulated in terms of uncertain variables in countless variations.
 These uncertainties arise in three different types – fluctuating disturbances such as wind or weather conditions,
@@ -14,7 +14,8 @@ well as retain the \emph{performance} with respect to the objective function.
 
 \section{Robust Optimization}
 
-Considering the following optimization task (\ref{theroy:def: semi-infinite program}) under an uncertainty vector $\vw$.
+The following optimization task (\ref{theroy:def: semi-infinite program}) under an uncertainty vector $\vw$
+may be considered.
 \begin{definition} Semi-infinite program with the uncertainty $\vw$.
     \label{theroy:def: semi-infinite program}
     \[
@@ -32,7 +33,7 @@ seeks a minimum solution for the input $\vu$, while the opposing player (nature)
 disturbance variables $\vw$. The inequality constraints $F_i$ in addition, should be satisfied for all possible disturbances, that
 lie in a defined set $\mathbb{W}$. If this set is not finite, the number of possible 
 constraints to be satisifed is infintely big. Thus, this formulation is named as \emph{semi-infinite-program} \cite{stein2003}.
-To reduce the number of constraints, the worst-case estimate can be applied here (\ref{theroy:def: bi-level program}). 
+To reduce the number of constraints, the worst case estimate can be applied here (\ref{theroy:def: bi-level program}). 
 
 \begin{definition} Bi-level formulation of the semi-infinite program
     \label{theroy:def: bi-level program}
@@ -47,7 +48,7 @@ To reduce the number of constraints, the worst-case estimate can be applied here
 
 Now, the inequality constraints are also formulated in a bi-level manner. The maximum of $F_i$ is 
 constant in $\vw$ and only a function of the decision variables $\vu$. The function $\varphi_i$
-exactly describes the wost-case for $F_i$ parametrized by $\vu$. In fact, if certain assumptions hold
+exactly describes the worst case for $F_i$ parametrized by $\vu$. In fact, if certain assumptions hold
 regarding the uncertainty set $\mathbb{W}$ and the concavity of the maximization,
 $\varphi_i$ can be exactly computed \cite{diehl2025}. This would simplify the problem dramatically.
 In many real cases however, an analytical solution for $\varphi_i$ is impossible to compute.
@@ -97,13 +98,13 @@ the dynamics of the system, which are described by the system model $f(t, \vx, \
 of the controller heavily depends on the prediction accuracy of this model \cite{lucia2013}.
 The system states however should remain in a set of constraints at all times whereas the inputs
 are bounded, all summarized by the constraint  functions $F_i$. In a physical sense, constraint violation can lead to 
-instability and thus damage of the real system. Here is a vital example.
-For a chemical reactor a \emph{reaction runaway}
-must be avoided at all costs. This happens, if the exothermic heat release exceeds the maximum possible
+instability and thus damage of the real system.
+For instance, a \emph{temperature runaway} must be avoided at all costs in a chemical reactor.
+This happens, if the exothermic heat release exceeds the maximum possible
 cooling rate. Higher temperatures increase the reaction rate exponentially leading to a greater 
 enthalpy release, which again causes a self-accelerating temperature rise \cite{guttel2021}. 
 That is why, stability and guaranteed mathematical constraint satisfaction
-are a great field of research in the discipline of optimal control.
+are an important field of research in the discipline of optimal control.
 
 
 \section{Multi-Stage Model Predictive Control}
@@ -152,7 +153,7 @@ possible combinations of disturbances. In the algorithm design phase, scenario c
 defined a priori for each independent disturbance that may act on the system. As different disturbances occur
 in different combinations, each possible scenario is represented by a branch. At every time step in the \emph{robust horizon},
 branches for every possible uncertainty scenario are generated. This procedure is coined \emph{scenario generation}.
-In practice, the worst-cases for the disturbances are assumed and sometimes an additional expected or nominal value. Mostly, this yields good results
+In practice, the worst cases for the disturbances are assumed plus an optional expected value. Mostly, this yields good results
 with respect to controller performance and robustness \cite{lucia2013}.
 \newline
 \newline
@@ -185,11 +186,11 @@ High order uncertainties lead to optimization problems that are simply impossibl
 provide a stunning capability of approximating any multivariate function from any finite dimensional
 space to another. According to the \emph{Universal Approximation Theorem}, any finite dimensional function can be reproduced if the number of hidden
 layers and respective neurons is high enough, up to an arbitrarily small error \cite{hornik1990}. Thus, NNs play a major role in
-recent developments in machine learning. The breakthrough of large language models such as ChatGPT heavily rely on neural
+recent developments in machine learning. Large language models such as ChatGPT heavily rely on neural
 networks \cite{vaswani2023}. NNs are not only succesfully applied in natural language processing but in the chemical process industry.
 Applications range from thermodynamic property prediction over unit operation design to corporate level decision making \cite{mcbride2019}.
-Their ability to approximate any non-linear function while beeing differentiable, makes NNs especcialy suitable for dynamic optimization
-such as MPC. In contrast to detailed first principle models, NNs have the advantage of making a prediction in a fraction of the inference time
+Their ability to approximate any non-linear function while beeing differentiable, makes NNs especcially suitable for dynamic optimization
+such as MPC. In contrast to detailed first principle models, NNs have the advantage of making a prediction in a fraction of the simulation time
 of the first principle model. As MPC operates in real time parallel to the system to be controlled, the computation duration is a key measure
 for a succesfull MPC implementation. That is why, surrogate models in form of NNs are a crucial tool for dynamic optimization and heavily investigated
 in current research \cite{salzmann2024l4casadi}. May a NN be given as an alternating series of function evaluations (def.~\ref{theory:def: neural network}).
@@ -227,15 +228,15 @@ the optimal parameters for $\bm{\theta}$ are found by solving an optimization ta
 \end{equation}
 
 In \emph{supervised learning}, the training data is separated in \emph{features} $\mathbb{X}_\text{train}$, the inputs of the NN,
-and \emph{labels} $\mathbb{Y}_\text{train}$, the outputs of the NN. During training, the parameters $\bm{\theta}$ are determined such that
+and \emph{labels} $\mathbb{Y}_\text{train}$. During training, the parameters $\bm{\theta}$ are determined such that
 the NN approximates the data in best possible manner.
-In this example the loss function $\mathcal{L}$ portrays the mean squarred error (MSE), that is used in most regression tasks. 
+In this example the loss function $\mathcal{L}$ portrays the mean squared error (MSE), that is used in most regression tasks. 
 The difference between the model prediction, denoted as $\bm{\tilde{y}}(\bm{\xi}^{(i)})$, and the true data point $\bm{y}^{(i)}$ is penalized quadratically.
 
 \subsection{Quantile Regression}
-By utilizig a loss function in form of the MSE, a model is trained to achieve regression predictions in form of the quarred mean.
+By utilizig a loss function in form of the MSE, a model is trained to achieve regression predictions in form of the squared mean.
 To tweak the prediction characteristics of a NN for the task at hand, the type of training loss function is decisive.
-In a probabilistic environment, the prediction of confidence intervalls in the form of quantiles may be of mayor interest.
+In a probabilistic environment, the prediction of confidence intervalls in the form of quantiles may be of major interest.
 To learn the quantiles of a distribution of data points, the \emph{quantile loss} or \emph{pinball loss} can be used (eq.~\ref{theory:eq: quantile loss}).
 
 \begin{equation}
@@ -278,7 +279,7 @@ In the original MPC formulation (def.~\ref{theory:def: general mpc}) this is som
 with the abbreviation \emph{right-hand-side} (rhs).
 The state propagation by the function $f$ is a classical example of a time series extrapolation. NNs have shown significant
 capabilities in time series forecasting. Deep learning based architectures exist for time series forecasting
-in various complexities. Convolutional NNs (CNNs), Long-Short-Term-Memory (LSTMs) cells and transformers are the most promiment for
+in various complexities. Convolutional NNs (CNNs), Long-Short-Term-Memory (LSTMs) cells and Transformers are the most promiment for
 time series prediction with varying complexity \cite{benidis2022,vaswani2023}.
 These provide a great possibility to apply deep learning based forecasting within optimal control algorithms, where the next
 state $\bm{\tilde{x}}_{k+1}$ is the output of a neural network $\mathcal{NN}$.
@@ -302,17 +303,17 @@ Between states and inputs, $h$ can be choosen differently. In this work, $h$ is 
 
 The concatenated input feature vector $\bm{\phi}_k$ contains all past states and inputs within the time horizon $h$, leading
 to a vector length of $(n_x + n_u) \cdot (h+1)$, where $n_x$ and $n_u$ represent the number of states and inputs respectively. 
-For large systems, the input length increases the network size unaccetably quick, while the input time serieses often exhibit
+For large systems, the input length increases the network size unacceptably quick, while the input time serieses often exhibit
 strong redundacies. To reduce the input size, the feature vector $\bm{\phi}_k$ is passed to an \emph{encoder} \cite{kemmerling2025}.
 The encoder is based on feature compression via \emph{principal component analysis} (PCA), that maps the feature space to 
-a lower dimensional subspace. This subspace represents the space of the input data with the most information.
+a lower dimensional subspace. This subspace represents the space of the input data with the biggest variance.
 
 \subsection{Singular Value Decomposition}
-\emph{Singular value decomposition} (SVD) is a fundamental building block in linear algebra. Its applications 
-are range from image compression, over exploratory data analysis to model reduction in fluid mechanics.
+\emph{Singular value decomposition} (SVD) is a fundamental building block in linear algebra. Its applications
+range from image compression, over exploratory data analysis to model reduction in fluid mechanics.
 The power of SVD is, that it maps a high dimensional space into a low dimensional subspace. The mapping is achieved by a simplistic matrix
 transformation. It not only identifies a subspace, it also identifies underlying patterns in the data encoded
-via the respective \emph{singular vectors}. The compression and component indendification is guaranteed
+via the respective \emph{singular vectors}. The compression and component indentification is guaranteed
 to exist for every matrix $\bm{X} \in \mathbb{C}^{n \times m}$ in contrast to an eigendecomposition \cite{Brunton2019}.
 \newline
 \newline

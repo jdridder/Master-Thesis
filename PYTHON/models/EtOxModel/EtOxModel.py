@@ -204,35 +204,37 @@ class EtOxModel(MyModel):
         )
 
     def get_initial_state(self, u0: float = 0.3, Tc_0: float = 615, n_batches: int = 1, path: str = None) -> np.ndarray:
-        path = "/Users/jandavidridder/Desktop/Masterarbeit/src/PYTHON/MYCODE/models/EtOxModel/initial_state.npy"
+        path = "/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/PYTHON/models/EtOxModel/initial_state.npy"
         if os.path.exists(path):
             x = np.load(file=path)
         else:
-            c = (1 - self.eps) / (u0 * self.A)
-            k1, EA1, k2, EA2, lam_bed = self.sample_parameters().flatten()
-            x0 = np.array(list(self.bc.values()))
-            x = np.ones_like(self.state_keys, dtype=np.float32)
-            z_grid = np.linspace(0, self.p["L"], self.N_finite_diff)
+            raise ValueError("Initial state does not exist.")
+        # else:
+        #     c = (1 - self.eps) / (u0 * self.A)
+        #     k1, EA1, k2, EA2, lam_bed = self.sample_parameters().flatten()
+        #     x0 = np.array(list(self.bc.values()))
+        #     x = np.ones_like(self.state_keys, dtype=np.float32)
+        #     z_grid = np.linspace(0, self.p["L"], self.N_finite_diff)
 
-            def dx(z, x):
-                dx = np.empty_like(x)
-                dx[0] = c * (self.nu_E[0] * self._r1(x[0], x[1], x[4], x[5], k1=k1, EA1=EA1) + self.nu_E[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2))
-                dx[1] = c * (self.nu_O2[0] * self._r1(x[0], x[1], x[4], x[5], k1=k1, EA1=EA1) + self.nu_O2[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2))
-                dx[2] = c * self.nu_EO[0] * self._r1(x[0], x[1], x[4], x[5], k1=k1, EA1=EA1)
-                dx[3] = c * self.nu_H2O[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2)
-                dx[4] = c * self.nu_CO2[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2)
-                dx[5] = (
-                    1
-                    / (u0 * self._rho_tot(x[5], self.eps) * self.cp_tot)
-                    * (
-                        -self.p["dHR1"] * self._r1(x[0], x[1], x[4], x[5], k1, EA1)
-                        - self.p["dHR2"] * self._r2(x[0], x[1], x[4], x[5], k2, EA2)
-                        + 4 / self.p["d"] * self._alpha_w(x[5], lam_bed, self.cp_g, u0) * (Tc_0 / self.p["T_in"] - x[5])
-                    )
-                )
-                return dx
+        #     def dx(z, x):
+        #         dx = np.empty_like(x)
+        #         dx[0] = c * (self.nu_E[0] * self._r1(x[0], x[1], x[4], x[5], k1=k1, EA1=EA1) + self.nu_E[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2))
+        #         dx[1] = c * (self.nu_O2[0] * self._r1(x[0], x[1], x[4], x[5], k1=k1, EA1=EA1) + self.nu_O2[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2))
+        #         dx[2] = c * self.nu_EO[0] * self._r1(x[0], x[1], x[4], x[5], k1=k1, EA1=EA1)
+        #         dx[3] = c * self.nu_H2O[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2)
+        #         dx[4] = c * self.nu_CO2[1] * self._r2(x[0], x[1], x[4], x[5], k2=k2, EA2=EA2)
+        #         dx[5] = (
+        #             1
+        #             / (u0 * self._rho_tot(x[5], self.eps) * self.cp_tot)
+        #             * (
+        #                 -self.p["dHR1"] * self._r1(x[0], x[1], x[4], x[5], k1, EA1)
+        #                 - self.p["dHR2"] * self._r2(x[0], x[1], x[4], x[5], k2, EA2)
+        #                 + 4 / self.p["d"] * self._alpha_w(x[5], lam_bed, self.cp_g, u0) * (Tc_0 / self.p["T_in"] - x[5])
+        #             )
+        #         )
+        #         return dx
 
-            x = scipy.integrate.solve_ivp(dx, (0, self.p["L"]), x0, t_eval=z_grid)["y"]
+        #     x = scipy.integrate.solve_ivp(dx, (0, self.p["L"]), x0, t_eval=z_grid)["y"]
         x = x.reshape((-1, 1))
         x = np.expand_dims(x, axis=0)
         x = np.repeat(x, repeats=n_batches, axis=0)

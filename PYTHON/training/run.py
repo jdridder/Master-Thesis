@@ -53,12 +53,14 @@ def run_training(
                 quantile = individual_cfg.get("quantile")
 
                 for module_cfg in training_cfg["training_jobs"].values():
-                    if "quantile" in module_cfg.keys() and module_cfg["loss_function"] == LossFuncType.Quantile.value:
+                    if LossFuncType.Quantile.value in module_cfg.keys():
                         if module_cfg["quantile"] == quantile:
                             path_to_quantile_temp_params = module_cfg.get("save_path")
+                            break
 
                 # check whether file exists
-                assert os.path.exists(path_to_quantile_temp_params), f"The model parameters for the {quantile} temperature model do not exists under {path_to_quantile_temp_params}."
+                if not os.path.exists(path_to_quantile_temp_params):
+                    raise ValueError(f"The model parameters for the {quantile} temperature model do not exists under {path_to_quantile_temp_params}.")
                 temp_model_params = torch.load(path_to_quantile_temp_params)
                 # prepare weights
                 weights = infer_temperature_weights(
@@ -96,8 +98,8 @@ def infer_temperature_weights(data_structurizer: DataStructurizer, training_data
     with torch.no_grad():
         T_pred = temp_model(X_enc).detach()  # predicted temperature quantile (scaled)
 
-    T_sc = temp_model.out_scaler(Y)  # scale the training data
-    distances = torch.norm(T_pred - T_sc, p=2, dim=-1) ** 2
+    # T_sc = temp_model.out_scaler(Y)  # scale the training data
+    distances = torch.norm(T_pred - Y, p=2, dim=-1)
     weights = 1 / (1 + distances)
     return weights
 
