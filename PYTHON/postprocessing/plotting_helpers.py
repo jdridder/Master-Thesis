@@ -40,6 +40,7 @@ lower_ylims = {"T": 0.75, "c": 0.25}
 
 
 def set_mpt_settings(font_size: float = 16, figsize=(10, 6)):
+    plt.style.use("science")
     matplotlib.rcParams.update(
         {
             "lines.linewidth": 2,

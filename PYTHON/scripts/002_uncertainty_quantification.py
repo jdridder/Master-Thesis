@@ -12,8 +12,8 @@ ROOT_DIR = os.path.abspath(os.path.join(CURR_DIR, ".."))
 sys.path.insert(0, ROOT_DIR)
 from configs.uncertainty_quantification import data_cfg, test_cfg_list, training_cfgs
 from models import EtOxModel
-from postprocessing.performance_metrics import calculate_intervall_width, separate_into_state_by_slice
-from postprocessing.plot import plot_intervall_coverages, plot_intervall_widths, plot_random_trajectories
+from postprocessing.performance_metrics import *
+from postprocessing.plot import *
 from postprocessing.plotting_helpers import make_colors
 from routines.data_structurizer import DataStructurizer
 from routines.utils import filter_test_data_for_surrogates, get_directory_for_today, load_json_results_for_all
@@ -22,13 +22,52 @@ from simulation.open_loop import run_open_loop_for_specs
 from training.run import run_training
 
 
+def plot_test_data_with_simulation(
+    test_data: np.ndarray,
+    save_path: str,
+    surrogate_dict: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    """Plots the test data of shape (n_trajects, time_steps, feats) with the simulation trajectories {"vanilla": {"nominal"}: np.ndarray}.
+    The features need to be filtered before hand. It creates as many subplots as features.
+    """
+
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+    n_subplots = test_data.shape[-1]
+
+    fig, axes = plt.subplots(n_subplots, sharex=True, sharey=True)
+
+    test_data = np.swapaxes(test_data, 0, 1)  # swap the trajectory axis with the time steps to plot all trajectories over each other at once
+    color_dict = plot_cfg.get("colors", {})
+    ylabel_list = plot_cfg.get("ylabels", [None] * n_subplots)
+    assert len(ylabel_list) == n_subplots, "The number of y labels must match the number of features."
+
+    for i, ax in enumerate(axes):
+        ax.plot(
+            test_data[..., i],
+            color=color_dict.get("test", "blue"),
+        )
+        ax.set_ylabel(ylabel_list[i])
+
+    axes[-1].set_xlabel("$t$ / s")
+    plt.subplots_adjust(right=0.92, left=0.12, top=0.88, bottom=0.15)
+    if save_cfg.get("show_fig", False):
+        plt.show()
+
+    file_name = save_cfg.get("save_name", "test_data_with_simulation")
+    final_save_path = os.path.join(save_path, f"{file_name}.pdf")
+    plt.savefig(final_save_path)
+
+
 def run_uncertain_open_loop_experiment(
     sim_cfg: Dict,
     experiments_directory: str,
     meta_model: EtOxModel,
     data_structurizer: DataStructurizer,
     measurements_to_plot: Optional[List[int]] = [0, 3],
-    n_test_trajectories: int = 1,
+    n_test_trajectories: int = 32,
 ):
     # make directory
     exp_name = "002_uncertainty_quantification"
@@ -79,23 +118,35 @@ def run_uncertain_open_loop_experiment(
                 save_dir=result_directory,
                 initialization_data=test_data,
             )
+    # is the PC NARX better in predicting the state uncertainty ?
+    # load upper and lower bound
+    # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
+    result_dict = {}
+    # ----- Load result data -----
+    for surrogate_entry in os.scandir(result_directory):
+        results_for_surrogate = load_json_results_for_all(result_dir=surrogate_entry.path)
+        # only keep the states and reduce them to the 24 measurements
+        only_states = {}
+        for key, result in results_for_surrogate.items():
+            states = data_structurizer.get_states_from_data(result["_x"])
+            # get the states only at the respective measurments and filter them
+            only_states[key] = data_structurizer.get_states_at_measurements(states)[..., measurements_to_plot, :]
+            # shape is (n_trajects, t_steps, n_states, n_measurements)
+        result_dict[surrogate_entry.name] = only_states
 
-    # # is the PC NARX better in predicting the state uncertainty ?
-    # # load upper and lower bound
-    # # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
-    # result_dict = {}
-    # # ----- Load result data -----
-    # for surrogate_entry in os.scandir(result_directory):
-    #     results_for_surrogate = load_json_results_for_all(result_dir=surrogate_entry.path)
-    #     # test_data_for_surrogate = filter_test_data_for_surrogates(test_data=test_data, surrogate_results=results_for_surrogate)
-    #     # only keep the states and reduce them to the 24 measurements
-    #     only_states = {}
-    #     for key, result in results_for_surrogate.items():
-    #         states = data_structurizer.get_states_from_data(result["_x"])
-    #         # get the states only at the respective measurments and filter them
-    #         only_states[key] = data_structurizer.get_states_at_measurements(states)[..., measurements_to_plot, :]
-    #         # shape is (n_trajects, t_steps, n_states, n_measurements)
-    #     result_dict[surrogate_entry.name] = only_states
+    # --------------- Plot Recursive Simulation with Uncertainty Confidence ---------------
+    plot_dir = os.path.join(current_experiment_working_dir, "plots")
+    light_colors = make_colors(4, alpha=0.1)
+    plot_test_data_with_simulation(
+        test_data=data_structurizer.get_states_at_measurement_from_data(test_data, measurement=3)[..., [2, -1]],
+        save_path=plot_dir,
+        plot_cfg={
+            "colors": {"test": light_colors[1]},
+            "ylabels": [r"$z = 0.25L$", r"$z = L$"],
+        },
+    )
+
+    exit()
 
     # # ----- Calculate intervall widths -----
     # intervall_widths = calculate_intervall_width(result_dict)
@@ -121,8 +172,6 @@ def run_uncertain_open_loop_experiment(
     # # coverages[surrogate_entry.name] = coverage
 
     # # ---- Plotting functions
-    # time = np.arange(0, n_time_steps_test, sim_cfg["simulation"]["t_step"])
-    plot_dir = os.path.join(current_experiment_working_dir, "plots")
     os.makedirs(plot_dir, exist_ok=True)
     # for key, intervall_state_slice in zip(["states", "temp"], intervall_widths_by_state):
     #     plot_intervall_widths(
@@ -174,7 +223,7 @@ def run_uncertain_open_loop_experiment(
                 "t_steps": 480,
                 "legend_y_pos": 1.35,
                 "ylabel_size": 20,
-                "test_data_color": make_colors(4, alpha=0.2)[1],
+                "test_data_color": make_colors(4, alpha=0.1)[1],
                 "annotations": ["mse"],
             },
             save_cfg={

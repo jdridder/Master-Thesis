@@ -19,9 +19,9 @@ data_cfg = {
     "test": {
         "desc": "test data for the open loop prediction accuracy",
         "id": "certain_open_loop_experiment",
-        "vary_input": True,
+        "vary_input": False,
         "input_bounds": [(550, 650), (550, 650), (550, 650), (550, 650)],
-        "vary_tvp": True,
+        "vary_tvp": False,
         "tvp_bounds": (0.2, 0.4),
         "use_true_model_params": False,  # False samples new parameters for every simulation
         "covaraince_gain": 2,

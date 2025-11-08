@@ -6,6 +6,7 @@ import l4casadi
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import scienceplots
 from do_mpc.data import Data, MPCData
 from do_mpc.graphics import Graphics
 from matplotlib.animation import FuncAnimation
@@ -449,6 +450,32 @@ def plot_pc_violation_vs_time(
     plot_cfg: Optional[Dict] = None,
     save_cfg: Optional[Dict] = None,
 ) -> plt.figure:
+    """
+    Plots the Physics Constraint (PC) violation over time, comparing results
+    from different model types (e.g., surrogates).
+
+    The function plots the logarithm (base 10) of the L2-norm of the residual
+    (violation) across the time dimension. It shows both the mean violation
+    (solid line) across all trajectories and individual trajectory violations
+    (faint lines) for visualization.
+
+    Args:
+        time: 1D array of time steps corresponding to the violation data.
+        pc_violation_dict: Dictionary where keys are model identifiers (e.g.,
+                           surrogate names) and values are 2D numpy arrays
+                           containing the constraint violation, typically
+                           of shape (n_trajectories, n_time_steps).
+        save_dir: Directory path where the plot will be saved. If None, the
+                  plot is only shown (if configured). Defaults to None.
+        plot_cfg: Optional dictionary for plot customization, including
+                  "alpha_all_traj" (opacity for individual trajectories),
+                  "legend_y_pos", and "annotations_y" for text placement.
+        save_cfg: Optional dictionary for save/show customization, including
+                  "export_name" and "show_fig".
+
+    Returns:
+        plt.figure: The matplotlib Figure object generated.
+    """
 
     plot_cfg = plot_cfg or {}
     save_cfg = save_cfg or {}
