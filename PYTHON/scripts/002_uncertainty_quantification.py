@@ -14,7 +14,7 @@ from configs.uncertainty_quantification import data_cfg, test_cfg_list, training
 from models import EtOxModel
 from postprocessing.performance_metrics import *
 from postprocessing.plot import *
-from postprocessing.plotting_helpers import make_colors
+from postprocessing.plotting_helpers import format_legend, make_colors
 from routines.data_structurizer import DataStructurizer
 from routines.utils import filter_test_data_for_surrogates, get_directory_for_today, load_json_results_for_all
 from simulation.data_generation import generate_data_for_specs
@@ -22,52 +22,12 @@ from simulation.open_loop import run_open_loop_for_specs
 from training.run import run_training
 
 
-def plot_test_data_with_simulation(
-    test_data: np.ndarray,
-    save_path: str,
-    surrogate_dict: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
-    plot_cfg: Optional[Dict] = None,
-    save_cfg: Optional[Dict] = None,
-):
-    """Plots the test data of shape (n_trajects, time_steps, feats) with the simulation trajectories {"vanilla": {"nominal"}: np.ndarray}.
-    The features need to be filtered before hand. It creates as many subplots as features.
-    """
-
-    plot_cfg = plot_cfg or {}
-    save_cfg = save_cfg or {}
-    n_subplots = test_data.shape[-1]
-
-    fig, axes = plt.subplots(n_subplots, sharex=True, sharey=True)
-
-    test_data = np.swapaxes(test_data, 0, 1)  # swap the trajectory axis with the time steps to plot all trajectories over each other at once
-    color_dict = plot_cfg.get("colors", {})
-    ylabel_list = plot_cfg.get("ylabels", [None] * n_subplots)
-    assert len(ylabel_list) == n_subplots, "The number of y labels must match the number of features."
-
-    for i, ax in enumerate(axes):
-        ax.plot(
-            test_data[..., i],
-            color=color_dict.get("test", "blue"),
-        )
-        ax.set_ylabel(ylabel_list[i])
-
-    axes[-1].set_xlabel("$t$ / s")
-    plt.subplots_adjust(right=0.92, left=0.12, top=0.88, bottom=0.15)
-    if save_cfg.get("show_fig", False):
-        plt.show()
-
-    file_name = save_cfg.get("save_name", "test_data_with_simulation")
-    final_save_path = os.path.join(save_path, f"{file_name}.pdf")
-    plt.savefig(final_save_path)
-
-
 def run_uncertain_open_loop_experiment(
     sim_cfg: Dict,
     experiments_directory: str,
     meta_model: EtOxModel,
     data_structurizer: DataStructurizer,
-    measurements_to_plot: Optional[List[int]] = [0, 3],
-    n_test_trajectories: int = 32,
+    n_test_trajectories: int = -1,
 ):
     # make directory
     exp_name = "002_uncertainty_quantification"
@@ -116,33 +76,67 @@ def run_uncertain_open_loop_experiment(
                 sim_cfg=sim_cfg,
                 model_parameter_dir=final_model_dir,
                 save_dir=result_directory,
-                initialization_data=test_data,
+                initialization_data=test_data[0],
             )
     # is the PC NARX better in predicting the state uncertainty ?
     # load upper and lower bound
     # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
+    test_data = data_structurizer.reduce_measurements(test_data)
+    t_step = sim_cfg["simulation"].get("t_step")
+    warm_up_steps = test_cfg_list[0].get("warm_up_steps")
     result_dict = {}
     # ----- Load result data -----
     for surrogate_entry in os.scandir(result_directory):
         results_for_surrogate = load_json_results_for_all(result_dir=surrogate_entry.path)
-        # only keep the states and reduce them to the 24 measurements
         only_states = {}
         for key, result in results_for_surrogate.items():
-            states = data_structurizer.get_states_from_data(result["_x"])
-            # get the states only at the respective measurments and filter them
-            only_states[key] = data_structurizer.get_states_at_measurements(states)[..., measurements_to_plot, :]
-            # shape is (n_trajects, t_steps, n_states, n_measurements)
+            only_states[key] = data_structurizer.get_states_from_data(result["_x"])
         result_dict[surrogate_entry.name] = only_states
 
     # --------------- Plot Recursive Simulation with Uncertainty Confidence ---------------
+
     plot_dir = os.path.join(current_experiment_working_dir, "plots")
     light_colors = make_colors(4, alpha=0.1)
+    full_colors = make_colors(4, alpha=1)
+
+    # ------ State trajectories
+    positions = [0, -1]
+    state_indices = [-1, 2]
+    state_labels = ["$T'$ / - ", r"$\chi_\mathrm{EO}$ / -"]
+    surrogate_type = "vanilla"
+
+    for state_label, state_idx in zip(state_labels, state_indices):
+        filtered_for_state_and_position = data_structurizer.filter_dict_data_for_state_and_position(result_dict, positions=positions, state_indices=state_idx, n_positions=4)
+        plot_test_data_with_simulation(
+            time_step=t_step,
+            warm_up=warm_up_steps,
+            test_data=data_structurizer.filter_arr_for_state_and_position(data_structurizer.get_states_from_data(test_data), positions, state_idx, n_positions=4),
+            surrogate_dict=filtered_for_state_and_position,
+            save_path=plot_dir,
+            plot_cfg={
+                "colors": {"test": light_colors[1], "nominal": full_colors[2], "upper": full_colors[3], "lower": full_colors[0]},
+                "labels": {"test": "first principle", "nominal": r"$\mathbb{E}$", "lower": "$Q_{0.1}$", "upper": "$Q_{0.9}$"},
+                "linestyles": {"vanilla": "dashed"},
+                "ylabels": [rf"{state_label}\\$z = 0.25L$", rf"{state_label}\\$z = L$"],
+                "legend_y_pos": 1.25,
+                "legend_cols": 4,
+            },
+            save_cfg={"save_name": f"test_with_{surrogate_type}_{state_idx}"},
+        )
+
+    # --- Input Trajectory
     plot_test_data_with_simulation(
-        test_data=data_structurizer.get_states_at_measurement_from_data(test_data, measurement=3)[..., [2, -1]],
+        test_data=data_structurizer.get_inputs_from_data(test_data),
+        time_step=t_step,
+        warm_up=warm_up_steps,
         save_path=plot_dir,
         plot_cfg={
-            "colors": {"test": light_colors[1]},
-            "ylabels": [r"$z = 0.25L$", r"$z = L$"],
+            "figsize": (10, 8),
+            "ylabels": [r"$T_\mathrm{w,1}$ / K", r"$T_\mathrm{w,2}$ / K", r"$T_\mathrm{w,3}$ / K", r"$T_\mathrm{w,4}$ / K"],
+            "colors": {"test": full_colors[1]},
+        },
+        save_cfg={
+            "save_name": "input_trajectories",
         },
     )
 

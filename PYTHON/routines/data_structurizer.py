@@ -231,6 +231,47 @@ class DataStructurizer:
             states_at_measurement[..., s] = data[..., idx]
         return states_at_measurement
 
+    def filter_arr_for_state_and_position(self, arr, positions: List[int], state_indices: List[int], n_positions: Optional[int] = None):
+        """
+        Filters a flattened state array to extract specific spatial positions and state features.
+        The input array is reshaped to explicitly expose the spatial dimension, allowing
+        selection of the desired (position, state) subset.
+        Args:
+            arr: The input state array, typically with shape (..., n_positions * n_states).
+            positions: List of spatial indices (e.g., [0, 5]) to keep.
+            state_indices: List of state feature indices (e.g., [0] for T, [1] for chi_E) to keep.
+            n_positions: The total number of spatial discretization points. Defaults to self.n_measurements.
+        Returns:
+            np.ndarray: The filtered array with shape (..., len(positions), len(state_indices)).
+        """
+        n_positions = n_positions or self.n_measurements
+        arr = arr.reshape((*arr.shape[:2], n_positions, -1), order="F")
+        return arr[..., positions, state_indices]
+
+    def filter_dict_data_for_state_and_position(self, dict_data: Dict[str, Dict[str, np.ndarray]], positions: List, state_indices: List, n_positions: Optional[int] = None):
+        """
+        Applies `filter_arr_for_state_and_position` to every NumPy array nested within
+        a two-level dictionary structure (e.g., {surrogate: {case: array}}).
+        The input dictionary is modified in place, and the filtered dictionary is returned.
+        Args:
+            dict_data: Nested dictionary containing arrays to be filtered.
+                    Keys: {surrogate_key: {case_key: np.ndarray}}.
+            positions: List of spatial indices to keep.
+            state_indices: List of state feature indices to keep.
+            n_positions: Total number of spatial discretization points. Defaults to self.n_measurements.
+        Returns:
+            Dict[str, Dict[str, np.ndarray]]: The dictionary containing the filtered arrays.
+        """
+        filtered = {}
+        n_positions = n_positions or self.n_measurements
+        for surrogate_key, case_dict in dict_data.items():
+            for case_key, arr in case_dict.items():
+                arr = self.filter_arr_for_state_and_position(arr, positions, state_indices, n_positions=n_positions)
+                if surrogate_key not in filtered.keys():
+                    filtered[surrogate_key] = {}
+                filtered[surrogate_key][case_key] = arr
+        return filtered
+
     def get_states_from_data(self, data: Union[np.ndarray, Dict], n_measurements: int = None, state: str = None) -> np.ndarray:
         if isinstance(data, Dict):
             return data[state]

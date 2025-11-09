@@ -56,7 +56,7 @@ def set_mpt_settings(font_size: float = 16, figsize=(10, 6)):
             "pdf.fonttype": 42,  # Avoid type 3 fonts
             "pgf.texsystem": "xelatex",  # oder xelatex/lualatex
             "text.usetex": True,
-            "text.latex.preamble": r"\usepackage{bm}",
+            "text.latex.preamble": r"\usepackage{bm} \usepackage{amsmath} \usepackage{amsfonts}",
             "font.family": "serif",
             "font.serif": ["Computer Modern Roman"],
         }

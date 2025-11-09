@@ -33,6 +33,10 @@ def run_open_loop(
         warm_up_steps = data_structurizer.time_horizon
 
     reduced_data = data_structurizer.reduce_measurements(initialization_data)
+
+    if reduced_data.ndim == 2:
+        reduced_data = np.expand_dims(reduced_data, axis=0)
+
     input_signals = data_structurizer.get_inputs_from_data(reduced_data)[:, warm_up_steps:]
     tvp_signals = data_structurizer.get_tvps_from_data(reduced_data)[:, warm_up_steps:]
 

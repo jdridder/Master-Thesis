@@ -285,6 +285,86 @@ def plot_loop(
     return fig
 
 
+def plot_test_data_with_simulation(
+    test_data: np.ndarray,
+    time_step: int,
+    warm_up: int,
+    save_path: str,
+    surrogate_dict: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    """
+    Plots the ground truth test data and compares it against predicted or simulated
+    trajectories from one or more surrogate models.
+    The function creates separate subplots for each feature in the state vector.
+    It plots all test trajectories for a given feature overlaid on each other.
+    If provided, surrogate/simulation data is plotted starting after a defined
+    warm-up period.
+    Args:
+        test_data: Ground truth data. Shape: (n_trajectories, time_steps, features).
+                   *Note: The features must be pre-filtered/sliced.*
+        time_step: The time interval between consecutive data points (e.g., in seconds).
+        warm_up: The time step index where the surrogate/simulation prediction starts.
+                 This is used to shift the x-axis for the surrogate data.
+        save_path: Directory path where the resulting plot will be saved.
+        surrogate_dict: Optional dictionary containing simulation or surrogate
+                        predictions. Structure: {surrogate_key: {case_key: np.ndarray}}.
+                        The arrays should have shape (n_trajectories, time_steps, features).
+        plot_cfg: Optional configuration for plotting, including "colors",
+                  "linestyles", "labels", and "ylabels".
+        save_cfg: Optional configuration for saving/displaying, including
+                  "show_fig" and "save_name".
+    Returns:
+        None: The function saves the plot to the specified path and optionally displays it.
+    """
+
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+
+    file_name = save_cfg.get("save_name", "test_data_with_simulation")
+    final_save_path = os.path.join(save_path, f"{file_name}.pdf")
+    if not os.path.exists(final_save_path):
+        n_subplots = test_data.shape[-1]
+
+        fig, axes = plt.subplots(n_subplots, sharex=True, sharey=True, figsize=plot_cfg.get("figsize", (10, 6)))
+        if not isinstance(axes, np.ndarray):
+            axes = np.array([axes])
+
+        test_data = np.swapaxes(test_data, 0, 1)  # swap the trajectory axis with the time steps to plot all trajectories over each other at once
+        color_dict = plot_cfg.get("colors", {})
+        linestyle_dict = plot_cfg.get("linestyles", {})
+        label_dict = plot_cfg.get("labels", {})
+        ylabel_list = plot_cfg.get("ylabels", [None] * n_subplots)
+        assert len(ylabel_list) == n_subplots, f"The number of y labels {len(ylabel_list)} must match the number of features {n_subplots}."
+
+        test_data_time = np.arange(test_data.shape[0] * time_step, step=time_step)
+        for i, ax in enumerate(axes):
+            ax.plot(test_data_time, test_data[..., i], color=color_dict.get("test", "blue"), label=label_dict.get("test", "test data"))
+            ax.set_ylabel(ylabel_list[i])
+
+        if surrogate_dict:
+            for surrogate_key, case_dict in surrogate_dict.items():
+                linestyle = linestyle_dict.get(surrogate_key, "solid")
+                for case_key, arr in case_dict.items():
+                    color = color_dict.get(case_key, "orange")
+                    arr = np.swapaxes(arr, 0, 1)
+                    surrogate_time = np.arange(warm_up, (arr.shape[0] + warm_up) * time_step, time_step)
+                    for i, ax in enumerate(axes):
+                        ax.plot(surrogate_time, arr[..., i], linestyle=linestyle, color=color, label=label_dict[case_key])
+
+        axes[0].legend()
+        format_legend(ax=axes[0], plot_cfg=plot_cfg)
+        axes[-1].set_xlabel("$t$ / s")
+        plt.subplots_adjust(right=0.92, left=0.12, top=0.88, bottom=0.15)
+        if save_cfg.get("show_fig", False):
+            plt.show()
+
+        plt.savefig(final_save_path)
+    else:
+        print(f"{final_save_path} already exists. Skipping.")
+
+
 def plot_random_trajectories(
     sim_cfg: Dict,
     n_trajectories: int,
