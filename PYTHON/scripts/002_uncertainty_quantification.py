@@ -48,6 +48,7 @@ def run_uncertain_open_loop_experiment(
     trained_model_dir = os.path.join(current_experiment_working_dir, "trained_models")
     training_data_dir = os.path.join(experiment_dir, "..", "data", "train")
     os.makedirs(trained_model_dir, exist_ok=True)
+    boundary_cond = meta_model.get_bc_for_all_measurements(n_measurements=data_structurizer.n_measurements)[:, :20]  # only chi states
     for training_cfg in training_cfgs:
         final_model_dir = os.path.join(trained_model_dir, training_cfg.get("save_dir"))
         os.makedirs(final_model_dir, exist_ok=True)
@@ -56,6 +57,8 @@ def run_uncertain_open_loop_experiment(
             training_data_dir=training_data_dir,
             data_structurizer=data_structurizer,
             training_cfg=training_cfg,
+            constraint_matrix=meta_model.get_balance_constraint_matrix(num_stacks=data_structurizer.n_measurements, include_temp_as_zero=False),
+            boundary_cond=boundary_cond,
         )
 
     # # simulate open loop with uncertainty models

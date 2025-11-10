@@ -234,6 +234,7 @@ In this example the loss function $\mathcal{L}$ portrays the mean squared error 
 The difference between the model prediction, denoted as $\bm{\tilde{y}}(\bm{\xi}^{(i)})$, and the true data point $\bm{y}^{(i)}$ is penalized quadratically.
 
 \subsection{Quantile Regression}
+\label{theory: quantile regression}
 By utilizig a loss function in form of the MSE, a model is trained to achieve regression predictions in form of the squared mean.
 To tweak the prediction characteristics of a NN for the task at hand, the type of training loss function is decisive.
 In a probabilistic environment, the prediction of confidence intervalls in the form of quantiles may be of major interest.
@@ -378,6 +379,33 @@ by an \emph{PCA encoder} placed before the first layer of a NARX model to reduce
     }
     \label{theory:fig: narx-pca-encoder}
 \end{figure}
+
+
+\section{Uncertainty Quantification}
+
+Furthermore, \emph{quantile regression} (\ref{theory: quantile regression}) is used to quantify the uncertainty of system states. 
+Under model uncertainty, the evolvement of the system described by $f(\vx, \vu, \vw)$ heavily
+depends of the uncertainty vector $\bm{w} \in \mathbb{W}$ (def.~\ref{theory:def: continuous mpc}).
+While multi-stage MPC roughly discretizes the parameter space for parameter extreme cases under tremendous computational effort,
+quantile regression can be used to directly discretize the space at given quantiles $\tau$.
+This has the advantage, that the uncertainty quantification is done independently from the disturbances. As non-linear
+systems behave non-monotonous to uncertainties, extreme parameter cases do not necessarily account for
+system extreme cases. Explicit quantiles bound the system states with a given coverage lumping all
+possible disturbance effects together.
+Another advantage is, that the uncertainty quantification is done offline by training a quantile model beforehand instead
+of account for uncertainties during MPC runtime. This outsources computational effort out of the dynamic optimization loop.
+\newline
+\newline
+Upper and lower
+NARX quantile models can be trained, to predict a confidence intervall that includes predictions of future states
+with a given coverage. In total, three predictions must be made to simulate the system forward in time
+while quantifying the uncertainty. These consist of the expected value of the states at the next instant,
+which is denoted as $\mathbb{E}(\vx_{k+1}|\bm{\phi}_k)$, and two quantiles, $Q_\tau(\vx_{k+1}|\bm{\phi}_k)$,
+with pre-defined probability coverages $\tau$. All are predicted given the feature vector $\bm{\phi}_k$
+of past states and inputs. In this work, models that predict the expected value $\mathbb{E}$ are trained 
+using the \emph{mean squared error} as loss function (eq.~\ref{eq: loss function}). 
+Quantile models $Q_\tau$ are trained using the \emph{quantile loss} function (eq.~\ref{theory:eq: quantile loss})
+
 
 \section{Conservation of Atoms}
 

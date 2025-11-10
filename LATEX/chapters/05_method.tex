@@ -504,3 +504,36 @@ a measurement instead of discretizing spatially in a real-world scenario. The ou
     \label{case:fig: measurement positions}
 \end{figure}
 
+
+\section{Data Generation}
+
+To train and test the NARX models, reactor measurement data is generated at mentioned positions. 
+For this sake, the normal distributions for the radial heat conductivity and the kinetic parameters 
+are sampled in Monte-Carlo (MC) fashion to yield a parameter vector $\vw$ in the uncertainty space.
+For the inputs in the training data ($T_{\text{w,1}}$ to $T_{\text{w,4}}$), excited ramp signals are generated with an
+uniform distribution. The distribution ranges from \SI{535}{\kelvin} to \SI{665}{\kelvin} for each input temperature.
+Once a signal level is sampled, it is held for a random duration between $0.6$ and $1.8$ times of 
+the system's time constant. The ramp duration is set to half of the system's time constant.
+The same is done for the time-varying inlet flow speed with uniform boundaries of 
+\SI{0.18}{\meter \; \second^{-1}} to \SI{0.42}{\meter \; \second^{-1}}.
+Here, the hold duration is choosen to be longer with $1.75$ to $3.5$ times the system's time constant.
+To capture dynamic and stationary behavior of the reactor model, hold durations below and above the 
+biggest time constant are picked.
+The heat transfer to the reactor wall is determined as the slowest time constant with
+approximately \SI{20}{\second} (eq.~\ref{case:eq: time constant}).
+\begin{equation}
+    \label{case:eq: time constant}
+    \tau = \frac{\rho c_\text{p} d_\text{t}}{4 \alpha} \approx \SI{20}{\second}
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Reaction-Modelling/input_trajectories.pdf}
+    \caption[Excited input trajectories for the four wall temperatures.]
+    {For data generation, the wall temperatures are excited using uniform distribution for the level
+    and the hold time. The latter is a multiplier of the system's biggest time constant. Excited input trajectories
+    of the test data are shown for a simulation horizon of \SI{512}{\second}.}
+    \label{case:fig: input trajectories}
+\end{figure}
+The excited input signals of the wall temperatures are shown (fig.~\ref{case:fig: input trajectories}) for
+\SI{512}{\second} with a sampling frequency of \SI{1}{\second^{-1}}.
