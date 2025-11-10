@@ -19,12 +19,10 @@ latex_notation_map = {
     "lam_dudt": r"$\lambda_{\Delta_t T}$",
     "lam_Tmax": r"$\lambda_{Tmax}$",
     "lam_conversion": r"$\lambda_{Xmin}$",
-    SurrogateTypes.Vanilla.value: {
-        "general": "vanilla",
-        "nominal": r"$\bm{\tilde{T}}_\mathrm{nominal}$",
-        "upper": r"$\bm{\tilde{T}}_\mathrm{ub}$",
-        "lower": r"$\bm{\tilde{T}}_\mathrm{lb}$",
-    },
+    "nominal": r"$\mathbb{E}$",
+    "upper": r"$Q_{0.9}$",
+    "lower": r"$Q_{0.1}$",
+    SurrogateTypes.Vanilla.value: {"general": "vanilla"},
     SurrogateTypes.Rigorous.value: {"general": "rigorous"},
     SurrogateTypes.Naive.value: {"general": "naive_pc"},
     SurrogateTypes.Pc.value: {"general": "pc"},
@@ -33,7 +31,8 @@ latex_notation_map = {
         "T": r"mse($\bm{\tilde{T}}$)",
         "chi_E": r"mse($\bm{\tilde{x}}$)",
     },
-    "machine_epsilon": r"$\epsilon_\mathrm{mach} (64 \; \mathrm{bit})$",
+    "machine_epsilon64": r"$\epsilon_\mathrm{mach} (64 \; \mathrm{bit})$",
+    "machine_epsilon32": r"$\epsilon_\mathrm{mach} (32 \; \mathrm{bit})$",
 }
 upper_ylims = {"T": 1.25, "c": 1.25}
 lower_ylims = {"T": 0.75, "c": 0.25}

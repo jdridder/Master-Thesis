@@ -22,6 +22,34 @@ from simulation.open_loop import run_open_loop_for_specs
 from training.run import run_training
 
 
+def apply_to_double_dict(double_dict: Dict[str, Dict[str, np.ndarray]], fn: Callable, **kwargs: Optional[Dict]) -> Dict[str, Dict[str, np.ndarray]]:
+    """
+    Applies a callable function (fn) to every np.ndarray value within a two-level nested dictionary.
+
+    A new dictionary structure is returned, preserving the original keys.
+
+    Parameters
+    ----------
+    double_dict : Dict[str, Dict[str, np.ndarray]]
+        The nested dictionary containing arrays.
+    fn : Callable
+        The function to apply to each array.
+    **kwargs : Optional[Dict]
+        Additional keyword arguments passed to `fn`.
+
+    Returns
+    -------
+    Dict[str, Dict[str, np.ndarray]]
+        A new nested dictionary containing the results.
+    """
+    new_dict = {}
+    for parent_key, child_dict in double_dict.items():
+        new_dict[parent_key] = {}
+        for child_key, child_arr in child_dict.items():
+            new_dict[parent_key][child_key] = fn(child_arr, **kwargs)
+    return new_dict
+
+
 def run_uncertain_open_loop_experiment(
     sim_cfg: Dict,
     experiments_directory: str,
@@ -63,24 +91,23 @@ def run_uncertain_open_loop_experiment(
 
     # # simulate open loop with uncertainty models
     result_directory = os.path.join(current_experiment_working_dir, "results")
+    os.makedirs(result_directory, exist_ok=True)
     test_data_dir = os.path.join(experiment_dir, "..", "data", "test")
     test_data = data_structurizer.load_data(data_dir=test_data_dir, num_trajectories=n_test_trajectories)
 
-    if not os.path.exists(result_directory):
-        os.makedirs(result_directory, exist_ok=True)
-        for specs in test_cfg_list:
-            # run simulation batches
-            specs["n_trajectories"] = test_data.shape[0]
-            final_model_dir = os.path.join(trained_model_dir, specs.get("surrogate_type"))
-            run_open_loop_for_specs(
-                specs=specs,
-                meta_model=meta_model,
-                data_structurizer=data_structurizer,
-                sim_cfg=sim_cfg,
-                model_parameter_dir=final_model_dir,
-                save_dir=result_directory,
-                initialization_data=test_data[0],
-            )
+    for specs in test_cfg_list:
+        # run simulation batches
+        specs["n_trajectories"] = test_data.shape[0]
+        final_model__parameter_dir = os.path.join(trained_model_dir, specs.get("state_dict_folder"))
+        run_open_loop_for_specs(
+            specs=specs,
+            meta_model=meta_model,
+            data_structurizer=data_structurizer,
+            sim_cfg=sim_cfg,
+            model_parameter_dir=final_model__parameter_dir,
+            save_dir=result_directory,
+            initialization_data=test_data[0],
+        )
     # is the PC NARX better in predicting the state uncertainty ?
     # load upper and lower bound
     # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
@@ -90,15 +117,16 @@ def run_uncertain_open_loop_experiment(
     result_dict = {}
     # ----- Load result data -----
     for surrogate_entry in os.scandir(result_directory):
-        results_for_surrogate = load_json_results_for_all(result_dir=surrogate_entry.path)
-        only_states = {}
-        for key, result in results_for_surrogate.items():
-            only_states[key] = data_structurizer.get_states_from_data(result["_x"])
-        result_dict[surrogate_entry.name] = only_states
+        if os.path.isdir(surrogate_entry):
+            results_for_surrogate = load_json_results_for_all(result_dir=surrogate_entry.path)
+            only_states = {}
+            for key, result in results_for_surrogate.items():
+                only_states[key] = data_structurizer.get_states_from_data(result["_x"])
+            result_dict[surrogate_entry.name] = only_states
 
     # --------------- Plot Recursive Simulation with Uncertainty Confidence ---------------
-
     plot_dir = os.path.join(current_experiment_working_dir, "plots")
+    os.makedirs(plot_dir, exist_ok=True)
     light_colors = make_colors(4, alpha=0.1)
     full_colors = make_colors(4, alpha=1)
 
@@ -106,26 +134,27 @@ def run_uncertain_open_loop_experiment(
     positions = [0, -1]
     state_indices = [-1, 2]
     state_labels = ["$T'$ / - ", r"$\chi_\mathrm{EO}$ / -"]
-    surrogate_type = "vanilla"
 
-    for state_label, state_idx in zip(state_labels, state_indices):
-        filtered_for_state_and_position = data_structurizer.filter_dict_data_for_state_and_position(result_dict, positions=positions, state_indices=state_idx, n_positions=4)
-        plot_test_data_with_simulation(
-            time_step=t_step,
-            warm_up=warm_up_steps,
-            test_data=data_structurizer.filter_arr_for_state_and_position(data_structurizer.get_states_from_data(test_data), positions, state_idx, n_positions=4),
-            surrogate_dict=filtered_for_state_and_position,
-            save_path=plot_dir,
-            plot_cfg={
-                "colors": {"test": light_colors[1], "nominal": full_colors[2], "upper": full_colors[3], "lower": full_colors[0]},
-                "labels": {"test": "first principle", "nominal": r"$\mathbb{E}$", "lower": "$Q_{0.1}$", "upper": "$Q_{0.9}$"},
-                "linestyles": {"vanilla": "dashed"},
-                "ylabels": [rf"{state_label}\\$z = 0.25L$", rf"{state_label}\\$z = L$"],
-                "legend_y_pos": 1.25,
-                "legend_cols": 4,
-            },
-            save_cfg={"save_name": f"test_with_{surrogate_type}_{state_idx}"},
-        )
+    for surrogate_key in result_dict.keys():
+        for state_label, state_idx in zip(state_labels, state_indices):
+            result_for_surrogate = {surrogate_key: result_dict[surrogate_key]}
+            filtered_for_state_and_position = data_structurizer.filter_dict_data_for_state_and_position(result_for_surrogate, positions=positions, state_indices=state_idx, n_positions=4)
+            plot_test_data_with_simulation(
+                time_step=t_step,
+                warm_up=warm_up_steps,
+                test_data=data_structurizer.filter_arr_for_state_and_position(data_structurizer.get_states_from_data(test_data), positions, state_idx, n_positions=4),
+                surrogate_dict=filtered_for_state_and_position,
+                save_path=plot_dir,
+                plot_cfg={
+                    "colors": {"test": light_colors[1], "nominal": full_colors[2], "upper": full_colors[3], "lower": full_colors[0]},
+                    "labels": {"test": "first principle", "nominal": r"$\mathbb{E}$", "lower": "$Q_{0.1}$", "upper": "$Q_{0.9}$"},
+                    "linestyles": {"vanilla": "dashed", "pc": "solid", "naive_pc": "dashdot"},
+                    "ylabels": [rf"{state_label}\\$z = 0.25L$", rf"{state_label}\\$z = L$"],
+                    "legend_y_pos": 1.25,
+                    "legend_cols": 4,
+                },
+                save_cfg={"save_name": f"test_with_{surrogate_key}_{state_idx}"},
+            )
 
     # --- Input Trajectory
     plot_test_data_with_simulation(
@@ -136,12 +165,32 @@ def run_uncertain_open_loop_experiment(
         plot_cfg={
             "figsize": (10, 8),
             "ylabels": [r"$T_\mathrm{w,1}$ / K", r"$T_\mathrm{w,2}$ / K", r"$T_\mathrm{w,3}$ / K", r"$T_\mathrm{w,4}$ / K"],
-            "colors": {"test": full_colors[1]},
+            "colors": {"nominal": full_colors[2], "upper": full_colors[3], "lower": full_colors[0]},
         },
         save_cfg={
             "save_name": "input_trajectories",
         },
     )
+
+    # --------------- Plot Recursive Physics consistency as ||b||_2 = f(t) for all surrogates ---------------
+    physics_violations = apply_to_double_dict(double_dict=result_dict, fn=calculate_state_physics_vio, meta_model=meta_model, sim_cfg=sim_cfg, norm_measurements=True)
+    time = np.arange(0, test_cfg_list[0].get("t_steps"))
+    for surrogate_key in physics_violations.keys():
+        plot_pc_violation_vs_time(
+            time=time,
+            pc_violation_dict={surrogate_key: physics_violations[surrogate_key]},
+            save_dir=plot_dir,
+            plot_cfg={
+                "legend_y_pos": 1.25,
+                "legend_cols": 5,
+                "colors": {"nominal": full_colors[2], "upper": full_colors[3], "lower": full_colors[0]},
+                "linestyles": {"vanilla": "dashed", "pc": "solid", "naive_pc": "dashdot"},
+            },
+            save_cfg={
+                "show_fig": False,
+                "export_name": f"pc_violation_{surrogate_key}",
+            },
+        )
 
     exit()
 
@@ -207,28 +256,28 @@ def run_uncertain_open_loop_experiment(
     # -> increases over the horizon?
     # pc narx smaller intervalls than narx?
 
-    traj_validation_dir = os.path.join(plot_dir, "surrogate_trajectories")
-    if not os.path.exists(traj_validation_dir):
-        plot_random_trajectories(
-            sim_cfg=sim_cfg,
-            n_trajectories=3,
-            result_dir=result_directory,
-            save_to_dir=traj_validation_dir,
-            test_data=test_data,
-            filter_test_trajectories=False,
-            plot_cfg={
-                "t_steps": 480,
-                "legend_y_pos": 1.35,
-                "ylabel_size": 20,
-                "test_data_color": make_colors(4, alpha=0.1)[1],
-                "annotations": ["mse"],
-            },
-            save_cfg={
-                "export_name": None,
-                "save_meta": True,
-                "show_fig": False,
-            },
-        )
+    # traj_validation_dir = os.path.join(plot_dir, "surrogate_trajectories")
+    # if not os.path.exists(traj_validation_dir):
+    #     plot_random_trajectories(
+    #         sim_cfg=sim_cfg,
+    #         n_trajectories=3,
+    #         result_dir=result_directory,
+    #         save_to_dir=traj_validation_dir,
+    #         test_data=test_data,
+    #         filter_test_trajectories=False,
+    #         plot_cfg={
+    #             "t_steps": 480,
+    #             "legend_y_pos": 1.35,
+    #             "ylabel_size": 20,
+    #             "test_data_color": make_colors(4, alpha=0.1)[1],
+    #             "annotations": ["mse"],
+    #         },
+    #         save_cfg={
+    #             "export_name": None,
+    #             "save_meta": True,
+    #             "show_fig": False,
+    #         },
+    #     )
 
     print(f"---- {exp_name} finished. -----")
 

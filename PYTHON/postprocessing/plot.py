@@ -529,7 +529,7 @@ def plot_pc_violation_vs_time(
     save_dir: str = None,
     plot_cfg: Optional[Dict] = None,
     save_cfg: Optional[Dict] = None,
-) -> plt.figure:
+):
     """
     Plots the Physics Constraint (PC) violation over time, comparing results
     from different model types (e.g., surrogates).
@@ -562,30 +562,40 @@ def plot_pc_violation_vs_time(
     final_save_path = os.path.join(save_dir, save_cfg.get("export_name", "pc_violation_vs_time") + ".pdf")
     if not os.path.exists(final_save_path):
         print("---- Plotting physics violation vs time. ----")
-        n_data_rows = len(pc_violation_dict)
         fig, ax = plt.subplots()
-        prop_cylcer = make_line_cycler(n_data_rows) + make_color_cycler(n_data_rows)
-        ax.set_prop_cycle(prop_cylcer)
-        colors = make_colors(n_data_rows, alpha=plot_cfg.get("alpha_all_traj", 0.2))
-
+        color_dict = plot_cfg.get("colors", {})
+        linestyle_dict = plot_cfg.get("linestyles", {})
         label = r"{}".format(latex_notation_map["b_residual"])
-        ax.axhline(y=np.log10(2.2 * 10**-16), color="gray", ls="--", label=latex_notation_map["machine_epsilon"])
-        [ax.plot(time, np.log10(pc_violation_dict[key].mean(axis=0)), label=latex_notation_map[key]["general"]) for key in pc_violation_dict.keys()]
-        [ax.plot(time, np.log10(pc_violation_trajetories.T), color=color, ls="-") for pc_violation_trajetories, color in zip(pc_violation_dict.values(), colors)]
+        ax.axhline(y=np.log10(2.2 * 10**-16), color=color_dict.get("machine_64", "gray"), ls="--", label=latex_notation_map["machine_epsilon64"])
+        ax.axhline(y=np.log10(5.96 * 10**-8), color=color_dict.get("machine_32", "black"), ls="--", label=latex_notation_map["machine_epsilon32"])
 
-        [
-            ax.annotate(
-                latex_notation_map[key]["general"] + r": $\langle ||\bm{b}||_2 \rangle_t$ = " + f"{pc_violation_dict[key].mean():.2e}",
-                xy=(0.95, plot_cfg.get("annotations_y", 0.5 - i * 0.1)),
-                xycoords="axes fraction",
-                ha="right",
-                va="center",
-            )
-            for i, key in enumerate(pc_violation_dict.keys())
-        ]
+        for surrogate_key, result_dict in pc_violation_dict.items():
+            n_data_rows = len(result_dict)
+            [
+                ax.plot(
+                    time,
+                    np.log10(result_dict[case_key].mean(axis=0)),
+                    label=latex_notation_map[case_key],
+                    color=color_dict.get(case_key, None),
+                    linestyle=linestyle_dict.get(surrogate_key, None),
+                )
+                for case_key in result_dict.keys()
+            ]
+
+            # [ax.plot(time, np.log10(pc_violation_trajetories.T), color=color, ls="-") for pc_violation_trajetories, color in zip(pc_violation_dict.values(), colors)]
+            [
+                ax.annotate(
+                    latex_notation_map[case_key] + r": $\langle ||\bm{b}||_2 \rangle_t$ = " + f"{result_dict[case_key].mean():.2e}",
+                    xy=(0.95, plot_cfg.get("annotations_y", 0.5 - i * 0.1)),
+                    xycoords="axes fraction",
+                    ha="right",
+                    va="center",
+                )
+                for i, case_key in enumerate(result_dict.keys())
+            ]
         ax.set_ylim(-17, -1)
 
-        ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=n_data_rows + 1)
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=plot_cfg.get("legend_cols", 5))
         ax.set_xlabel(latex_notation_map["time"])
         ax.set_ylabel(label)
         # plt.tight_layout()
@@ -594,6 +604,8 @@ def plot_pc_violation_vs_time(
         plt.savefig(final_save_path)
         if save_cfg.get("show_fig", False):
             plt.show()
+    else:
+        print(f"{final_save_path} already exists. Skipping.")
 
 
 # ---- Uncertainty Quantification performance
@@ -798,7 +810,7 @@ def plot_exec_time_distribution(
             )
 
         ax.set_xticks(x_vals)
-        ax.set_xticklabels([latex_notation_map[key]["general"] for key in surrogate_result_dict.keys()])
+        ax.set_xticklabels([latex_notation_map[key] for key in surrogate_result_dict.keys()])
         ax.set_ylabel(r"$\log_{10}\!\left(\frac{\Delta t_{\mathrm{sim}}}{\mathrm{s}}\right)$")
 
         for box, color in zip(boxplot["boxes"], colors):
@@ -865,7 +877,7 @@ def plot_mse_distribution(
         # Extract surrogate keys and colors from the first data dictionary
         # (assumes all dictionaries have the same surrogate keys)
         surrogate_keys = list(mse_data_dict_list[0].keys())
-        surrogate_labels = [latex_notation_map[key]["general"] for key in surrogate_keys]
+        surrogate_labels = [latex_notation_map[key] for key in surrogate_keys]
         colors = make_colors(len(surrogate_keys))
 
         # Get custom plot limits and annotation positions from config

@@ -180,9 +180,9 @@ def calculate_mean_constraint_vio(results: Union[List[Dict], Dict], X_min: float
 
 
 def calculate_state_physics_vio(
+    state_result_list: Union[np.ndarray, List[np.ndarray]],
     meta_model: EtOxModel,
     sim_cfg: Dict,
-    state_result_list: Union[np.ndarray, List[np.ndarray]],
     norm_measurements: bool = False,
 ) -> List[np.ndarray]:
     """
@@ -212,14 +212,13 @@ def calculate_state_physics_vio(
             - If norm_measurements=False: (n_trajectories, n_tsteps, n_measurements)
             - If norm_measurements=True: (n_trajectories, n_tsteps)
     """
-    print("Calculating physics violations.")
     # Ensure state_result_list is a list of arrays
     if not isinstance(state_result_list, List):
-        state_result_list = list(state_result_list)
+        state_result_list = [state_result_list]
     n_measurements = sim_cfg["narx"]["n_measurements"]
     boundary_cond = meta_model.get_bc_for_all_measurements(n_measurements=n_measurements)
     boundary_cond = boundary_cond.reshape((-1, n_measurements))
-    element_species_matrix = meta_model.get_balance_constraint_matrix(include_temp_as_zero=True)  # Assumed function
+    element_species_matrix = meta_model.get_balance_constraint_matrix(include_temp_as_zero=True, num_stacks=1)  # Assumed function
     n_states = element_species_matrix.shape[1]
     scale_factor = sim_cfg["states"]["scales"][0]
     physics_violations = []
@@ -246,7 +245,10 @@ def calculate_state_physics_vio(
         # physics_violation shape: (n_trajectories, n_tsteps, n_measurements) or (n_trajectories, n_tsteps)
         physics_violation = np.linalg.norm(violation, ord=2, axis=-1)
         physics_violations.append(physics_violation)
-    return physics_violations
+    if len(physics_violations) == 1:
+        return physics_violations[0]
+    else:
+        return physics_violations
 
 
 def calculate_intervall_width(

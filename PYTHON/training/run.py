@@ -98,10 +98,21 @@ def infer_temperature_weights(data_structurizer: DataStructurizer, training_data
     with torch.no_grad():
         T_pred = temp_model(X_enc).detach()  # predicted temperature quantile (scaled)
 
-    # T_sc = temp_model.out_scaler(Y)  # scale the training data
-    distances = torch.norm(T_pred - Y, p=2, dim=-1)
-    weights = 1 / (1 + distances)
-    return weights
+        # T_sc = temp_model.out_scaler(Y)  # scale the training data
+        sigma_weight = training_cfg.get("sigma_weight", 0.002)
+        distances = torch.norm(T_pred - Y, p=2, dim=-1).numpy()
+        weight_fn = lambda d: 1 / ((2 * np.pi) ** 0.5 * sigma_weight) * np.exp(-(d**2) / (2 * sigma_weight**2))  # normal distribution to weight the points
+        weights = weight_fn(d=distances)
+
+        # import matplotlib.pyplot as plt
+        # distance_span = np.linspace(0, 0.01, 100)
+        # weight_span = weight_fn(distance_span)
+        # fig, ax = plt.subplots(1)
+        # ax.hist(x=distances.flatten(), bins=100)
+        # ax.plot(distance_span, weight_span, label="weight function")
+        # ax.legend()
+        # plt.show()
+        return weights
 
 
 if __name__ == "__main__":
