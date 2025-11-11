@@ -3,12 +3,75 @@ Please choose a more expressive title for this chapter. If it makes sense for yo
 
 \section{Training Effectivity}
 
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=1\textwidth]{Figures/Results/001_val_loss.pdf}
+%     \caption[Validation loss of vanilla NARX vs physics-constrained NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
+%     during the training of the vanilla NARX (dashed line) and the physics-constrained NARX (solid line). The three data rows each indicate
+%     \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons respectively. The physics-constrained NARX converges visibly faster
+%     than the vanilla NARX.}
+%     \label{intro:fig:01_data}
+% \end{figure}
+
+
+\section{Physics Consistency}
+
+To analyze the physics consistency of the different NARX frameworks an open-loop simulation is performed.
+It propagates the state trajectories for the nominal case, the upper and the lower quantiles forward
+in time independently (def.~\ref{sur:def: general rhs for uncertainty quantification}). This is done for 
+the three framework variations \emph{vanilla}, \emph{naive\_pc} and \emph{pc}. The main 
+quality metric is the balance violation of the conservation of atoms due to stoichiometry (th.~\ref{case:cor: conservation of atoms}).
+When it is equal to the zero vector, it is perfectly fulfilled.
+The residual of the linear balance constraint is calculated (eq.~\ref{results:eq: residual of balance equation})
+as the $l_2$-norm
+and plotted as a function of time (fig.~\ref{results:fig: pc_violation_vanilla}).
+\begin{equation}
+    \label{results:eq: residual of balance equation}
+    ||\bm{b}||_2 = ||\bm{B} \bm{\Delta \xi}||_2
+\end{equation}
+
 \begin{figure}
     \centering
-    \includegraphics[width=1\textwidth]{Figures/Results/001_val_loss.pdf}
-    \caption[Validation loss of vanilla NARX vs physics-constrained NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
-    during the training of the vanilla NARX (dashed line) and the physics-constrained NARX (solid line). The three data rows each indicate
-    \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons respectively. The physics-constrained NARX converges visibly faster
-    than the vanilla NARX.}
-    \label{intro:fig:01_data}
+    \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_vanilla.pdf}
+    \caption[Physics violation of the vanilla NARX]
+    {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
+    of the vanilla NARX framework. The nominal trajectory $\mathbb{E}$ (green) displays slightly better alignment
+    with the balance than the models conditioned by quantiles $Q_{0.9}$ and $Q_{0.1}$.}
+    \label{results:fig: pc_violation_vanilla}
+\end{figure}
+
+To indicate maximum machine precision, horizontal dashed lines are drawn for \SI{64}{\bit} (gray)
+and \SI{32}{\bit} (black). The balance residual norm $||\vb||_2$ is shown for the nominal NARX (green), trained
+with a standard MSE, and the conditioned NARX models, that are trained with a weighted MSE.
+Here, yellow colors the NARX conditioned by the $0.9$-quantile and purple the NARX conditioned by the $0.1$-quantile.
+After beeing initialized with an initial state, that obeys the balance up to an error of \SI{1e-14}{}. 
+All NARX models abruptly increase the error to \SI{1e-3} and fluctuate in this region until the simulation
+horizon is reached. When the residual is averaged over the simulation horizon using the $\langle(\cdot)\rangle_t$
+notation, the nominal NARX model produces a slightly smaller error of \SI{6.39e-4}{}.
+In contrast, the error of the quantile-conditioned NARX models is rougly twice as big with values
+of \SI{1.12e-3} and \SI{1.42e-3} for the $0.9$ and $0.1$ quantile respectively (fig.~\ref{results:fig: pc_violation_vanilla}).
+It can be noted that neither an instability nor a divergence occurs
+that would lead to a drastic increase in the residual error.
+Additionally, the error does not add up over time.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_naive_pc.pdf}
+    \caption[Physics violation of the naive physics-constrained NARX]
+    {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
+    of the vanilla NARX framework. The nominal trajectory $\mathbb{E}$ (green) displays slightly better alignment
+    with the balance than the models conditioned by quantiles $Q_{0.9}$ and $Q_{0.1}$.}
+    \label{results:fig: pc_violation_naive}
+\end{figure}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_pc}
+    \caption[Physics violation of the physics-constrained NARX]
+    {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
+    of the vanilla NARX framework. The nominal trajectory $\mathbb{E}$ (green) displays slightly better alignment
+    with the balance than the models conditioned by quantiles $Q_{0.9}$ and $Q_{0.1}$.}
+    \label{results:fig: pc_violation_pc}
 \end{figure}

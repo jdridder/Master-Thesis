@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  11 NOV 2025 09:23
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  11 NOV 2025 14:49
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1565,9 +1565,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 39--50
 [13
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 83--103
-
- []
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 103.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1577,8 +1575,9 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [14]
-Underfull \vbox (badness 1383) has occurred while \output is active []
+Underfull \hbox (badness 10000) in paragraph at lines 122--142
 
+ []
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1588,14 +1587,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [15]
-Underfull \hbox (badness 10000) in paragraph at lines 189--201
+Underfull \hbox (badness 10000) in paragraph at lines 228--240
 
  []
 
-File: Figures/Theory/pc_neural_network.pdf Graphic file (type pdf)
-<use Figures/Theory/pc_neural_network.pdf>
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 227.
-) (./chapters/06_case_study.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1604,6 +1599,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [16]
+File: Figures/Theory/pc_neural_network.pdf Graphic file (type pdf)
+<use Figures/Theory/pc_neural_network.pdf>
+
+Underfull \vbox (badness 6016) has occurred while \output is active []
+
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1611,7 +1612,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[17]
+[17]) (./chapters/06_case_study.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1619,9 +1620,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[18
-
-]
+[18]
 Chapter 4.
 
 Underfull \hbox (badness 10000) in paragraph at lines 3--20
@@ -1633,7 +1632,9 @@ Underfull \hbox (badness 10000) in paragraph at lines 32--43
 
  []
 
-[19]
+[19
+
+]
 File: Figures/Reaction-Modelling/reactor-complete.pdf Graphic file (type pdf)
 <use Figures/Reaction-Modelling/reactor-complete.pdf>
 
@@ -1741,8 +1742,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [28]
 Chapter 5.
-File: Figures/Results/001_val_loss.pdf Graphic file (type pdf)
-<use Figures/Results/001_val_loss.pdf>
+File: Figures/Results/pc_violation_vanilla.pdf Graphic file (type pdf)
+<use Figures/Results/pc_violation_vanilla.pdf>
+File: Figures/Results/pc_violation_naive_pc.pdf Graphic file (type pdf)
+<use Figures/Results/pc_violation_naive_pc.pdf>
+File: Figures/Results/pc_violation_pc.pdf Graphic file (type pdf)
+<use Figures/Results/pc_violation_pc.pdf>
 ) (./chapters/08_conclusion.tex [29
 
 ]
@@ -1754,10 +1759,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [30]
-Chapter 6.
-) (./appendices/appendix.tex [31
-
-]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1765,16 +1766,19 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[32
+[31]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[32]
+Chapter 6.
+) (./appendices/appendix.tex [33
 
 ]
-Appendix A.
-
-Overfull \hbox (14.93596pt too wide) in paragraph at lines 15--31
-[][] 
- []
-
-[33]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1785,8 +1789,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [34
 
 ]
-Appendix B.
-) [35]
+Appendix A.
+
+Overfull \hbox (14.93596pt too wide) in paragraph at lines 15--31
+[][] 
+ []
+
+[35]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1797,11 +1806,23 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [36
 
 ]
+Appendix B.
+) [37]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[38
+
+]
 Overfull \hbox (10.51181pt too wide) in paragraph at lines 84--84
 \TU/lmr/m/n/10.95 Slides jointly developed with Titus Quah, Katrin Baumgärtner, and Florian Messerer,
  []
 
-[37]
+[39]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1809,7 +1830,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[38]
+[40]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1817,29 +1838,23 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[39] (./main.aux)
+[41] (./main.aux)
 
 LaTeX Warning: There were undefined references.
 
-
-Package rerunfilecheck Warning: File `main.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `main.out':
-(rerunfilecheck)             Before: 51C75EBE8F43AD7E426E56005919E1D5;6620
-(rerunfilecheck)             After:  4E42215DDB8972CFF02AEA5D4BCA1FB2;6579.
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 2801E854CF9E385F1B3EFF994FADE1F0;6732.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 52371 strings out of 476683
- 1236676 string characters out of 5804048
- 2236247 words of memory out of 5000000
- 71740 multiletter control sequences out of 15000+600000
+ 52395 strings out of 476683
+ 1237724 string characters out of 5804048
+ 2236762 words of memory out of 5000000
+ 71762 multiletter control sequences out of 15000+600000
  527751 words of font info for 108 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  99i,19n,106p,2133b,5402s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (57 pages).
+Output written on main.pdf (59 pages).

@@ -56,10 +56,10 @@ form of $\vx_k \leq 0 \; \forall k$ are considered. This resembles a great amoun
 often appear as pure state constraints.  So, the uncertainty quantification in form of 
 a quantile NARX model only needs to cover the states, that are part of state constraints.
 Furthermore, quantile regression for states with counteracting dynamics lead to wrong predictions.
-Therefore it is reasonable to separate the predicion of quantile states from the prediction of all other states.
+Therefore it is reasonable to separate the prediction of quantile states from the prediction of all other states.
 
 
-\begin{definition} Modified function $\hat{Q}_\tau$ to predict true quantiles of critical states and according expected values of all other states.
+\begin{definition} Modified function $\hat{Q}_\tau$ to predict quantiles of critical states and according expected values of all other states.
     \[
         \hat{Q}_\tau(\vx_{k+1} | \bm{\phi}_k) = 
         \begin{pmatrix}
@@ -68,15 +68,54 @@ Therefore it is reasonable to separate the predicion of quantile states from the
         \end{pmatrix}
     \]
 \end{definition}
-Only constraint critical states $\vx_{:n_\text{crit}}$ undergo true quantile regression by the function $Q_\tau$.
+Only constraint critical states $\vx_{:n_\text{crit}}$ undergo real quantile regression by the function $Q_\tau$.
 The quantity $n_\text{crit}$ stands for the ending index of constraint critical states in the state vector $\vx$.
 All other states are to be inferred such that they match the quantile prediction of the critical states. 
 This is marked by an expected value $\mathbb{E}_\tau$, that is conditioned by the quantile of the critical states.
-Concatenated togehter, these two NARX architectures allow a state propagation, which is physical meaningful in
-broad sense.
+Concatenated together, these two NARX architectures allow a state propagation, which is physical meaningful in
+a broad sense.
 
 \subsection{Quantile Conditioning}
 
+The quality of predictions made by $\hat{Q}_\tau$ heavily depends on the reliability of the expected
+values of those states, that are not inferred by quantile regression. To train a NARX model $\mathbb{E}_\tau$, that learns
+the expected values for the other states that belong to the quantile predictions of the critical states,
+several different weighted loss functions can be used. These loss functions all have in common that they
+emphasize data points in close proximity to the quantile prediction and penalize data points with growing distance.
+\begin{equation}
+    \label{sur:eq: distance to quantile prediction}
+    d = || Q_\tau(\bm{\phi}_k) - \vx_{k+1,:n_\text{crit}}||_2
+\end{equation}
+The distances $d$ of quantile predictions to the ground truth values at the next time instant is 
+calculated as the $l_2$-norm (eq.~\ref{sur:eq: distance to quantile prediction}). 
+\begin{equation}
+    \label{sur:eq: weighted mean squared error}
+    \mathcal{L}_w(\bm{\theta}) = 
+    \frac{1}{m} \sum^m_i w(d^{(i)}) \cdot
+    || \vx^{(i)}_{k+1} - \mathcal{NN}(\bm{\theta}, \bm{\phi}^{(i)}_k) ||_2^2
+\end{equation}
+These distances
+are used to calculate certain weights $w$ for a weighted MSE to serve as the loss function for 
+$\mathbb{E}_\tau$ (eq.~\ref{sur:eq: weighted mean squared error}). To train such a conditioned NARX model
+follwing steps must be executed (alg.~\ref{sur:algo: weighted MSE creation}).
+
+\begin{algorithm}
+	\caption{Calculation of the quantile based weights for a weighted MSE.}
+	\label{sur:algo: weighted MSE creation}
+	\begin{algorithmic}
+		\REQUIRE $\bm{\Xi}$, $\mathbb{X}$, $Q_\tau$
+        \STATE $\mathbb{X}_\text{crit} \leftarrow \mathbb{X}_{:n_\text{crit}}$
+        \STATE $\tilde{\mathbb{X}}_\text{crit} \leftarrow Q_\tau(\bm{\Xi})$
+        \STATE $\bm{d} \leftarrow || \mathbb{X}_\text{crit} - \tilde{\mathbb{X}}_\text{crit} ||_{(\cdot)}$
+        \STATE $\vw \leftarrow w(\vd)$
+        \RETURN $\vw$
+	\end{algorithmic}
+\end{algorithm}
+First, the quantile model $Q_\tau$ must have been trained. $\bm{\Xi}$ denotes the data matrix of encoded feature
+vectors and $\mathbb{X}$ the data matrix of states at the next time instant. The vector $\vd$ contains the
+distances of the inferred quantile predictions to the ground truth in the critical states.
+These are passed to a weight function $w$ to generate a weight vector $\vw$, that collects all weights
+for all data points.
 
 
 \section{Physics-Constrained Neural Networks}

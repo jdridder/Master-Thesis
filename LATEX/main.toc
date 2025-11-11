@@ -19,7 +19,7 @@
 \contentsline {section}{\numberline {3.1}Framework for general Uncertainty Quantification}{13}{section.3.1}%
 \contentsline {section}{\numberline {3.2}NARX Framework for State Constraints}{14}{section.3.2}%
 \contentsline {subsection}{\numberline {3.2.1}Quantile Conditioning}{14}{subsection.3.2.1}%
-\contentsline {section}{\numberline {3.3}Physics-Constrained Neural Networks}{14}{section.3.3}%
+\contentsline {section}{\numberline {3.3}Physics-Constrained Neural Networks}{15}{section.3.3}%
 \contentsline {chapter}{\numberline {4}Case Study}{19}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Reaction Kinetics}{19}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Packed-bed Tubular Reactor Model}{20}{section.4.2}%
@@ -33,9 +33,10 @@
 \contentsline {section}{\numberline {4.6}Data Generation}{27}{section.4.6}%
 \contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{29}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Training Effectivity}{29}{section.5.1}%
-\contentsline {chapter}{\numberline {6}Conclusions}{31}{chapter.6}%
-\contentsline {chapter}{\numberline {A}Datasheets}{33}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Parameter for ...}{33}{section.A.1}%
-\contentsline {chapter}{\numberline {B}Proofs}{35}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Proof of Theorem X}{35}{section.B.1}%
-\contentsline {chapter}{Bibliography}{37}{appendix*.26}%
+\contentsline {section}{\numberline {5.2}Physics Consistency}{29}{section.5.2}%
+\contentsline {chapter}{\numberline {6}Conclusions}{33}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets}{35}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Parameter for ...}{35}{section.A.1}%
+\contentsline {chapter}{\numberline {B}Proofs}{37}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Proof of Theorem X}{37}{section.B.1}%
+\contentsline {chapter}{Bibliography}{39}{appendix*.28}%
