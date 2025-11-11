@@ -34,9 +34,9 @@
 \contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{29}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Training Effectivity}{29}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Physics Consistency}{29}{section.5.2}%
-\contentsline {chapter}{\numberline {6}Conclusions}{33}{chapter.6}%
-\contentsline {chapter}{\numberline {A}Datasheets}{35}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Parameter for ...}{35}{section.A.1}%
-\contentsline {chapter}{\numberline {B}Proofs}{37}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Proof of Theorem X}{37}{section.B.1}%
-\contentsline {chapter}{Bibliography}{39}{appendix*.28}%
+\contentsline {chapter}{\numberline {6}Conclusions}{35}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets}{37}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Parameter for ...}{37}{section.A.1}%
+\contentsline {chapter}{\numberline {B}Proofs}{39}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Proof of Theorem X}{39}{section.B.1}%
+\contentsline {chapter}{Bibliography}{41}{appendix*.28}%

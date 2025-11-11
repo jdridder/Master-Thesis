@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  11 NOV 2025 14:49
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  11 NOV 2025 20:38
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1746,9 +1746,7 @@ File: Figures/Results/pc_violation_vanilla.pdf Graphic file (type pdf)
 <use Figures/Results/pc_violation_vanilla.pdf>
 File: Figures/Results/pc_violation_naive_pc.pdf Graphic file (type pdf)
 <use Figures/Results/pc_violation_naive_pc.pdf>
-File: Figures/Results/pc_violation_pc.pdf Graphic file (type pdf)
-<use Figures/Results/pc_violation_pc.pdf>
-) (./chapters/08_conclusion.tex [29
+[29
 
 ]
 
@@ -1767,6 +1765,9 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [31]
+File: Figures/Results/pc_violation_pc.pdf Graphic file (type pdf)
+<use Figures/Results/pc_violation_pc.pdf>
+) (./chapters/08_conclusion.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1775,10 +1776,14 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [32]
-Chapter 6.
-) (./appendices/appendix.tex [33
 
-]
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[33]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1789,13 +1794,8 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [34
 
 ]
-Appendix A.
-
-Overfull \hbox (14.93596pt too wide) in paragraph at lines 15--31
-[][] 
- []
-
-[35]
+Chapter 6.
+) (./appendices/appendix.tex [35]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1806,8 +1806,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [36
 
 ]
-Appendix B.
-) [37]
+Appendix A.
+
+Overfull \hbox (14.93596pt too wide) in paragraph at lines 15--31
+[][] 
+ []
+
+[37]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1818,11 +1823,23 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [38
 
 ]
+Appendix B.
+) [39]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 13.59999pt, for example:
+(fancyhdr)                \setlength{\headheight}{13.59999pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
+
+[40
+
+]
 Overfull \hbox (10.51181pt too wide) in paragraph at lines 84--84
 \TU/lmr/m/n/10.95 Slides jointly developed with Titus Quah, Katrin Baumgärtner, and Florian Messerer,
  []
 
-[39]
+[41]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1830,7 +1847,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[40]
+[42]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1838,7 +1855,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
-[41] (./main.aux)
+[43] (./main.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -1855,6 +1872,6 @@ Here is how much of TeX's memory you used:
  71762 multiletter control sequences out of 15000+600000
  527751 words of font info for 108 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 99i,19n,106p,2133b,5402s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,19n,106p,2133b,5400s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (59 pages).
+Output written on main.pdf (61 pages).

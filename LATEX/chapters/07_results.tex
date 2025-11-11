@@ -64,6 +64,16 @@ Additionally, the error does not add up over time.
     \label{results:fig: pc_violation_naive}
 \end{figure}
 
+The same is done with the \emph{naive\_pc} NARX models that are not trained with the physics constrained
+activation but simply apply it to their output (fig.~\ref{results:fig: pc_violation_naive}). The 
+balance error during the simulation shows a completely different picture. All models achieve
+vanishing balance errors at \SI{64}{bit} precision of \SI{3.4e-16}{}. These appear consistent over the complete
+simulation horizon. The naively physics constrained models exhibit even smaller balance errors than the initial state itself, which stems
+from a first principle simulation, due to fewer rounding errors. There is no noticable difference
+between the nominal predictions $\mathbb{E}$ (green) and the conditioned quantile predictions $Q_{0.9}$ (yellow) and $Q_{0.1}$ (purple)
+in contrast to the vanilla versions. Additionally, it can be interpreted as a proof of concept
+for the physics constrained activation $g_\text{pc}$. It enforces linear equality constraints up to machine precision, even
+if it is not used during training.
 
 
 \begin{figure}
@@ -75,3 +85,17 @@ Additionally, the error does not add up over time.
     with the balance than the models conditioned by quantiles $Q_{0.9}$ and $Q_{0.1}$.}
     \label{results:fig: pc_violation_pc}
 \end{figure}
+
+Finally, the balance error is plotted for the \emph{pc}-NARX, that uses the physics constrained
+activation during training and simulation (fig.~\ref{results:fig: pc_violation_pc}). While it significantly improves
+training efficiency, it also enforces linear equality constraints in an open-loop simulation up to \SI{32}{\bit} precision.
+Similarly to the \emph{naive\_pc}, all three NARX models achieve the same contraint residual error
+of \SI{1.7e-7}{}. The difference between the physics constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
+trajectories is non-existent. It is worth noticing, that the minimum possible contraint residual differs 
+between the \emph{naive\_pc} and the \emph{pc}-NARX. The \emph{naive} version is not trained with the 
+physics consistent activation $g_\text{pc}$. It is applied \emph{a posteriori} and implemented using
+a \texttt{casadi}-function object. The \emph{pc} version owns a direct implementation of $g_\text{pc}$
+as a \texttt{torch.nn.Module}. Eventhough it is converted into a \texttt{casadi} expression to be
+simulated in \texttt{do\_mpc} afterwards, it still keeps the \SI{32}{\bit} precision of the \texttt{torch.float32}-object.
+Because the \texttt{casadi}-function computes in the \SI{64}{\bit} decimal space, \emph{naive} and \emph{pc}
+differ in maximum machine precision.
