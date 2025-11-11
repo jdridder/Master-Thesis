@@ -9,10 +9,11 @@ physics consistency and uncertainty quantification capability.
 This is done with the intention to use these surrogate models within an MPC optimization
 loop (def.~\ref{theory:def: continuous mpc}).
 
-\section{Surrogate Setup}
-To be able, to simulate the system forward in time, following iterative formulation is needed.
-\begin{definition}
-    \label{sur:def: general surrogate setup}
+\section{Framework for general Uncertainty Quantification}
+To be able, to simulate the surrogate models forward in time, following iterative formulation 
+is set up as the RHS.
+\begin{definition} General RHS equation for uncertainty quantification.
+    \label{sur:def: general rhs for uncertainty quantification}
     \[  
     \begin{gathered}
         \begin{pmatrix}
@@ -21,9 +22,9 @@ To be able, to simulate the system forward in time, following iterative formulat
             \vx^\downarrow
         \end{pmatrix}_{k+1}
         = \begin{pmatrix}
-            Q_{\tau_1}(\vx_{k+1} | \bm{\phi}^\uparrow_k) \\
+            \hat{Q}_{\tau_1}(\vx_{k+1} | \bm{\phi}^\uparrow_k) \\
             \mathbb{E}(\vx_{k+1} | \bm{\phi}_{\text{nom},k}) \\
-            Q_{\tau_2}(\vx_{k+1} | \bm{\phi}^\downarrow_k)
+            \hat{Q}_{\tau_2}(\vx_{k+1} | \bm{\phi}^\downarrow_k)
         \end{pmatrix}
         \eqcolon f_\text{UQ}
         \begin{pmatrix}
@@ -35,9 +36,46 @@ To be able, to simulate the system forward in time, following iterative formulat
     \end{gathered}
     \]
 \end{definition}
+Here, $\mathbb{E}$, $\hat{Q}_{\tau_1}$ and $\hat{Q}_{\tau_2}$ are NARX models to predict the expected value and two
+quantiles for all states at the next time instant $k+1$ with the given feature vector for past states
+and inputs $\bm{\phi}_k$. The states pertaining to the upper quantile function, are indicated
+with "$\uparrow$". Similarly, the lower quantile states are denoted with a "$\downarrow$", while
+"nom" refers to the nominal scenario. Technically, three RHS functions are propagated
+independently trough time except for the initial state, which is the same for all three. Therefore, the feature vector
+(eq.~\ref{theory:eq: input feature vector}) is shifted after each iteration using the resulting
+state vector of the according NARX model. The function notation is summarized as $f_\text{UQ}$.
+It is important to note, that the initial feature vector $\bm{\phi}_\text{init}$ containts $h+1$
+past states and measurements. Which must be known to initiate the RHS based a NARX framework.
+\newline
+
+\section{NARX Framework for State Constraints}
 
 When recalling the bi-level formulation of a semi-infinite program (def.~\ref{theroy:def: bi-level program}),
-worst case functions $\varphi_i(\vu)$ are assumed to ensure robust constraint satisfaction.
+worst case functions $\varphi_i(\vu)$ are assumed to ensure robust constraint satisfaction. For simplicity, only state constraints in the 
+form of $\vx_k \leq 0 \; \forall k$ are considered. This resembles a great amount of cases, as constraints
+often appear as pure state constraints.  So, the uncertainty quantification in form of 
+a quantile NARX model only needs to cover the states, that are part of state constraints.
+Furthermore, quantile regression for states with counteracting dynamics lead to wrong predictions.
+Therefore it is reasonable to separate the predicion of quantile states from the prediction of all other states.
+
+
+\begin{definition} Modified function $\hat{Q}_\tau$ to predict true quantiles of critical states and according expected values of all other states.
+    \[
+        \hat{Q}_\tau(\vx_{k+1} | \bm{\phi}_k) = 
+        \begin{pmatrix}
+            Q_\tau(\vx_{k+1, :n_\text{crit}} | \bm{\phi}_k) \\
+            \mathbb{E}_{\tau}(\vx_{k+1, n_\text{crit}:} | \bm{\phi}_k)
+        \end{pmatrix}
+    \]
+\end{definition}
+Only constraint critical states $\vx_{:n_\text{crit}}$ undergo true quantile regression by the function $Q_\tau$.
+The quantity $n_\text{crit}$ stands for the ending index of constraint critical states in the state vector $\vx$.
+All other states are to be inferred such that they match the quantile prediction of the critical states. 
+This is marked by an expected value $\mathbb{E}_\tau$, that is conditioned by the quantile of the critical states.
+Concatenated togehter, these two NARX architectures allow a state propagation, which is physical meaningful in
+broad sense.
+
+\subsection{Quantile Conditioning}
 
 
 
