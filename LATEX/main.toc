@@ -31,13 +31,15 @@
 \contentsline {subsection}{\numberline {4.3.2}Activation Energies and Pre-exponential factors}{26}{subsection.4.3.2}%
 \contentsline {section}{\numberline {4.4}Conservation of Atoms}{26}{section.4.4}%
 \contentsline {section}{\numberline {4.5}Measurement Positions}{28}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Data Generation}{29}{section.4.6}%
-\contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{31}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Training Effectivity}{31}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Physics Consistency}{31}{section.5.2}%
-\contentsline {chapter}{\numberline {6}Conclusions}{37}{chapter.6}%
-\contentsline {chapter}{\numberline {A}Datasheets}{39}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Parameter for ...}{39}{section.A.1}%
-\contentsline {chapter}{\numberline {B}Proofs}{41}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Proof of Theorem X}{41}{section.B.1}%
-\contentsline {chapter}{Bibliography}{43}{appendix*.28}%
+\contentsline {section}{\numberline {4.6}Experimental Setup}{29}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Data Generation}{29}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Training}{29}{subsection.4.6.2}%
+\contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{33}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Training Effectivity}{33}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Physics Consistency}{33}{section.5.2}%
+\contentsline {chapter}{\numberline {6}Conclusions}{39}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets}{41}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Parameter for ...}{41}{section.A.1}%
+\contentsline {chapter}{\numberline {B}Proofs}{43}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Proof of Theorem X}{43}{section.B.1}%
+\contentsline {chapter}{Bibliography}{45}{appendix*.29}%

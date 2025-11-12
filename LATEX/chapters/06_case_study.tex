@@ -330,7 +330,27 @@ a measurement instead of discretizing spatially in a real-world scenario. The ou
 \end{figure}
 
 
-\section{Data Generation}
+\section{Experimental Setup}
+
+The objective of this work is to derive, implement and analyze a physics consistent surrogate modelling strategy for
+the ethene oxidation flow reactor under parametric uncertainty. During the whole procedure, the 
+previously defined NARX framework is employed (def.~\ref{sur:def: general rhs for uncertainty quantification}).
+It consists of a nominal prediction $\mathbb{E}$ and two quantile predictions $\hat{Q}_\tau$. 
+All three predictors are separated in two parts.
+The nominal prediction is inferred by a NARX model, that predicts the expected value of the critical state.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Procedure/narx_framework.pdf}
+    \caption[NARX framework for uncertainty quantification.]
+    {}
+    \label{case:fig: narx framework}
+\end{figure}
+
+
+
+
+\subsection{Data Generation}
 
 To train and test the NARX models, reactor measurement data is generated at mentioned positions. 
 For this sake, the normal distributions for the radial heat conductivity and the kinetic parameters 
@@ -362,3 +382,5 @@ approximately \SI{20}{\second} (eq.~\ref{case:eq: time constant}).
 \end{figure}
 The excited input signals of the wall temperatures are shown (fig.~\ref{case:fig: input trajectories}) for
 \SI{512}{\second} with a sampling frequency of \SI{1}{\second^{-1}}.
+
+\subsection{Training}
