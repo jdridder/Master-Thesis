@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  12 NOV 2025 17:16
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  12 NOV 2025 19:06
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1501,7 +1501,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [8]
-Underfull \hbox (badness 10000) in paragraph at lines 313--327
+Underfull \hbox (badness 10000) in paragraph at lines 314--328
 
  []
 
@@ -1516,7 +1516,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 File: Figures/Theory/narx-pca-encoder.pdf Graphic file (type pdf)
 <use Figures/Theory/narx-pca-encoder.pdf>
 
-Underfull \hbox (badness 10000) in paragraph at lines 386--408
+Underfull \hbox (badness 10000) in paragraph at lines 387--409
 
  []
 
@@ -1543,7 +1543,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [11]
-Overfull \hbox (3.1434pt too wide) in paragraph at lines 424--427
+Overfull \hbox (3.1434pt too wide) in paragraph at lines 425--428
 []\TU/lmr/m/n/10.95 Here, $\OML/cmm/b/it/10.95 B$ \TU/lmr/m/n/10.95 denotes the \TU/lmr/m/it/10.95 element-species-matrix \TU/lmr/m/n/10.95 and $[]\OML/cmm/b/it/10.95 n$ \TU/lmr/m/n/10.95 the changes in the molar amounts
  []
 
@@ -1733,6 +1733,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [27]
 File: Figures/Reaction-Modelling/reactor-measurements.pdf Graphic file (type pdf)
 <use Figures/Reaction-Modelling/reactor-measurements.pdf>
+File: Figures/Procedure/narx_framework.pdf Graphic file (type pdf)
+<use Figures/Procedure/narx_framework.pdf>
+
+Underfull \hbox (badness 10000) in paragraph at lines 335--371
+
+ []
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1742,11 +1748,9 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [28]
-File: Figures/Procedure/narx_framework.pdf Graphic file (type pdf)
-<use Figures/Procedure/narx_framework.pdf>
-File: Figures/Reaction-Modelling/input_trajectories.pdf Graphic file (type pdf)
-<use Figures/Reaction-Modelling/input_trajectories.pdf>
-) (./chapters/07_results.tex
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1763,6 +1767,9 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [30]
+File: Figures/Reaction-Modelling/input_trajectories.pdf Graphic file (type pdf)
+<use Figures/Reaction-Modelling/input_trajectories.pdf>
+) (./chapters/07_results.tex
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -1904,10 +1911,10 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 52407 strings out of 476683
- 1238137 string characters out of 5804048
- 2237299 words of memory out of 5000000
- 71772 multiletter control sequences out of 15000+600000
+ 52408 strings out of 476683
+ 1238150 string characters out of 5804048
+ 2237361 words of memory out of 5000000
+ 71773 multiletter control sequences out of 15000+600000
  527751 words of font info for 108 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  99i,19n,106p,2133b,5402s stack positions out of 10000i,1000n,20000p,200000b,200000s

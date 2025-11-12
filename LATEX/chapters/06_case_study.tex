@@ -335,17 +335,40 @@ a measurement instead of discretizing spatially in a real-world scenario. The ou
 The objective of this work is to derive, implement and analyze a physics consistent surrogate modelling strategy for
 the ethene oxidation flow reactor under parametric uncertainty. During the whole procedure, the 
 previously defined NARX framework is employed (def.~\ref{sur:def: general rhs for uncertainty quantification}).
-It consists of a nominal prediction $\mathbb{E}$ and two quantile predictions $\hat{Q}_\tau$. 
-All three predictors are separated in two parts.
-The nominal prediction is inferred by a NARX model, that predicts the expected value of the critical state.
-
+It consists of a nominal prediction $\mathbb{E}$ and two quantile predictions $\hat{Q}_\tau$ (fig.~\ref{case:fig: narx framework}). 
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Procedure/narx_framework.pdf}
     \caption[NARX framework for uncertainty quantification.]
-    {}
+    {
+        To simulate the distribution of system trajectories (blue bell curve), three NARX predictors are applied in form
+        of the expected value (green), the $0.9$-quantile (yellow) and the $0.1$-quantile (purple). Each of them consists
+        of two separate NARX models, one for the temperature measurements $\bm{T}$ and one for all other states $\bm{\chi}$.
+    }
     \label{case:fig: narx framework}
 \end{figure}
+All three predictors are separated in two parts.
+As the temperature is the critical state regarding the constraints, it is predicted separately 
+from all other states. This allows for more accurate temperature predictions, as well as explicit quantile regression
+for the temperature measurements only. So the NARX models $Q_{0.9}$ (yellow) and $Q_{0.1}$ (purple) undergo 
+quantile regression (\ref{theory: quantile regression}) in the training phase with the $0.9$- and $0.1$-quantile respectively.
+The expected value of the temperature $\mathbb{E}(\bm{T}_{k+1})$ (green) is learned using the MSE.
+The same is done for the expected values of all other states, namely the dimensionless concentration measures $\bm{\chi}$.
+To predict all other states, that \emph{most likely} correspond to the temperature quantiles, NARX models are trained using 
+a weighted MSE. These are marked as $\mathbb{E}_{0.9}$ and $\mathbb{E}_{0.1}$ to match their corresponding temperature quantile.
+Training efficiency and predicion quality rely on the choice of distance measure and weight function (alg.~\ref{sur:algo: weighted MSE creation}).
+\newline
+\newline
+For one complete forward pass, the vector of past measurements and inputs $\bm{\phi}_k$ is normalized with a standard
+scaler to have a mean of zero and a unit standard deviation. It is then encoded by the PCA encoder to a lower dimensional 
+subspace (\ref{theory: svd}). The compressed vector $\bm{\xi}_k$ needs to be scaled again with a maximum scaler before
+it can be fed into a NARX model. After the NARX models for the temperature and all other states have predicted the 
+next instance, the complete measurement vector is constructed. For the next recursive forward pass, the complete
+measurement vector is inserted as the first element into the vector of past measurements and inputs (eq.~\ref{theory:eq: input feature vector}).
+Additionally, the applied input $\vu$ is inserted as well at its corresponding position. This recursive insertion process
+is done by the function $f_\text{shift}$ using the previous vector of past measurements and inputs $\bm{\phi}_{k-1}$ (fig.~\ref{case:fig: narx framework}).
+To start the simulation, an initial vector $\bm{\phi}_\text{init}$ must be supplied.
+
 
 
 
