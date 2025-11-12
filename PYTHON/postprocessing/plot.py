@@ -23,6 +23,62 @@ set_mpt_settings()
 # ------- Plots for Neural Network Training --------
 
 
+def plot_weight_distances(
+    distance_dict: Dict[str, Dict[str, np.ndarray]],
+    save_dir: str,
+    sigma: float,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+    weight_fn = lambda d: 2 / ((2 * np.pi) ** 0.5 * sigma) * np.exp(-(d**2) / (2 * sigma**2))
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+
+    final_save_path = os.path.join(save_dir, "weight_distances.pdf")
+    if not os.path.exists(final_save_path):
+
+        n_plots = len(distance_dict)
+        label_dict = plot_cfg.get("labels", {})
+        color_dict = plot_cfg.get("colors", {})
+        ylabel_dict = plot_cfg.get("ylabels", {})
+        fig, axes = plt.subplots(n_plots, 1)
+        if not isinstance(axes, np.ndarray):
+            axes = np.array([axes])
+
+        distance_span = np.linspace(0, plot_cfg.get("xlims")[-1], 100)
+        weight_span = weight_fn(distance_span)
+
+        for ax, surrogate_dict in zip(axes, distance_dict.values()):
+            ax.set_xlabel(plot_cfg.get("xlabel", "$d$"))
+            ax.set_xlim(plot_cfg.get("xlims", (None, None)))
+            graphs = ax.plot(distance_span, weight_span, label=label_dict.get("weight_function", "weight function"), color=color_dict.get("weight_function", "black"))
+            ax.set_ylabel(ylabel_dict.get("weight_function", "$w(d)$"))
+
+            twin_ax = ax.twinx()
+            twin_ax.set_ylabel(ylabel_dict.get("distance", "count / -"))
+            for quantile_key, distance_arr in surrogate_dict.items():
+                _, _, patches = twin_ax.hist(
+                    x=distance_arr.flatten(),
+                    bins=plot_cfg.get("bins", 100),
+                    facecolor=color_dict.get(quantile_key, "blue"),
+                    alpha=0.5,
+                    label=label_dict.get(quantile_key, quantile_key),
+                )
+                graphs.append(patches[0])
+
+            labels = [g.get_label() for g in graphs]
+            ax.legend(graphs, labels, loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.2)), ncol=len(labels))
+
+        plt.tight_layout()
+        if plot_cfg.get("show_fig", False):
+            plt.show()
+
+        plt.savefig(final_save_path)
+        plt.close(fig)
+    else:
+        print(f"{final_save_path} already exists. Skipping.")
+
+
 def plot_val_loss(
     training_history_dict: Dict,
     hidden_units_list: List[List[int]],

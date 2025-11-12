@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -63,9 +63,12 @@ def run_training(
                     raise ValueError(f"The model parameters for the {quantile} temperature model do not exists under {path_to_quantile_temp_params}.")
                 temp_model_params = torch.load(path_to_quantile_temp_params)
                 # prepare weights
-                weights = infer_temperature_weights(
+                weights, distances = infer_temperature_weights(
                     data_structurizer=data_structurizer, training_data=training_data, training_cfg=training_cfg, pca_encoder=pca_encoder, temp_model_state_dict=temp_model_params
                 )
+                if training_cfg.get("save_distances", False):
+                    distances_file_path = os.path.join(model_parameter_dir, f"distances_{quantile}.npy")
+                    np.save(arr=distances.numpy(), file=distances_file_path)
             else:
                 weights = None
 
@@ -81,7 +84,7 @@ def run_training(
             )
 
 
-def infer_temperature_weights(data_structurizer: DataStructurizer, training_data: np.ndarray, pca_encoder: PCA_Encoder, training_cfg: Dict, temp_model_state_dict: Dict) -> torch.Tensor:
+def infer_temperature_weights(data_structurizer: DataStructurizer, training_data: np.ndarray, pca_encoder: PCA_Encoder, training_cfg: Dict, temp_model_state_dict: Dict) -> Tuple[torch.Tensor]:
     training_data = data_structurizer.reduce_measurements(training_data)
     X, Y = data_structurizer.make_training_XY(data_matrix=training_data)
     X = torch.tensor(X.copy(), dtype=torch.float32)
@@ -100,19 +103,12 @@ def infer_temperature_weights(data_structurizer: DataStructurizer, training_data
 
         # T_sc = temp_model.out_scaler(Y)  # scale the training data
         sigma_weight = training_cfg.get("sigma_weight", 0.002)
-        distances = torch.norm(T_pred - Y, p=2, dim=-1).numpy()
-        weight_fn = lambda d: 1 / ((2 * np.pi) ** 0.5 * sigma_weight) * np.exp(-(d**2) / (2 * sigma_weight**2))  # normal distribution to weight the points
-        weights = weight_fn(d=distances)
+        distances = torch.norm(T_pred - Y, p=2, dim=-1)
 
-        # import matplotlib.pyplot as plt
-        # distance_span = np.linspace(0, 0.01, 100)
-        # weight_span = weight_fn(distance_span)
-        # fig, ax = plt.subplots(1)
-        # ax.hist(x=distances.flatten(), bins=100)
-        # ax.plot(distance_span, weight_span, label="weight function")
-        # ax.legend()
-        # plt.show()
-        return weights
+        weight_fn = lambda d: 2 / ((2 * torch.pi) ** 0.5 * sigma_weight) * torch.exp(-(d**2) / (2 * sigma_weight**2))
+        # normal distribution to weight the points multiplied by 2 to have a surface area of 1
+        weights = weight_fn(d=distances)
+    return weights, distances
 
 
 if __name__ == "__main__":

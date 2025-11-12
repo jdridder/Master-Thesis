@@ -77,17 +77,28 @@ def run_uncertain_open_loop_experiment(
     training_data_dir = os.path.join(experiment_dir, "..", "data", "train")
     os.makedirs(trained_model_dir, exist_ok=True)
     boundary_cond = meta_model.get_bc_for_all_measurements(n_measurements=data_structurizer.n_measurements)[:, :20]  # only chi states
+    weight_distances = {}
+
     for training_cfg in training_cfgs:
         final_model_dir = os.path.join(trained_model_dir, training_cfg.get("save_dir"))
         os.makedirs(final_model_dir, exist_ok=True)
-        run_training(
-            model_parameter_dir=final_model_dir,
-            training_data_dir=training_data_dir,
-            data_structurizer=data_structurizer,
-            training_cfg=training_cfg,
-            constraint_matrix=meta_model.get_balance_constraint_matrix(num_stacks=data_structurizer.n_measurements, include_temp_as_zero=False),
-            boundary_cond=boundary_cond,
-        )
+        # run_training(
+        #     model_parameter_dir=final_model_dir,
+        #     training_data_dir=training_data_dir,
+        #     data_structurizer=data_structurizer,
+        #     training_cfg=training_cfg,
+        #     constraint_matrix=meta_model.get_balance_constraint_matrix(num_stacks=data_structurizer.n_measurements, include_temp_as_zero=False),
+        #     boundary_cond=boundary_cond,
+        # )
+        if training_cfg.get("save_distances", False):
+            surrogate_key = training_cfg.get("save_dir")
+            for file in os.scandir(final_model_dir):
+                if file.name.startswith("distances") and file.name.endswith(".npy"):
+                    quantile_key = f"{file.name.split(".")[1]}0"
+                    distances = np.load(file)
+                    if surrogate_key not in weight_distances.keys():
+                        weight_distances[surrogate_key] = {}
+                    weight_distances[surrogate_key][quantile_key] = distances
 
     # # simulate open loop with uncertainty models
     result_directory = os.path.join(current_experiment_working_dir, "results")
@@ -108,6 +119,27 @@ def run_uncertain_open_loop_experiment(
             save_dir=result_directory,
             initialization_data=test_data[0],
         )
+
+    # --------------- Plot Training Statistics ---------------
+    plot_dir = os.path.join(current_experiment_working_dir, "plots")
+    os.makedirs(plot_dir, exist_ok=True)
+    light_colors = make_colors(4, alpha=0.1)
+    full_colors = make_colors(4, alpha=1)
+    plot_weight_distances(
+        distance_dict=weight_distances,
+        save_dir=plot_dir,
+        sigma=0.002,
+        plot_cfg={
+            "colors": {"weight_function": full_colors[2], "90": light_colors[3], "10": light_colors[0]},
+            "labels": {"weight_function": r"$\mathcal{N}(d) \; \mathrm{with} \; \sigma = 0.002$", "10": r"$d_{0.1}$", "90": r"$d_{0.9}$"},
+            "xlabel": r"$d_\tau$ / -",
+            "xlims": (0, 0.02),
+            "ylabels": {"weight_function": "$w(d)$ / -", "distance": r"$N_\mathrm{points}$ / -"},
+            "legend_y_pos": 1.15,
+        },
+    )
+    # ------ Temperature Distances for Weight calculation
+
     # is the PC NARX better in predicting the state uncertainty ?
     # load upper and lower bound
     # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
@@ -125,10 +157,6 @@ def run_uncertain_open_loop_experiment(
             result_dict[surrogate_entry.name] = only_states
 
     # --------------- Plot Recursive Simulation with Uncertainty Confidence ---------------
-    plot_dir = os.path.join(current_experiment_working_dir, "plots")
-    os.makedirs(plot_dir, exist_ok=True)
-    light_colors = make_colors(4, alpha=0.1)
-    full_colors = make_colors(4, alpha=1)
 
     # ------ State trajectories
     positions = [0, -1]
@@ -218,7 +246,6 @@ def run_uncertain_open_loop_experiment(
     # # coverages[surrogate_entry.name] = coverage
 
     # # ---- Plotting functions
-    os.makedirs(plot_dir, exist_ok=True)
     # for key, intervall_state_slice in zip(["states", "temp"], intervall_widths_by_state):
     #     plot_intervall_widths(
     #         time=time,
