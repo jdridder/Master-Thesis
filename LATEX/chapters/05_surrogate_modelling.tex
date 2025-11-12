@@ -72,8 +72,9 @@ Only constraint critical states $\vx_{:n_\text{crit}}$ undergo real quantile reg
 The quantity $n_\text{crit}$ stands for the ending index of constraint critical states in the state vector $\vx$.
 All other states are to be inferred such that they match the quantile prediction of the critical states. 
 This is marked by an expected value $\mathbb{E}_\tau$, that is conditioned by the quantile of the critical states.
-Concatenated together, these two NARX architectures allow a state propagation, which is physical meaningful in
-a broad sense.
+Concatenated together, these two NARX architectures allow a state propagation. Whether the predictions of the conditioned
+model are physical meaningful is questionable, because it is trained using some correlation between the 
+quantile model's predictions and ground truth.
 
 \subsection{Quantile Conditioning}
 
@@ -117,9 +118,39 @@ distances of the inferred quantile predictions to the ground truth in the critic
 These are passed to a weight function $w$ to generate a weight vector $\vw$, that collects all weights
 for all data points.
 
+\subsection{Weight Function}
 
+To weight the data points in the MSE using the distance measure $d$, a lot of possible functions exist.
+This is a straight tuning question. Inspired by the distributive character of uncertain states, that 
+result from Gaussian distributed model parameters, a modified Gaussian is used to weight the MSE.
+\begin{definition} Gaussian-tube as weight function.
+    \label{sur:def: gaussian weight function}
+    \[
+    w(d) = \frac{2}{\sqrt{2 \pi} \sigma_\text{w}} \cdot e^{-\frac{1}{2} \frac{d^2}{\sigma_\text{w}^2}} 
+    \quad d \in \mathbb{R}_+ 
+    \]
+\end{definition}
+The Gaussian strongly weights points with closest distance to the quantile predictions. As the distance increases,
+the weight first decays softly, than swiftly and finally tends to zero. It almost acts like an $\epsilon$-tube
+with a soft boundary. The standard deviation $\sigma_\text{w}$ acts as a hyperparameter to tune the width of the 
+Gaussian-tube similarly to a radial basis function kernel with the length scale as the according hyperparameter.
+Small values for this parameter set greater emphasis on points in close proximity of
+the quantile prediction. Weight functions should have an integral value of one when integrated over the whole domain.
+As the domain of the distance measure is $d \in \mathbb{R}_+$, the Gaussian and is simply scaled by two.
+\newline
+\newline
+Using such an approach of weighting quantile predictions to condition another model to deliver expected values
+for all non-quantile states, can be a source of error. The training of the conditioned model $\mathbb{E}_\tau$
+does not only rely on ground truth data, but on a correlation of a subjective distance measure $d$ in some vector space
+and a weight function. This may lead to bad predictions in the sense of system tracking and physical consistency.
+To guarantee physical consistency, a new type of activation function is presented, that forces NARX predictions
+into the physically allowed space. This is done primarily to enhance the prediction quality of these conditioned 
+models.
+
+
+ 
 \section{Physics-Constrained Neural Networks}
-By definition, NNs are designed to reproduce their training data in a best possible manner, defined by the characteristics of the loss
+By definition, neural networks (NNs) are designed to reproduce their training data in a best possible manner, defined by the characteristics of the loss
 function used during the training process. NN predictions minimize the loss towards the training data seen beforehand.
 Circumstances exist, in which the output of a NN should strictly satisfy a certain set of equations. In case of
 physical modeling, the prediction of a surrogate should follow the same conservation laws as a first principle model. Especcialy,
@@ -132,7 +163,7 @@ become an issue.
 To realize physics consistent NN outputs, several strategies exists. Physics-informed neural networks (\emph{PINN}s) for instance,
 embed physical balance equations into the loss function similar to a regularization term \cite{raissi2019}. This serves as a 
 soft constraint and comes with two downsides.
-The NN output does not strictly follow the constraint equation, because the physical consistency is fullfilled up to
+The NN output does not strictly follow the constraint equation, because the physical consistency is fulfilled up to
 the trade off between data fit and constraint satisfaction.
 Every new balance equation to be included introduces a new hyperparameter worsening the ability to include network parameter regularization.
 To guarantee strict constraint satisfaction and thus perfect physics consistency up to machine precision,
@@ -164,7 +195,7 @@ Let the output of a NN be defined as well as a set of linear equality contraints
 $\bm{\tilde{y}}$ denotes the NN output, $\bm{\xi}$ the input and the matrices $\bm{A}$ and $\bm{b}$ portray the feasible space of points.
 The variable $\bm{z}_0$ illustrates an external input into the constraint. This may be a NN input, a constant, or another batched 
 reference point. In a physical sense, $\bm{z}_0$ is often introduced as a boundary or initial condition.
-A feasible point $\bm{y}$ now needs to be determined that fullfills the set of linear equality constraints.
+A feasible point $\bm{y}$ now needs to be determined that fulfills the set of linear equality constraints.
 For a straight forward implementation, the formulation appears in such a way that it supports batching of 
 a certain batch size $n_\mathcal{B}$. $n_\text{out}$ and $n_\text{c}$ describe the number of output features and numbers
 of linear equality constraints respectively. The main idea is, to find a point in the feasible subspace that is closest to the NN prediction. This is 
