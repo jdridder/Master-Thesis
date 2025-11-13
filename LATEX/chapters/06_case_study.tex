@@ -356,7 +356,7 @@ The expected value of the temperature $\mathbb{E}(\bm{T}_{k+1})$ (green) is lear
 The same is done for the expected values of all other states, namely the dimensionless concentration measures $\bm{\chi}$.
 To predict all other states, that \emph{most likely} correspond to the temperature quantiles, NARX models are trained using 
 a weighted MSE. These are marked as $\mathbb{E}_{0.9}$ and $\mathbb{E}_{0.1}$ to match their corresponding temperature quantile.
-Training efficiency and predicion quality rely on the choice of distance measure and weight function (alg.~\ref{sur:algo: weighted MSE creation}).
+Training efficiency and predicion quality rely on the choice of distance measure and weight function (alg.~\ref{sur:algo: weighted MSE creation}),.
 \newline
 \newline
 For one complete forward pass, the vector of past measurements and inputs $\bm{\phi}_k$ is normalized with a standard

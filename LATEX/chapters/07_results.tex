@@ -18,15 +18,15 @@ Please choose a more expressive title for this chapter. If it makes sense for yo
 
 To analyze the physics consistency of the different NARX frameworks an open-loop simulation is performed.
 It propagates the state trajectories for the nominal case, the upper and the lower quantiles forward
-in time independently (def.~\ref{sur:def: general rhs for uncertainty quantification}). This is done for 
+in time independently (def.~\ref{sur:def:general rhs for uncertainty quantification}). This is done for 
 the three framework variations \emph{vanilla}, \emph{naive\_pc} and \emph{pc}. The main 
 quality metric is the balance violation of the conservation of atoms due to stoichiometry (th.~\ref{case:cor: conservation of atoms}).
 When it is equal to the zero vector, it is perfectly fulfilled.
-The residual of the linear balance constraint is calculated (eq.~\ref{results:eq: residual of balance equation})
+The residual of the linear balance constraint is calculated (eq.~\ref{results:eq:residual of balance equation})
 as the $l_2$-norm
-and plotted as a function of time (fig.~\ref{results:fig: pc_violation_vanilla}).
+and plotted as a function of time (fig.~\ref{results:fig:pc_violation_vanilla}).
 \begin{equation}
-    \label{results:eq: residual of balance equation}
+    \label{results:eq:residual of balance equation}
     ||\bm{b}||_2 = ||\bm{B} \bm{\Delta \xi}||_2
 \end{equation}
 
@@ -37,7 +37,7 @@ and plotted as a function of time (fig.~\ref{results:fig: pc_violation_vanilla})
     {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
     of the vanilla NARX framework. The nominal trajectory $\mathbb{E}$ (green) displays slightly better alignment
     with the balance than the models conditioned by quantiles $Q_{0.9}$ and $Q_{0.1}$.}
-    \label{results:fig: pc_violation_vanilla}
+    \label{results:fig:pc_violation_vanilla}
 \end{figure}
 
 To indicate maximum machine precision, horizontal dashed lines are drawn for \SI{64}{\bit} (gray)
@@ -48,9 +48,9 @@ After beeing initialized with an initial state, that obeys the balance up to an 
 All NARX models abruptly increase the error to \SI{1e-3} and fluctuate in this region until the simulation
 horizon is reached. When the residual is averaged over the simulation horizon using the $\langle(\cdot)\rangle_t$
 notation, the nominal NARX model produces a slightly smaller error of \SI{6.39e-4}{}.
-In contrast, the error of the quantile-conditioned NARX models is rougly twice as big with values
-of \SI{1.12e-3} and \SI{1.42e-3} for the $0.9$ and $0.1$ quantile respectively (fig.~\ref{results:fig: pc_violation_vanilla}).
-It can be noted that neither an instability nor a divergence occurs
+In contrast, the error of the quantile-conditioned NARX models is roughly twice as big with values
+of \SI{1.12e-3} and \SI{1.42e-3} for the $0.9$ and $0.1$ quantile respectively (fig.~\ref{results:fig:pc_violation_vanilla}).
+It can be noticed that neither an instability nor a divergence occurs
 that would lead to a drastic increase in the residual error.
 Additionally, the error does not add up over time.
 
@@ -61,11 +61,11 @@ Additionally, the error does not add up over time.
     {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
     of the vanilla NARX framework. The nominal trajectory $\mathbb{E}$ (green) displays slightly better alignment
     with the balance than the models conditioned by quantiles $Q_{0.9}$ and $Q_{0.1}$.}
-    \label{results:fig: pc_violation_naive}
+    \label{results:fig:pc_violation_naive}
 \end{figure}
 
 The same is done with the \emph{naive\_pc} NARX models that are not trained with the physics constrained
-activation but simply apply it to their output (fig.~\ref{results:fig: pc_violation_naive}). The 
+activation but simply apply it to their output (fig.~\ref{results:fig:pc_violation_naive}). The 
 balance error during the simulation shows a completely different picture. All models achieve
 vanishing balance errors at \SI{64}{bit} precision of \SI{3.4e-16}{}. These appear consistent over the complete
 simulation horizon. The naively physics constrained models exhibit even smaller balance errors than the initial state itself, which stems
@@ -85,11 +85,11 @@ if it is not used during training.
     of time in a \SI{480}{\second} forward simulation
     of the vanilla NARX framework. The nominal trajectory $\mathbb{E}$ (green) displays slightly better alignment
     with the balance than the models conditioned by quantiles $Q_{0.9}$ and $Q_{0.1}$.}
-    \label{results:fig: pc_violation_pc}
+    \label{results:fig:pc_violation_pc}
 \end{figure}
 
 Finally, the balance error is plotted for the \emph{pc}-NARX, that uses the physics constrained
-activation during training and simulation (fig.~\ref{results:fig: pc_violation_pc}). While it significantly improves
+activation during training and simulation (fig.~\ref{results:fig:pc_violation_pc}). While it significantly improves
 training efficiency, it also enforces linear equality constraints in an open-loop simulation up to \SI{32}{\bit} precision.
 Similarly to the \emph{naive\_pc}, all three NARX models achieve the same contraint residual error
 of \SI{1.7e-7}{}. The difference between the physics constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
@@ -100,4 +100,107 @@ a \texttt{casadi}-function object. The \emph{pc} version owns a direct implement
 as a \texttt{torch.nn.Module}. Eventhough it is converted into a \texttt{casadi} expression to be
 simulated in \texttt{do\_mpc} afterwards, it still keeps the \SI{32}{\bit} precision of the \texttt{torch.float32}-object.
 Because the \texttt{casadi}-function computes in the \SI{64}{\bit} decimal space, \emph{naive} and \emph{pc}
-differ in maximum machine precision.
+differ in maximum machine precision. Since the residual norm shrinks to insignificance
+with values at \SI{1e-7} or \SI{1e-16} in both cases, \SI{32}{\bit} precision is not considered
+disadvantageous.
+
+
+\section{Simulation Capability}
+
+To investigate, whether the NARX framework is able to track the distribution of state trajectories, 
+the simulation results for the expected value and quantile NARX models are illustrated (fig.~\ref{results:fig:vanilla_temperature_sim}).
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_-1.pdf}
+    \caption[Forward simulation of the vanilla NARX framework for the temperature.]
+    {Forward simulation of the vanilla NARX framework without physics constrained activation for 
+    \SI{480}{\second}. The scaled temperature $T'$ is shown for two measurement positions $z=0.25L$ and
+    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
+    \label{results:fig:vanilla_temperature_sim}
+\end{figure}
+
+First, a look at the temperature is taken, which undergoes quantile regression and state propagation via
+the \emph{vanilla} framework (dashed line). The measurement positions for display are choosen to be the reactor outlet $z=L$ and 
+the first quarter $z=0.25L$, where a hotspot is likely to form. While yellow, green and purple
+indicate the $0.9$-temperature quantile, expected value and $0.1$-temperature-quantile, the ground truth
+test trajectories are marked in light blue. These originate from first principle model simulations
+with MC sampled parameter combinations along the normal distributions. By their transparent blue
+color, a trajectory density distribution becomes visible with darker blue at the trajectory mean 
+and light blue towards the outer quantiles. It is obvious, that the state at the front of the PFTR
+exhibits a more narrow distribition of trajectories than the state at the reactor outlet, because the
+residence time of its fluid elements is smaller. Consequently, trajectories differing in parameters have less time to drift apart.
+\newline
+\newline
+The vanilla expected value for the temperature (green) tracks the mean of the system reasonably well
+at both positions, since its distance to the darkest part of the density distribition is mostly small.
+The lower quantile bound (purple) is located below the mean prediction at all times and positions.
+It also portrays a lower boundary for the quantile state as intended. But the accuracy of its quantile coverage,
+which is supposed to be equal to $0.1$ cannot be assessed. The same yields for the
+upper quantile (yellow), which should cover a fraction of $0.9$ of temperature trajectories. 
+However, the quantile models successfully quantify the uncertainty difference between reactor positions
+with narrow intervalls at $z=0.25L$ and wider intervals at $z=L$. Smaller intervals seem to be more
+challenging to predict, as the $0.9$-quantile NARX excludes the mean prediction at \SI{120}{\second} and
+$z=0.25L$. Crucially, the plotted quantile trajectories are simulated not only via recursive quantile temperature predicitions 
+but also via the conditioned NARX for the dimensionless concentration measure (fig.~\ref{case:fig:narx framework}).
+This may deteriorate the quantile prediction in contrast to the expected value NARX relying
+completely on least square regression. The according trajectories of $\bm{\chi}$ 
+for the concentration measure for ethylene oxide at the same reactor
+coordinates are presented (fig.~\ref{results:fig:vanilla_temperature_sim}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_2.pdf}
+    \caption[Forward simulation of the vanilla NARX framework for the dimensionless concentration.]
+    {Forward simulation of the vanilla NARX framework without physics constrained activation for 
+    \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
+    for two measurement positions $z=0.25L$ and
+    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
+    \label{results:fig:vanilla_concentration_sim}
+\end{figure}
+
+Here, the expected value NARX (green) $\mathbb{E}$ again follows the trajectory mean sufficiently.
+The conditioned quantile trajectories (yellow and purple) however, cannot be accounted for
+reliable confidence predictions, as they repeatedly exclude the expected value trajectory.
+Especcially, for the position $z=0.25L$ with a tight uncertainty distribition, the 
+conditioned models cross the expected value prediction more often. This behavior highlights,
+that the conditioned NARX models are not designed for a reliable uncertainty quantification, but represent 
+a rather pragmatic approach to allow for independent propagation of temperature quantiles.
+Still, they retain some correlational information about the $T$-$\chi$-relationship. 
+An increased temperature leads to a faster reaction, thus a higher product and 
+low educt concentration and vice versa. This information is conveyed by the quantile-conditioned
+NARX models. For ethylene oxide the quantile-conditioned
+NARX for the lower temperature quantile, forecasts also lower values at the reactor outlet.
+The opposite is achieved by the quantile-conditioned NARX for the upper temperature quantile.
+While this correlation is captured to a degree, it is not suited for confidence
+interpretation. Furthermore, a distinct probabilistic coverage cannot be guaranteed.
+\newline
+\newline
+To enhance the simulation capability of the quantile-conditioned models, the physics
+constrained activation function is employed. The dimensionless concentration
+measures act as the conservation quantity at all reactor positions.
+When the physics constrained activation is applied naively (fig.~\ref{results:fig:naive_concentration_sim}) (dash-dotted), so only during simulation
+but not in training, the trajectories of the quantile-conditioned models do not differ
+noticably to the vanilla version (fig.~\ref{results:fig:vanilla_concentration_sim}).
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/test_with_naive_pc_2.pdf}
+    \caption[Forward simulation of the naive_pc NARX framework for the dimensionless concentration.]
+    {Forward simulation of the naive\_pc NARX framework with physics constrained activation for 
+    \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
+    for two measurement positions $z=0.25L$ and
+    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
+    \label{results:fig:naive_concentration_sim}
+\end{figure}
+
+When the fully physics constrained NARX architecture is sumlated forward in time, a small improvement can be
+noticed (fig.~\ref{results:fig:pc-concentration-sim}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_2.pdf}
+    \caption[Forward simulation of the pc NARX framework for the dimensionless concentration.]
+    {Forward simulation of the pc NARX framework with physics constrained activation for 
+    \SI{480}{\second}. The fully physics consistent framework exhibits a minor improvement to the 
+    vanilla NARX framework.}
+    \label{results:fig:pc-concentration-sim}
+\end{figure}
