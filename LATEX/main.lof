@@ -1,19 +1,27 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces Catalytic packed-bed flow reactor}}{3}{figure.caption.15}%
-\contentsline {figure}{\numberline {1.2}{\ignorespaces Parameter distribution for the radial heat conductivity.}}{7}{figure.caption.17}%
-\contentsline {figure}{\numberline {1.3}{\ignorespaces Parameter distribution for the activation energy and the collision factor.}}{7}{figure.caption.18}%
-\contentsline {figure}{\numberline {1.4}{\ignorespaces Measurement positions in the tubular reactor.}}{8}{figure.caption.19}%
-\contentsline {figure}{\numberline {1.5}{\ignorespaces NARX framework for uncertainty quantification.}}{10}{figure.caption.20}%
-\contentsline {figure}{\numberline {1.6}{\ignorespaces Excited input trajectories for the four wall temperatures.}}{11}{figure.caption.21}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Physics violation of the vanilla NARX}}{14}{figure.caption.22}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Physics violation of the naive physics-constrained NARX}}{15}{figure.caption.23}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Physics violation of the physics-constrained NARX}}{16}{figure.caption.24}%
-\contentsline {figure}{\numberline {2.4}{\ignorespaces Forward simulation of the vanilla NARX framework for the temperature.}}{17}{figure.caption.25}%
-\contentsline {figure}{\numberline {2.5}{\ignorespaces Forward simulation of the vanilla NARX framework for the dimensionless concentration.}}{18}{figure.caption.26}%
-\contentsline {figure}{\numberline {2.6}{\ignorespaces Forward simulation of the naive_pc NARX framework for the dimensionless concentration.}}{19}{figure.caption.27}%
-\contentsline {figure}{\numberline {2.7}{\ignorespaces Forward simulation of the pc NARX framework for the dimensionless concentration.}}{20}{figure.caption.28}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Multi-stage MPC scenario tree}}{6}{figure.caption.15}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces PCA encoder for feature reduction}}{11}{figure.caption.16}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Neural network with physics constrained activation function $g_\text {pc}$}}{18}{figure.caption.17}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Catalytic packed-bed flow reactor}}{23}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Parameter distribution for the radial heat conductivity.}}{27}{figure.caption.20}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Parameter distribution for the activation energy and the collision factor.}}{27}{figure.caption.21}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Measurement positions in the tubular reactor.}}{28}{figure.caption.22}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces NARX framework for uncertainty quantification.}}{30}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Excited input trajectories for the four wall temperatures.}}{31}{figure.caption.24}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Physics violation of the vanilla NARX}}{34}{figure.caption.25}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Physics violation of the naive physics-constrained NARX}}{35}{figure.caption.26}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Physics violation of the physics-constrained NARX}}{36}{figure.caption.27}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Forward simulation of the vanilla NARX framework for the temperature.}}{37}{figure.caption.28}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Forward simulation of the vanilla NARX framework for the dimensionless concentration.}}{38}{figure.caption.29}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Forward simulation of the naive_pc NARX framework for the dimensionless concentration.}}{39}{figure.caption.30}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Forward simulation of the pc NARX framework for the dimensionless concentration.}}{40}{figure.caption.31}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Forward simulation of the naive NARX framework for the temperature quantiles.}}{44}{figure.caption.33}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces Forward simulation of the pc NARX framework for the temperature quantiles.}}{44}{figure.caption.34}%
 \addvspace {10\p@ }

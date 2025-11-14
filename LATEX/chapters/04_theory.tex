@@ -182,19 +182,19 @@ High order uncertainties lead to optimization problems that are simply impossibl
 
 \section{Neural Networks}
  
-\emph{Feed forward neural networks} (NNs), sometimes referred to as \emph{multi-layer-perceptrons} (MLPs),
-provide a stunning capability of approximating any multivariate function from any finite dimensional
-space to another. According to the \emph{Universal Approximation Theorem}, any finite dimensional function can be reproduced if the number of hidden
+\emph{Feedforward neural networks} (NNs), sometimes referred to as \emph{multi-layer-perceptrons} (MLPs),
+provide a stunning capability of approximating any multivariate function from any finite-dimensional
+space to another. According to the \emph{Universal Approximation Theorem}, any finite-dimensional function can be reproduced if the number of hidden
 layers and respective neurons is high enough, up to an arbitrarily small error \cite{hornik1990}. Thus, NNs play a major role in
 recent developments in machine learning. Large language models such as ChatGPT heavily rely on neural
 networks \cite{vaswani2023}. NNs are not only succesfully applied in natural language processing but in the chemical process industry.
-Applications range from thermodynamic property prediction over unit operation design to corporate level decision making \cite{mcbride2019}.
-Their ability to approximate any non-linear function while beeing differentiable, makes NNs especcially suitable for dynamic optimization
+Applications range from thermodynamic property prediction over unit operation design to corporate-level decision making \cite{mcbride2019}.
+Their ability to approximate any non-linear function while being differentiable, makes NNs especially suitable for dynamic optimization
 such as MPC. In contrast to detailed first principle models, NNs have the advantage of making a prediction with
 less non-linear function evaluations and floating point operations. Thus, the computational complexity may be lowered significantly.
  As MPC operates in real time parallel to the system to be controlled, the computation duration is a key measure
-for a succesfull MPC implementation. That is why, surrogate models in form of NNs are a crucial tool for dynamic optimization and heavily investigated
-in current research \cite{salzmann2024l4casadi}. May a NN be given as an alternating series of function evaluations
+for a succesfull MPC implementation. That is why surrogate models in the form of NNs are a crucial tool for dynamic
+optimization and are heavily investigated in current research \cite{salzmann2024l4casadi}. May an NN be given as an alternating series of function evaluations
 between a linear function $h(\bm{a})$ and a \emph{non-linear} activation function $g(h(\va))$ (def.~\ref{theory:def: neural network}).
 
 \begin{definition} Mathematical formulation of a neural network as a nested function evaluation.
@@ -210,8 +210,8 @@ between a linear function $h(\bm{a})$ and a \emph{non-linear} activation functio
     \]
 \end{definition}
 
- The linear transformation matrices $\bm{\theta}_{Wl}$ and offsets $\bm{\theta}_{bl}$,
-are called weights and biases respectively and are the trainable parameters of a NN. The activation functions $g$ are important
+ The linear transformation matrices $\bm{\theta}_{Wl}$ and offsets $\bm{\theta}_{bl}$
+are called weights and biases respectively and are the trainable parameters of an NN. The activation functions $g$ are important
 to introduce non-linearity into every linear projection. Otherwise, the complete function combination can be written as one 
 singular linear transformation and the universal approximation capability is lost. Given a set of training data of $m$ data points,
 the optimal parameters for $\bm{\theta}$ are found by solving an optimization task that involves the minimzation of a prediction loss function (eq.~\ref{eq: loss function}).
@@ -224,20 +224,22 @@ the optimal parameters for $\bm{\theta}$ are found by solving an optimization ta
         \mathbb{Y}_\text{train} &\coloneq \{ \bm{y}^{(0)}, \hdots, \bm{y}^{(m-1)} \} 
         \\
         \mathcal{L}(\bm{\theta}, \mathbb{X}_\text{train}, \mathbb{Y}_\text{train}) &=
-        \frac{1}{m} \sum_{i=0}^{m-1} \Big| \Big| \bm{y}^{(i)} - \bm{\tilde{y}}(\bm{\theta}, \bm{\xi}^{(i)}) \Big | \Big|_2^2
+        \frac{1}{m} \sum_{i=0}^{m-1} \Big| \Big| \bm{y}^{(i)} - \bm{\tilde{y}}(\bm{\theta}, \bm{\xi}^{(i)}) \Big | \Big|_2^2 \\
+        \text{with} \quad \bm{\tilde{y}}(\bm{\theta}, \bm{\xi}^{(i)}) &\coloneq \mathcal{NN}(\bm{\theta}, \bm{\xi}^{(i)})
     \end{aligned}
 \end{equation}
 
 In \emph{supervised learning}, the training data is separated in \emph{features} $\mathbb{X}_\text{train}$, the inputs of the NN,
-and \emph{labels} $\mathbb{Y}_\text{train}$. During training, the parameters $\bm{\theta}$ are determined such that
+and \emph{targets} $\mathbb{Y}_\text{train}$. During training, the parameters $\bm{\theta}$ are determined such that
 the NN approximates the data in best possible manner.
 In this example the loss function $\mathcal{L}$ portrays the mean squared error (MSE), that is used in most regression tasks. 
-The difference between the model prediction, denoted as $\bm{\tilde{y}}(\bm{\xi}^{(i)})$, and the true data point $\bm{y}^{(i)}$ is penalized quadratically.
+The difference between the model prediction, denoted as $\bm{\tilde{y}}(\bm{\xi}^{(i)})$, and the true data point $\bm{y}^{(i)}$
+is penalized quadratically to learn the expected value of a data distribution.
 
 \subsection{Quantile Regression}
 \label{theory: quantile regression}
-By utilizig a loss function in form of the MSE, a NN is trained to approximate the expected value of a distribution of data points.
-To specify the prediction characteristic of a NN, the type of training loss function is decisive.
+By utilizing a loss function in form of the MSE, an NN is trained to approximate the expected value of a distribution of data points.
+To specify the prediction characteristic of an NN, the type of training loss function is decisive.
 In a probabilistic environment, the prediction of confidence intervals in the form of quantiles may be of major interest.
 To learn the quantiles of a distribution of data points, the \emph{quantile loss} or \emph{pinball loss} can be used (eq.~\ref{theory:eq: quantile loss}).
 
@@ -250,25 +252,25 @@ To learn the quantiles of a distribution of data points, the \emph{quantile loss
     \end{cases}
 \end{equation}
 
-The hyperparameter $\tau$ denotes the type and therefore position of the quantile. A small value for $\tau$, e.g.
-$0.05$ or $0.1$, strongly penalizes data points that are below the threshold $y < \tilde{y}(\bm{\theta})$ via the $(1-\tau)$-term
-to keep the quantile small. A high value for $\tau$, e.g. $0.95$, focuses on the penalization of data points above
+The hyperparameter $\tau$ denotes the type and therefore position of the quantile. A small value for $\tau$, e.g.,
+$0.05$ or $0.1$, strongly penalizes data points that are below the threshold $y < \tilde{y}(\bm{\theta})$ via the $(1-\tau)$ term
+to keep the quantile small. A high value for $\tau$ (e.g., $0.95$) focuses on the penalization of data points above
 the threshold $y \geq \tilde{y}(\bm{\theta})$ to include a greater amount of points.
 For robust optimization, \emph{quantile regression} can be applied to learn upper or lower bounds for the uncertainty-dependent
 constraints $F_i(\vu, \vw)$ (eq.~\ref{theroy:def: bi-level program}) in terms of confidence quantiles. This would reduce
-the semi-infinite program to an uncertainty-finite-program.
+the semi-infinite program to an uncertainty-finite program.
 
 
 \section{NARX Models}
 
 Because of their universal approximation capability \cite{hornik1990} and their differentiability, NNs are well suited
 as \emph{surrogate models} in MPC algorithms to approximate the system behavior represented by the function $f$ (def.~\ref{theory:def: general mpc}).
-When a NN is trained with data generated by a first principle model, the simulation is done offline from the MPC algorithm.
+When an NN is trained with data generated by a first principle model, the simulation is done offline from the MPC algorithm.
 This can significantly reduce the online solution time in contrast to first principle models \cite{salzmann2023}, because
 the latter require an expensive itegration routine. The general idea here is to forecast the measurements at a future
 time instant or instants as a function of past measurements and inputs (def.~\ref{theory:def: NARX Model}).
 
-\begin{definition} Time-discrete form of a NN to predict the future state, based on past information.
+\begin{definition} Time-discrete form of an NN to predict the future state based on past information.
     \label{theory:def: NARX Model}
     \[
      \begin{aligned}
@@ -280,7 +282,7 @@ time instant or instants as a function of past measurements and inputs (def.~\re
 \end{definition}
 
 In the discrete-time notation, the state at the next time instant $\vx_{k+1}$ is calculated by propagating the current
-state $\vx_k$ trough a function $f(\vx_k, \vu_k)$ that discribes the system dynamic (def.~\ref{theory:def: NARX Model}).
+state $\vx_k$ through a function $f(\vx_k, \vu_k)$ that discribes the system dynamic (def.~\ref{theory:def: NARX Model}).
 In the original MPC formulation (def.~\ref{theory:def: general mpc}) this is some numerical integration scheme for a system of differential equations \cite{biegler2010}
 with the abbreviation \emph{right-hand-side} (rhs). Since the states are often unaccessable for measuring in a real system,
 a measurement function $h$ maps the states to a measurement vector $\vy$, which can be effectively captured by process analytics.
@@ -290,18 +292,18 @@ without states. That is why, a state estimation technique becomes obsolete.
 \newline
 The measurement propagation by the $\mathcal{NN}$ is a classical example of time series extrapolation. NNs have shown significant
 capabilities in time series forecasting. Deep learning based architectures exist for time series forecasting
-in various complexities. Convolutional NNs (CNNs), Long-Short-Term-Memory (LSTMs) cells and Transformers are the most promiment for
+in various complexities. Convolutional NNs (CNNs), Long short-term memory (LSTMs), and Transformers are the most prominent for
 time series prediction with varying complexity \cite{benidis2022,vaswani2023}.
-These provide a great possibility to apply deep learning based forecasting within optimal control algorithms, where the next
+These provide a great opportunity to apply deep learning based forecasting within optimal control algorithms, where the next
 measurement $\bm{\tilde{y}}_{k+1}$ is the output of a neural network.
-In context of this work, shallow feedforward NNs or \emph{single-layer perceptrons} (SLPs) are used for this purpose which
-technically do belong to \emph{shallow learning} architectures.
+In context of this work, shallow feedforward NNs or \emph{single-layer perceptrons} (SLPs) are used for this purpose, which
+technically belong to \emph{shallow learning} architectures.
 \newline
 \newline
 In the realm of control, the non-linear system indendification is summarized with the term
-\emph{Non-linear AutoRegressive with eXogenous inputs} (NARX). Here, the term \emph{autoregressive} means, that
+\emph{Non-linear AutoRegressive with eXogenous inputs} (NARX). Here, the term \emph{autoregressive} means that
 the future prediction is a function of a series of past measurements \{$\vy_k, \vy_{k-1}, ..., \vy_{k-h}$\}, while \emph{exogenous}
-implies, that a series of outside inputs \{$\vu_k, \vu_{k-1}, ..., \vu_{k-h}$\} is passed to the function as well (def.~\ref{theory:def: NARX Model}).
+implies that a series of outside inputs \{$\vu_k, \vu_{k-1}, ..., \vu_{k-h}$\} is passed to the function as well (def.~\ref{theory:def: NARX Model}).
 The hyperparameter $h$ denotes the length of the time horizon of the past series. A high value for this parameter includes more
 past information, which possibly allows better predictions while increasing the network input.
 In fact, the determination of which and how many instants of past states and measurements to introduce, is part
@@ -316,25 +318,25 @@ Furthermore, the measurements are supposed to equal the states. Implicitly, the 
 
 The concatenated input feature vector $\bm{\phi}_k$ contains all past states and inputs within the time horizon $h$, leading
 to a vector length of $(n_x + n_u) \cdot (h+1)$, where $n_x$ and $n_u$ represent the number of states and inputs respectively. 
-For large systems, the input length increases the network size unacceptably quick, while the input time serieses often exhibit
+For large systems, the input length increases the network size unacceptably quick, while the input time series often exhibit
 strong redundacies. To reduce the input size, the feature vector $\bm{\phi}_k$ is passed to an \emph{encoder} \cite{kemmerling2025}.
-The encoder is based on feature compression via \emph{principal component analysis} (PCA), that maps the feature space to 
-a lower dimensional subspace via a linear orthogonal transformation. This subspace represents the space of the input data with the biggest variance.
+The encoder is based on feature compression via \emph{principal component analysis} (PCA) that maps the feature space to 
+a lower-dimensional subspace via a linear orthogonal transformation. This subspace represents the space of the input data with the biggest variance.
 This procedure is built on the concept of \emph{singular value decomposition} (SVD).
 
 \subsection{Singular Value Decomposition}
 \label{theory: svd}
 SVD is a fundamental building block in linear algebra. Its applications
 range from image compression, over exploratory data analysis to model reduction in fluid mechanics.
-The power of SVD is, that it maps a high dimensional space into a low dimensional subspace. The mapping is achieved by a simplistic matrix
+The power of SVD is, that it maps a high-dimensional space into a low-dimensional subspace. The mapping is achieved by a simplistic matrix
 transformation. It not only identifies a subspace, it also identifies underlying patterns in the data encoded
 via the respective \emph{singular vectors}. The compression and component indentification is guaranteed
 to exist for every matrix $\bm{X} \in \mathbb{C}^{n \times m}$ in contrast to an eigendecomposition \cite{Brunton2019}.
 \newline
 \newline
-The SVD is extremely useful, when high dimensional data is presented, that embeds some kind of pattern. For example,
-simulations of partial differential equations (PDEs), images as collections of pixels and time serieses exhibit strong patterns within the data.
-This is especcialy true for data points in close temporal or spatial distance. Because the SVD is the basis for
+The SVD is extremely useful when high-dimensional data is presented, that embeds some kind of pattern. For example,
+simulations of partial differential equations (PDEs), images as collections of pixels, and time series exhibit strong patterns within the data.
+This is especially true for data points in close temporal or spatial distance. Because the SVD is the basis for
 PCA to compress the feature vector $\bm{\phi}_k$ and \emph{model order reduction} (MOR) of ODEs
 or PDEs, it is explained in further detail. According to the SVD, any matrix $\bm{X} \in \mathbb{C}^{n \times m}$ can be decomposed
 into three submatrices (th.~\ref{theory:th: singular value decomposition}).
@@ -371,9 +373,9 @@ of dimension $r$ (eq.~\ref{theory:eq: svd projection}).
             \text{with} \quad \bm{\tilde{X}} \in \mathbb{C}^{r \times m}
         \end{gathered}
 \end{equation}
-The truncated matrix $\bm{\Psi}$ acts as the transformation matrix between the low dimensional space and the original space (eq.~\ref{theory:eq: svd projection}).
+The truncated matrix $\bm{\Psi}$ acts as the transformation matrix between the low-dimensional space and the original space (eq.~\ref{theory:eq: svd projection}).
 It is important to note, that the back transformation into the original space only yields an approximation of the original data.
-It can be prooven, that this approximation is the best existing one with respect to the Frobenius Norm as it solves following minimization \cite{Brunton2019} (eq.~\ref{theory:eq: svd minimization}).
+It can be proven, that this approximation is the best existing one with respect to the Frobenius norm as it solves following minimization \cite{Brunton2019} (eq.~\ref{theory:eq: svd minimization}).
 \begin{equation}
     \label{theory:eq: svd minimization}
     \begin{gathered}
@@ -382,7 +384,7 @@ It can be prooven, that this approximation is the best existing one with respect
     \end{gathered}
 \end{equation}
 Reentering the concept of neural network NARX models, the large vector of input features $\bm{\phi}_k$ (eq.~\ref{theory:eq: input feature vector})
-can be compressed via SVD into a low dimensional vector $\bm{\xi}_k$ that, when multiplied with the basis vectors,
+can be compressed via SVD into a low-dimensional vector $\bm{\xi}_k$ that, when multiplied with the basis vectors,
 approximates the original input (fig.~\ref{theory:fig: narx-pca-encoder}). This is done 
 by a \emph{PCA encoder} placed before the first layer of a NARX model to reduce the network size. 
 
@@ -390,7 +392,7 @@ by a \emph{PCA encoder} placed before the first layer of a NARX model to reduce 
     \centering
     \includegraphics[width=1\textwidth]{Figures/Theory/narx-pca-encoder.pdf}
     \caption[PCA encoder for feature reduction]
-    {The PCA encoder uses SVD to derive a projection matrix $\bm{\Psi}$ that maps the high dimensional feature vector
+    {The PCA encoder uses SVD to derive a projection matrix $\bm{\Psi}$ that maps the high-dimensional feature vector
     $\bm{\phi}_k$ to a lower dimensional feature vector $\bm{\xi}_k$ which is fed into a NARX model. This reduces the network size significantly,
     while retaining the most important information about the input.
     }

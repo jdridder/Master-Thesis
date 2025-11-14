@@ -3,25 +3,46 @@
 \contentsline {chapter}{Notation}{ix}{chapter*.4}%
 \contentsline {chapter}{List of Figures}{xiii}{chapter*.13}%
 \contentsline {chapter}{List of Tables}{xv}{chapter*.14}%
-\contentsline {chapter}{\numberline {1}Case Study}{1}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Reaction Kinetics}{1}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Packed-bed Tubular Reactor Model}{2}{section.1.2}%
-\contentsline {subsection}{\numberline {1.2.1}PDE System Derivation}{3}{subsection.1.2.1}%
-\contentsline {subsection}{\numberline {1.2.2}Discretization}{4}{subsection.1.2.2}%
-\contentsline {section}{\numberline {1.3}Parametric Uncertainty}{5}{section.1.3}%
-\contentsline {subsection}{\numberline {1.3.1}Radial bed heat conductivity}{6}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {1.3.2}Activation Energies and Pre-exponential factors}{6}{subsection.1.3.2}%
-\contentsline {section}{\numberline {1.4}Conservation of Atoms}{6}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Measurement Positions}{8}{section.1.5}%
-\contentsline {section}{\numberline {1.6}Experimental Setup}{9}{section.1.6}%
-\contentsline {subsection}{\numberline {1.6.1}Data Generation}{9}{subsection.1.6.1}%
-\contentsline {subsection}{\numberline {1.6.2}Training}{11}{subsection.1.6.2}%
-\contentsline {chapter}{\numberline {2}Results on Surrogate Model Performance}{13}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Training Effectivity}{13}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Physics Consistency}{13}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Simulation Capability}{17}{section.2.3}%
-\contentsline {chapter}{\numberline {3}Conclusions}{21}{chapter.3}%
-\contentsline {chapter}{\numberline {A}Datasheets}{23}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Parameter for ...}{23}{section.A.1}%
-\contentsline {chapter}{\numberline {B}Proofs}{25}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Proof of Theorem X}{25}{section.B.1}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Model Predictive Control under Uncertainty}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Robust Optimization}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Model Predictive Control}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Multi-Stage Model Predictive Control}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Neural Networks}{7}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Quantile Regression}{8}{subsection.2.4.1}%
+\contentsline {section}{\numberline {2.5}NARX Models}{8}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Input Compression}{9}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Singular Value Decomposition}{10}{subsection.2.5.2}%
+\contentsline {section}{\numberline {2.6}Uncertainty Quantification}{11}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Conservation of Atoms}{12}{section.2.7}%
+\contentsline {chapter}{\numberline {3}Surrogate Modelling}{13}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Framework for general Uncertainty Quantification}{13}{section.3.1}%
+\contentsline {section}{\numberline {3.2}NARX Framework for State Constraints}{14}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Quantile Conditioning}{14}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Weight Function}{15}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Physics-Constrained Neural Networks}{16}{section.3.3}%
+\contentsline {chapter}{\numberline {4}Case Study}{21}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Reaction Kinetics}{21}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Packed-bed Tubular Reactor Model}{22}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}PDE System Derivation}{23}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Discretization}{24}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}Parametric Uncertainty}{25}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Radial bed heat conductivity}{26}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Activation Energies and Pre-exponential factors}{26}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}Conservation of Atoms}{26}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Measurement Positions}{28}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Experimental Setup}{29}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Data Generation}{29}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Training}{31}{subsection.4.6.2}%
+\contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{33}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Training Effectivity}{33}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Physics Consistency}{33}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Simulation Capability}{37}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusions}{41}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets and Plots}{43}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Kinetic parameter normal distribution}{43}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Temperature Trajectories}{43}{section.A.2}%
+\contentsline {chapter}{\numberline {B}Proofs and Code}{45}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Forward pass through the physics constrained activation}{45}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Change in molar amount}{45}{section.B.2}%
+\contentsline {chapter}{Bibliography}{47}{appendix*.35}%

@@ -142,7 +142,7 @@ with narrow intervalls at $z=0.25L$ and wider intervals at $z=L$. Smaller interv
 challenging to predict, as the $0.9$-quantile NARX excludes the mean prediction at \SI{120}{\second} and
 $z=0.25L$. Crucially, the plotted quantile trajectories are simulated not only via recursive quantile temperature predicitions 
 but also via the conditioned NARX for the dimensionless concentration measure (fig.~\ref{case:fig:narx framework}).
-This may deteriorate the quantile prediction in contrast to the expected value NARX relying
+This may deteriorate the quantile prediction in contrast to the expected value NARX, which relies
 completely on least square regression. The according trajectories of $\bm{\chi}$ 
 for the concentration measure for ethylene oxide at the same reactor
 coordinates are presented (fig.~\ref{results:fig:vanilla_temperature_sim}).
@@ -192,9 +192,8 @@ noticably to the vanilla version (fig.~\ref{results:fig:vanilla_concentration_si
     \label{results:fig:naive_concentration_sim}
 \end{figure}
 
-When the fully physics constrained NARX architecture is sumlated forward in time, a small improvement can be
-noticed (fig.~\ref{results:fig:pc-concentration-sim}).
-
+When the fully physics constrained NARX architecture is simulated forward in time, a small improvement
+w.r.t the positioning of the quantile-conditioned boundaries can be noticed (fig.~\ref{results:fig:pc-concentration-sim}).
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_2.pdf}
@@ -204,3 +203,17 @@ noticed (fig.~\ref{results:fig:pc-concentration-sim}).
     vanilla NARX framework.}
     \label{results:fig:pc-concentration-sim}
 \end{figure}
+For the majority of time instances, the upper quantile-conditioned NARX (yellow) limits the expected value
+trajectory (green) to its top even for the narrow distribition at $z=0.25L$. The same yields for the lower
+quantile-conditioned NARX (purple), which limits the expected value to the bottom. Accordingly, the number
+of crossing events is reduced. This represent a slightly more meaningful estimation of the concentration measure
+by the fully physics constrained NARX framework than by the naive or vanilla versions.
+Because the a posteriori application of the physics constrained activation does not truly alter
+the resulting trajectories, the physics constrained activation 
+is assumed to enhance the learning capability of NARX models.
+This statement is underlined by and the significantly faster training convergence.
+In summary, model parameters are learned much better for
+equation governed data, when according equations are incorporated
+as an output activation function into a neural network \cite{chen2024}. The visible effect on
+the propageted temperature quantiles is minor, which is why, they are included
+within the appendix (figs.~\ref{app:fig:naive-temperature-sim} and \ref{app:fig:pc-temperature-sim}).

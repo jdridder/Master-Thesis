@@ -1,11 +1,8 @@
 \appendix
 
 
-\chapter{Datasheets}
-
-Did your work require long tables of parameters, e.g. to configure a system model. This table would distract the main part of the thesis but including it is an important aspect of scientific work. Please attach it here.
-
-\section{Parameter for ...}
+\chapter{Datasheets and Plots}
+\section{Kinetic parameter normal distribution}
 
 \begin{table}
     \label{app:tab: mean and covariance}
@@ -30,8 +27,32 @@ Did your work require long tables of parameters, e.g. to configure a system mode
     \end{tabular}
 \end{table}
 
-\chapter{Proofs}
 
+\section{Temperature Trajectories}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/test_with_naive_pc_-1.pdf}
+    \caption[Forward simulation of the naive NARX framework for the temperature quantiles.]
+    {Forward simulation of the NARX framework with the constrained activation applied a posteriori for 
+    \SI{480}{\second}.}
+    \label{app:fig:naive-temperature-sim}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_-1.pdf}
+    \caption[Forward simulation of the pc NARX framework for the temperature quantiles.]
+    {Forward simulation of the NARX framework with the constrained activation applied during training and simulation
+    for \SI{480}{\second}.}
+    \label{app:fig:pc-temperature-sim}
+\end{figure}
+
+\chapter{Proofs and Code}
+\section{Forward pass through the physics constrained activation}
+\label{app:code:forward-pass}
+
+
+\section{Change in molar amount}
+\label{app:molar-amount}
 \begin{equation}
     \begin{aligned}
         \Delta n_i &= x_{i,0} n_0 - x_i n = x_{i,0} \frac{p_0 V_0}{\mathrm{R} T_0} - x_i \frac{p V}{\mathrm{R} T} \quad | \; \text{isobaric, non-compressible} \\
@@ -40,8 +61,3 @@ Did your work require long tables of parameters, e.g. to configure a system mode
                 &= ( \chi_{i,0} - \chi_{i} ) \frac{pV}{\mathrm{R}} \frac{x_*}{T_*}
     \end{aligned}
 \end{equation}
-
-Did you introduce  lemmas or theorems with lengthy proofs? Including them in the main part of the thesis might be distracting. You can also include them in the appendix.
-
-\section{Proof of Theorem X}
-...
