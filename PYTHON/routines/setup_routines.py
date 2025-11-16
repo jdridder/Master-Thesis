@@ -17,6 +17,12 @@ from neurals.TorchPredictors import PCStatePredictor, StatePredictor
 from .data_structurizer import DataStructurizer
 
 
+class ScenarioTypes(Enum):
+    Nominal = "nominal"
+    Upper = "upper"
+    Lower = "lower"
+
+
 class SurrogateTypes(Enum):
     Rigorous = "rigorous"
     Rom = "rom"
@@ -130,37 +136,52 @@ def configure_rigorous_model(meta_model: EtOxModel) -> Model:
     return model
 
 
-def configure_dompc_model(model_type: Type[SurrogateTypes], sim_cfg: Dict, data_structurizer: DataStructurizer, meta_model: EtOxModel, model_parameter_dir: str, scenario: str) -> Model:
-    if model_type == SurrogateTypes.Rom.value:
-        dompc_model = configure_rom_surrogate(
-            data_structurizer=data_structurizer,
-            super_model=meta_model,
-            model_parameter_dir=model_parameter_dir,
-        )
-    elif model_type == SurrogateTypes.Rigorous.value:
+def configure_dompc_model(
+    model_type: Type[SurrogateTypes],
+    meta_model: EtOxModel,
+    sim_cfg: Optional[Dict] = None,
+    data_structurizer: Optional[DataStructurizer] = None,
+    model_parameter_dir: Optional[str] = None,
+    scenario: Optional[Type[ScenarioTypes]] = None,
+) -> Model:
+    if model_type == SurrogateTypes.Rigorous.value:
         dompc_model = configure_rigorous_model(meta_model=meta_model)
-    elif model_type == SurrogateTypes.Vanilla.value or SurrogateTypes.Naive.value or SurrogateTypes.Pc.value:
-        with_opt_layer = True if model_type == SurrogateTypes.Naive.value else False
-        nn_module_cls = PCStatePredictor if model_type == SurrogateTypes.Pc.value else StatePredictor
-        narx_expressions, dompc_model = get_narx_expressions(
-            data_structurizer=data_structurizer,
-            model_parameter_dir=model_parameter_dir,
-            simulation_cfg=sim_cfg,
-            module_cls=nn_module_cls,
-            scenarios=scenario,
-            super_model=meta_model,
-            with_opt_layer=with_opt_layer,
-        )
-        dompc_model = configure_narx_surrogate(
-            data_structurizer=data_structurizer,
-            simulation_cfg=sim_cfg,
-            super_model=meta_model,
-            surrogate_expressions=narx_expressions,
-            surrogate=dompc_model,
-            scenario=scenario,
-        )
     else:
-        raise NotImplementedError(f"The provided surrogate type {model_type} is not implemented.")
+        assertion_error_message = f"must be provided to create surrogate {model_type}"
+        assert model_parameter_dir is not None, f"A model parameter path {assertion_error_message}."
+        assert data_structurizer is not None, f"A DataStructurizer {assertion_error_message}."
+
+        if model_type == SurrogateTypes.Rom.value:
+            dompc_model = configure_rom_surrogate(
+                data_structurizer=data_structurizer,
+                super_model=meta_model,
+                model_parameter_dir=model_parameter_dir,
+            )
+        elif model_type == SurrogateTypes.Vanilla.value or SurrogateTypes.Naive.value or SurrogateTypes.Pc.value:
+            assert scenario is not None, f"A scenario {assertion_error_message}."
+            assert sim_cfg is not None, f"A simulation cfg dict {assertion_error_message}."
+
+            with_opt_layer = True if model_type == SurrogateTypes.Naive.value else False
+            nn_module_cls = PCStatePredictor if model_type == SurrogateTypes.Pc.value else StatePredictor
+            narx_expressions, dompc_model = get_narx_expressions(
+                data_structurizer=data_structurizer,
+                model_parameter_dir=model_parameter_dir,
+                simulation_cfg=sim_cfg,
+                module_cls=nn_module_cls,
+                scenarios=scenario,
+                super_model=meta_model,
+                with_opt_layer=with_opt_layer,
+            )
+            dompc_model = configure_narx_surrogate(
+                data_structurizer=data_structurizer,
+                simulation_cfg=sim_cfg,
+                super_model=meta_model,
+                surrogate_expressions=narx_expressions,
+                surrogate=dompc_model,
+                scenario=scenario,
+            )
+        else:
+            raise NotImplementedError(f"The provided surrogate type {model_type} is not implemented.")
     return dompc_model
 
 

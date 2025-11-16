@@ -10,14 +10,6 @@
 \usepackage{textcomp}
 
 %% Features %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\usepackage[
-	colorlinks=true,
-	linkcolor=black,
-	citecolor=black,
-	filecolor=magenta,  
-	urlcolor=cyan,
-	pdfauthor={TU Dortmund PAS-BCI Student},
-]{hyperref}
 %\hypersetup{
 %	colorlinks=true,
 %	linkcolor=blue,
@@ -79,13 +71,14 @@ marginparwidth=25mm,
 \clubpenalty = 10000
 \widowpenalty = 10000
 \displaywidowpenalty = 10000
+\setlength{\headheight}{13.6pt}
 
 
 % If you want to use tikz plots exported from pyplot
-\usepackage{pgfplots}
-\usepgfplotslibrary{groupplots,dateplot}
-\usetikzlibrary{patterns,shapes.arrows}
-\pgfplotsset{compat=newest}
+% \usepackage{pgfplots}
+% \usepgfplotslibrary{groupplots,dateplot}
+% \usetikzlibrary{patterns,shapes.arrows}
+% \pgfplotsset{compat=newest}
 
 % Package for including pdf pages (Used for Affdavit)
 \usepackage{pdfpages}
@@ -134,8 +127,8 @@ marginparwidth=25mm,
 
 \usepackage{anyfontsize}
 \usepackage{fontspec}
-% \setsansfont[Path=config/fonts/,BoldFont=Akkurat-Bold.ttf,ItalicFont=Akkurat-LightItalic.ttf]{Akkurat-Light.ttf}
-% \setmainfont[Path=config/fonts/,BoldFont=Akkurat-Bold.ttf,ItalicFont=Akkurat-LightItalic.ttf]{Akkurat-Light.ttf} 
+\setsansfont[Path=config/fonts/,BoldFont=Akkurat-Bold.ttf,ItalicFont=Akkurat-LightItalic.ttf]{Akkurat-Light.ttf}
+\setmainfont[Path=config/fonts/,BoldFont=Akkurat-Bold.ttf,ItalicFont=Akkurat-LightItalic.ttf]{Akkurat-Light.ttf} 
 
 
 %% User defined commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -168,3 +161,12 @@ marginparwidth=25mm,
 \newtheorem{definition}{Definition}[chapter]
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}[chapter]
+
+\usepackage[
+	colorlinks=true,
+	linkcolor=black,
+	citecolor=black,
+	filecolor=magenta,  
+	urlcolor=cyan,
+	pdfauthor={Jan-David Ridder},
+]{hyperref}

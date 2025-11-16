@@ -14,10 +14,10 @@ well as retain the \emph{performance} with respect to the objective function.
 
 \section{Robust Optimization}
 
-The following optimization task (\ref{theroy:def: semi-infinite program}) under an uncertainty vector $\vw$
+The following optimization task (\ref{theory:def:semi-infinite-program}) under an uncertainty vector $\vw$
 may be considered.
 \begin{definition} Semi-infinite program with the uncertainty $\vw$.
-    \label{theroy:def: semi-infinite program}
+    \label{theory:def:semi-infinite-program}
     \[
     \begin{gathered}
         \underset{\vu}{\min} \; \underset{\vw}{\max} \quad F_0(\vu, \vw) \\
@@ -33,10 +33,10 @@ seeks a minimum solution for the input $\vu$, while the opposing player (nature)
 disturbance variables $\vw$. The inequality constraints $F_i$ in addition, should be satisfied for all possible disturbances, that
 lie in a defined set $\mathbb{W}$. If this set is not finite, the number of possible 
 constraints to be satisifed is infintely big. Thus, this formulation is named as \emph{semi-infinite-program} \cite{stein2003}.
-To reduce the number of constraints, the worst case estimate can be applied here (\ref{theroy:def: bi-level program}). 
+To reduce the number of constraints, the worst case estimate can be applied here (\ref{theory:def: bi-level program}). 
 
 \begin{definition} Bi-level formulation of the semi-infinite program
-    \label{theroy:def: bi-level program}
+    \label{theory:def: bi-level program}
     \[
     \begin{gathered}
         \underset{\vu}{\min} \; \underset{\vw}{\max} \quad F_0(\vu, \vw) \\
@@ -257,7 +257,7 @@ $0.05$ or $0.1$, strongly penalizes data points that are below the threshold $y 
 to keep the quantile small. A high value for $\tau$ (e.g., $0.95$) focuses on the penalization of data points above
 the threshold $y \geq \tilde{y}(\bm{\theta})$ to include a greater amount of points.
 For robust optimization, \emph{quantile regression} can be applied to learn upper or lower bounds for the uncertainty-dependent
-constraints $F_i(\vu, \vw)$ (eq.~\ref{theroy:def: bi-level program}) in terms of confidence quantiles. This would reduce
+constraints $F_i(\vu, \vw)$ (eq.~\ref{theory:def: bi-level program}) in terms of confidence quantiles. This would reduce
 the semi-infinite program to an uncertainty-finite program.
 
 

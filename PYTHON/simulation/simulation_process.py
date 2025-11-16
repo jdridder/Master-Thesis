@@ -14,20 +14,20 @@ from .simulation import simulate
 class SimulationProcess(Process):
     def __init__(
         self,
+        cfg: Dict,
         result_queue: Queue,
         name: str,
-        cfg: Dict,
+        t_steps: int,
         meta_model: EtOxModel,
         dompc_model_type: Type[SurrogateTypes],
-        model_parameter_dir: str,
-        t_steps: int,
-        scenario: str,
-        data_structurizer: DataStructurizer,
         save_kwargs: Dict,
         tvp_signals: np.ndarray,
         input_signals: Union[np.ndarray, List[np.ndarray]],
         initial_states: Union[np.ndarray, List[np.ndarray]],
-        model_parameters: np.ndarray = None,
+        scenario: Optional[str] = None,
+        model_parameter_dir: Optional[str] = None,
+        data_structurizer: Optional[DataStructurizer] = None,
+        model_parameters: Optional[np.ndarray] = None,
         index: Optional[np.ndarray] = None,
         integration_opts: Optional[Dict] = None,
     ) -> None:
@@ -58,36 +58,38 @@ class SimulationProcess(Process):
             meta_model=self.meta_model,
             model_parameter_dir=self.model_parameter_dir,
         )
-        simulate(
+        result_arr = simulate(
             simulation_cfg=self.cfg,
             n_time_steps=self.t_steps,
             do_mpc_model=do_mpc_model,
             tvp_signals=self.tvp_signals,
             initial_states=self.initial_states,
-            model_parameters=self.model_params,
+            physical_params=self.model_params,
             input_signals=self.input_signals,
             process_name=self.name,
             index=self.index,
             integration_opts=self.integration_opts,
             **self.save_kwargs,
         )
+        if result_arr:
+            self.result_queue.put(result_arr)
 
 
 def run_parallel_simulations(
     simulation_cfg: Dict,
-    model_parameter_dir: str,
-    meta_model: Dict,
+    meta_model: EtOxModel,
     model_type: Type[SurrogateTypes],
-    scenario: str,
-    data_structurizer: DataStructurizer,
     t_steps: int,
     tvp_signals: np.ndarray,
     input_signals: np.ndarray,
     initial_states: np.ndarray,
     save_kwargs: Dict,
+    model_parameter_dir: Optional[str] = None,
+    scenario: Optional[str] = None,
+    data_structurizer: Optional[DataStructurizer] = None,
     index: Optional[np.ndarray] = None,
-    n_workers: int = 10,
-    model_params: np.ndarray = None,
+    n_workers: Optional[int] = 10,
+    model_params: Optional[np.ndarray] = None,
     integration_opts: Optional[Dict] = None,
 ):
     """Either the input signal is constant and given across all simulations or it is randomly generated every signle time."""
@@ -131,4 +133,9 @@ def run_parallel_simulations(
         proc.start()
     # wait for all processes to join
     [proc.join() for proc in procss]
+    results_concat = []
+    while not results_queue.empty():
+        results_concat.append(results_queue.get_nowait())
+    results_concat = np.concatenate(results_concat, axis=0)
     print("Processes joined.")
+    return results_concat

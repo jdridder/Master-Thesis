@@ -2,7 +2,7 @@ import datetime
 import inspect
 import json
 import os
-from typing import Any, Callable, Dict, Iterable, List
+from typing import Any, Callable, Dict, Iterable, List, Optional
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -77,6 +77,34 @@ def load_json_results(result_dir: str, n_trajectories: int = -1) -> Dict[str, np
             merged[key] = np.stack(arrays, axis=0)
 
     return merged
+
+
+def apply_to_double_dict(double_dict: Dict[str, Dict[str, np.ndarray]], fn: Callable, **kwargs: Optional[Dict]) -> Dict[str, Dict[str, np.ndarray]]:
+    """
+    Applies a callable function (fn) to every np.ndarray value within a two-level nested dictionary.
+
+    A new dictionary structure is returned, preserving the original keys.
+
+    Parameters
+    ----------
+    double_dict : Dict[str, Dict[str, np.ndarray]]
+        The nested dictionary containing arrays.
+    fn : Callable
+        The function to apply to each array.
+    **kwargs : Optional[Dict]
+        Additional keyword arguments passed to `fn`.
+
+    Returns
+    -------
+    Dict[str, Dict[str, np.ndarray]]
+        A new nested dictionary containing the results.
+    """
+    new_dict = {}
+    for parent_key, child_dict in double_dict.items():
+        new_dict[parent_key] = {}
+        for child_key, child_arr in child_dict.items():
+            new_dict[parent_key][child_key] = fn(child_arr, **kwargs)
+    return new_dict
 
 
 def merge_dict(dict_list: List[Dict]) -> Dict:

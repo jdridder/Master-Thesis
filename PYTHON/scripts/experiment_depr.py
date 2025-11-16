@@ -29,6 +29,7 @@ def run_certain_open_loop_experiment(
     data_structurizer: DataStructurizer,
     n_test_trajectories: int = -1,
 ):
+    print("--- Warning experiment 001 is will become deprecated. Use as template only. ---")
     # create folder for the date
     experiment_name = "001_certain_open_loop_kpis"
     experiment_dir = os.path.join(experiments_directory, experiment_name)

@@ -24,7 +24,7 @@ data_cfg = {
         "vary_tvp": False,
         "tvp_bounds": (0.2, 0.4),
         "use_true_model_params": False,  # False samples new parameters for every simulation
-        "covaraince_gain": 3,
+        "covariance_gain": 3,
         "lam_bed_std": 0.08,
         "t_steps": 512,
         "tvp_signal_tau": 35,
@@ -301,3 +301,13 @@ test_cfg_list = [
         },
     },
 ]
+
+uq_test_cfg = {
+    "n_experiments": 10,
+    "N_fp_trajects": 10,
+    "n_fp_workers": 2,
+    "t_steps": 32,
+    "warm_up_steps": 10,
+}
+
+# fp = first principle
