@@ -17,7 +17,7 @@ from postprocessing.performance_metrics import *
 from postprocessing.plot import *
 from postprocessing.plotting_helpers import format_legend, make_colors
 from routines.data_structurizer import DataStructurizer
-from routines.utils import apply_to_double_dict, get_directory_for_today
+from routines.utils import NumpyEncoder, apply_to_double_dict, get_directory_for_today, load_json_results
 from simulation.data_generation import generate_data_for_specs
 from simulation.open_loop import run_open_loop
 from simulation.simulation import generate_random_ramp_signal
@@ -42,138 +42,114 @@ def run_coverage_width(
     test_data_cfg = data_cfg.get("test")
 
     trained_model_dir = os.path.join(current_experiment_working_dir, "trained_models")
+    results_dir = os.path.join(current_experiment_working_dir, "results")
+    plot_dir = os.path.join(current_experiment_working_dir, "plots")
+    os.makedirs(results_dir, exist_ok=True)
+    os.makedirs(plot_dir, exist_ok=True)
 
     initial_state = meta_model.get_initial_state()
 
+    # --- Perform the simulations ----
     for run_i in range(uq_test_cfg.get("n_experiments", 2)):
-        t_start = time.perf_counter()
-        print(f"--- Running coverage and intervall width calc for run {run_i} ---.")
+        save_path_for_run = os.path.join(results_dir, f"run_{run_i}.json")
+        if not os.path.exists(save_path_for_run):
+            t_start = time.perf_counter()
+            print(f"--- Running coverage and intervall width calc for run {run_i} ---.")
 
-        input_trajectory = generate_random_ramp_signal(
-            feature_bounds=test_data_cfg.get("input_bounds"),
-            num_steps=test_data_cfg.get("t_steps"),
-            time_step=sim_cfg["simulation"].get("t_step", 1),
-            tau=test_data_cfg.get("input_signal_tau"),
+            input_trajectory = generate_random_ramp_signal(
+                feature_bounds=test_data_cfg.get("input_bounds"),
+                num_steps=test_data_cfg.get("t_steps"),
+                time_step=sim_cfg["simulation"].get("t_step", 1),
+                tau=test_data_cfg.get("input_signal_tau"),
+            )
+            tvp_trajectory = generate_random_ramp_signal(
+                feature_bounds=test_data_cfg.get("tvp_bounds"),
+                num_steps=test_data_cfg.get("t_steps"),
+                time_step=sim_cfg["simulation"].get("t_step", 1),
+                tau=test_data_cfg.get("tvp_signal_tau"),
+            )
+
+            # sample parameters
+            sampled_parameters = meta_model.sample_parameters(
+                n_batches=uq_test_cfg.get("N_fp_trajects", None),
+                covariance_gain=test_data_cfg.get("covariance_gain", None),
+                lam_bed_std=test_data_cfg.get("lam_bed_std", None),
+            )
+
+            # run first principle model N times
+            first_principle_results = run_parallel_simulations(
+                simulation_cfg=sim_cfg,
+                meta_model=meta_model,
+                t_steps=uq_test_cfg.get("t_steps"),
+                model_type=SurrogateTypes.Rigorous.value,
+                initial_states=np.repeat(initial_state, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
+                tvp_signals=np.repeat(tvp_trajectory, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
+                input_signals=np.repeat(input_trajectory, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
+                model_params=sampled_parameters,
+                run_cfg={"save_as": "return", "save_variable_types": ["_y", "_u", "_tvp"]},
+                n_workers=uq_test_cfg.get("n_fp_workers", 1),
+            )
+
+            # run surrogates once
+            # run for vanilla, naive_pc, pc, only upper and lower quantile models
+            narx_result_dict = {}
+            init_data = first_principle_results.mean(axis=0, keepdims=True)
+            warm_up_steps = uq_test_cfg.get("warm_up_steps")
+            for surrogate_key, state_dict_folder in zip(uq_test_cfg.get("surrogate_types"), uq_test_cfg.get("state_dict_folders")):
+                final_model_parameter_dir = os.path.join(trained_model_dir, state_dict_folder)
+                if surrogate_key not in narx_result_dict.keys():
+                    narx_result_dict[surrogate_key] = {}
+
+                for scenario_key in ["upper", "lower"]:
+                    narx_result = run_open_loop(
+                        sim_cfg=sim_cfg,
+                        meta_model=meta_model,
+                        data_structurizer=data_structurizer,
+                        t_steps=uq_test_cfg.get("t_steps") - warm_up_steps,
+                        warm_up_steps=warm_up_steps,
+                        surrogate_type=surrogate_key,
+                        scenario=scenario_key,
+                        model_parameter_dir=final_model_parameter_dir,
+                        initialization_data=init_data,
+                        run_cfg={"save_as": "return", "save_variable_types": ["_y"]},
+                        n_workers=uq_test_cfg.get("n_narx_workers", 1),
+                    )
+                    narx_result_dict[surrogate_key][scenario_key] = data_structurizer.get_states_from_data(data=narx_result, state="T")
+
+            # ----- Calculate intervall widths and coverages for the temperature quantiles -----
+            intervall_dict = calculate_intervall_width(narx_result_dict)
+            fp_temperature_trajects = data_structurizer.get_states_from_data(data=first_principle_results, state="T")
+            coverage_dict = calculate_coverage(surrogate_dict=narx_result_dict, test_data=fp_temperature_trajects[:, warm_up_steps:])
+
+            # save as
+            for surrogate_key in intervall_dict:
+                intervall_dict[surrogate_key].update(**coverage_dict[surrogate_key])
+
+            with open(save_path_for_run, "w") as f:
+                f.write(json.dumps(intervall_dict, cls=NumpyEncoder, indent=4))
+
+            duration = time.perf_counter() - t_start
+            print(f"--- Experimental run took {duration:.3f} s. ---")
+
+    # --- Analysis ---
+    width_coverage_dict = load_json_results(result_dir=results_dir)
+    # print(width_coverage_dict)
+
+    # ---- Plotting functions
+    deep_colors = make_colors(4)
+    for surrogate_key, surrogate_dict in width_coverage_dict.items():
+        plot_coverage_width_vs_z(
+            z_coords=np.arange(0.25, 1.25, step=0.25),
+            coverage_width_dict={surrogate_key: surrogate_dict},
+            save_dir=plot_dir,
+            plot_cfg={
+                "colors": {"coverage": deep_colors[0], "intervall_width": deep_colors[2]},
+                "ylabels": {"intervall_width": "intervall width / -", "coverage": "coverage / -"},
+                "ylims": {"intervall_width": (0, 0.2), "coverage": (0, 1.05)},
+                "xlims": (0, 1.25),
+            },
+            save_cfg={"export_name": f"{surrogate_key}_coverage_width"},
         )
-        tvp_trajectory = generate_random_ramp_signal(
-            feature_bounds=test_data_cfg.get("tvp_bounds"),
-            num_steps=test_data_cfg.get("t_steps"),
-            time_step=sim_cfg["simulation"].get("t_step", 1),
-            tau=test_data_cfg.get("tvp_signal_tau"),
-        )
-
-        # sample parameters
-        sampled_parameters = meta_model.sample_parameters(
-            n_batches=uq_test_cfg.get("N_fp_trajects", None),
-            covariance_gain=test_data_cfg.get("covariance_gain", None),
-            lam_bed_std=test_data_cfg.get("lam_bed_std", None),
-        )
-
-        # run first principle model N times
-        first_principle_results = run_parallel_simulations(
-            simulation_cfg=sim_cfg,
-            meta_model=meta_model,
-            t_steps=uq_test_cfg.get("t_steps"),
-            model_type=SurrogateTypes.Rigorous.value,
-            initial_states=np.repeat(initial_state, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
-            tvp_signals=np.repeat(tvp_trajectory, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
-            input_signals=np.repeat(input_trajectory, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
-            model_params=sampled_parameters,
-            run_cfg={"save_as": "return", "save_variable_types": ["_y", "_u", "_tvp"]},
-            n_workers=uq_test_cfg.get("n_fp_workers", 1),
-        )
-
-        # run surrogates once
-        # run for vanilla, naive_pc, pc, only upper and lower quantile models
-        narx_result_dict = {}
-        init_data = first_principle_results.mean(axis=0, keepdims=True)
-        for surrogate_key, state_dict_folder in zip(uq_test_cfg.get("surrogate_types"), uq_test_cfg.get("state_dict_folders")):
-            final_model_parameter_dir = os.path.join(trained_model_dir, state_dict_folder)
-            if surrogate_key not in narx_result_dict.keys():
-                narx_result_dict[surrogate_key] = {}
-
-            for scenario_key in ["upper", "lower"]:
-                narx_result = run_open_loop(
-                    sim_cfg=sim_cfg,
-                    meta_model=meta_model,
-                    data_structurizer=data_structurizer,
-                    t_steps=uq_test_cfg.get("t_steps") - uq_test_cfg.get("warm_up_steps"),
-                    warm_up_steps=uq_test_cfg.get("warm_up_steps"),
-                    surrogate_type=surrogate_key,
-                    scenario=scenario_key,
-                    model_parameter_dir=final_model_parameter_dir,
-                    initialization_data=init_data,
-                    run_cfg={"save_as": "return", "save_variable_types": ["_y"]},
-                    n_workers=uq_test_cfg.get("n_narx_workers", 1),
-                )
-                narx_result_dict[surrogate_key][scenario_key] = narx_result
-
-        # calculate intervall width
-
-        # save as .npy
-        print(narx_result_dict)
-
-        duration = time.perf_counter() - t_start
-        print(f"--- Experimental run took {duration:.3f} s. ---")
-        exit()
-
-    # load npy files
-
-    # summarize
-
-    # make plots
-
-    # # ----- Calculate intervall widths -----
-    # intervall_widths = calculate_intervall_width(result_dict)
-    # intervall_widths_by_state = separate_into_state_by_slice(
-    #     intervall_widths,
-    #     state_slices=[slice(None, 5), slice(5, None)],
-    #     scaling_factors=[sim_cfg["scales"].get("c"), sim_cfg["scales"].get("T")],
-    #     apply=[np.mean, None],
-    #     axes=[-1, None],
-    # )
-
-    # # coverages = {}
-    # # reduced_test_data = data_structurizer.reduce_measurements(test_data)
-    # # test_data_states = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(reduced_test_data)[:, :n_time_steps_test])
-
-    # # states_upper = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(results_for_surrogate["upper"]["_x"]))
-    # # states_lower = data_structurizer.get_states_at_measurements(data_structurizer.get_states_from_data(results_for_surrogate["lower"]["_x"]))
-
-    # # states_lower.shape == states_upper.shape == test_data_states.shape
-    # # # ----- Calculation of coverages. -------
-    # # states_inside = np.logical_and(absolute_upper >= test_data_states, test_data_states >= absolute_lower)
-    # # coverage = np.count_nonzero(states_inside, axis=0) / states_inside.shape[0]
-    # # coverages[surrogate_entry.name] = coverage
-
-    # # ---- Plotting functions
-    # for key, intervall_state_slice in zip(["states", "temp"], intervall_widths_by_state):
-    #     plot_intervall_widths(
-    #         time=time,
-    #         intervall_widths_dict=intervall_state_slice,
-    #         save_dir=plot_dir,
-    #         plot_cfg={
-    #             "ylabels": [r"$z = 0.25 L$", r"$z = L$"],
-    #             "legend_y_pos": 1.3,
-    #             "legend_cols": 4,
-    #         },
-    #         save_cfg={
-    #             "export_name": f"intervall_widths_{key}",
-    #         },
-    #     )
-
-    # coverage_for_state_slice = {surr_key: cov[:, state_slice].reshape((n_time_steps_test, -1)).mean(axis=-1) for surr_key, cov in coverages.items()}
-    #     plot_intervall_coverages(
-    #         time=time,
-    #         coverages_dict=coverage_for_state_slice,
-    #         save_dir=plot_dir,
-    #         plot_cfg={
-    #             "legend_y_pos": 1.15,
-    #         },
-    #         save_cfg={
-    #             "export_name": f"coverages_{key}",
-    #         },
-    #     )
 
     # calculate and plot the KPIs
     # 1. coverage as f(t) over the complete horizon
@@ -183,29 +159,6 @@ def run_coverage_width(
     # 2. intervall with
     # -> increases over the horizon?
     # pc narx smaller intervalls than narx?
-
-    # traj_validation_dir = os.path.join(plot_dir, "surrogate_trajectories")
-    # if not os.path.exists(traj_validation_dir):
-    #     plot_random_trajectories(
-    #         sim_cfg=sim_cfg,
-    #         n_trajectories=3,
-    #         result_dir=result_directory,
-    #         save_to_dir=traj_validation_dir,
-    #         test_data=test_data,
-    #         filter_test_trajectories=False,
-    #         plot_cfg={
-    #             "t_steps": 480,
-    #             "legend_y_pos": 1.35,
-    #             "ylabel_size": 20,
-    #             "test_data_color": make_colors(4, alpha=0.1)[1],
-    #             "annotations": ["mse"],
-    #         },
-    #         save_cfg={
-    #             "export_name": None,
-    #             "save_meta": True,
-    #             "show_fig": False,
-    #         },
-    #     )
 
     print(f"---- {exp_name} finished. -----")
 

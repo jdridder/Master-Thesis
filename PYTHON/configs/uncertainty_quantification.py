@@ -303,14 +303,14 @@ test_cfg_list = [
 ]
 
 uq_test_cfg = {
-    "n_experiments": 10,
-    "N_fp_trajects": 2,
-    "n_fp_workers": 2,
+    "n_experiments": 8,
+    "N_fp_trajects": 100,
+    "n_fp_workers": 10,
     "n_narx_workers": 1,
-    "t_steps": 32,
+    "t_steps": 128,
     "warm_up_steps": 10,
-    "surrogate_types": ["vanilla"],
-    "state_dict_folders": ["vanilla"],
+    "surrogate_types": ["vanilla", "pc_narx", "pc"],
+    "state_dict_folders": ["vanilla", "vanilla", "pc"],
 }
 
 # fp = first principle

@@ -280,9 +280,21 @@ def calculate_intervall_width(
         lower_bound = surrogate_scenario_dict["lower"]
         assert upper_bound.shape == lower_bound.shape, f"Upper states {upper_bound.shape}, lower states {lower_bound.shape} must have same shape."
         difference = upper_bound - lower_bound
-        intervall_widths[surrogate_key] = np.abs(difference)
+        intervall_widths[surrogate_key] = {}
+        intervall_widths[surrogate_key]["intervall_width"] = np.abs(difference)
     # returned shape is {surrogate: np.ndarray (..., n_states)}
     return intervall_widths
+
+
+def calculate_coverage(surrogate_dict: Dict[str, Dict[str, np.ndarray]], test_data: np.ndarray):
+    coverage_dict = {}
+    for surrogate_key, scenario_dict in surrogate_dict.items():
+        assert "upper" and "lower" in scenario_dict.keys(), "'upper' and 'lower must be in dict to calculate the coverage.'"
+        points_inside = np.logical_and(scenario_dict["upper"] >= test_data, test_data >= scenario_dict["lower"])
+        coverage = np.count_nonzero(points_inside, axis=0) / test_data.shape[0]
+        coverage_dict[surrogate_key] = {}
+        coverage_dict[surrogate_key]["coverage"] = coverage
+    return coverage_dict
 
 
 def separate_into_state_by_slice(

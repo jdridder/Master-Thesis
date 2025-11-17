@@ -46,7 +46,26 @@ def _load_single_json(file_path: str) -> Dict[str, Any]:
     return data
 
 
-def load_json_results(result_dir: str, n_trajectories: int = -1) -> Dict[str, np.ndarray]:
+def load_json_results(result_dir: str, n_trajectories: int = -1) -> Dict[str, Any]:
+    """
+    Loads JSON result files from a directory and stacks their content into numpy arrays.
+
+    The function identifies JSON files in the specified directory (excluding files with 'meta'
+    in the name), loads them in parallel, and recursively merges the data. Leaf nodes (arrays
+    or lists) from all files are stacked along the first dimension (axis 0).
+
+    Args:
+        result_dir (str): Path to the directory containing the JSON files.
+        n_trajectories (int, optional): Number of files to sample randomly.
+                                        If -1, all files are loaded. Defaults to -1.
+
+    Returns:
+        Dict[str, Any]: A dictionary preserving the structure of the input JSONs,
+                        where the lowest level values are stacked numpy arrays.
+
+    Raises:
+        FileNotFoundError: If no valid JSON files are found in the directory.
+    """
     all_files = [f for f in os.listdir(result_dir) if f.endswith(".json") and "meta" not in f]
 
     if not all_files:
@@ -64,19 +83,24 @@ def load_json_results(result_dir: str, n_trajectories: int = -1) -> Dict[str, np
     if not json_list:
         return {}
 
-    merged = {}
-    for key in json_list[0]:
-        if key == "meta_data":
-            for meta_key in json_list[0]["meta_data"]:
-                arrays = [d[key][meta_key] for d in json_list]
-                merged[meta_key] = np.array(arrays)
-        else:
-            arrays = [d[key] for d in json_list]
-            if not all(isinstance(a, np.ndarray) and a.shape == arrays[0].shape for a in arrays):
-                raise ValueError(f"Arrays for key '{key}' have inconsistent shape.")
-            merged[key] = np.stack(arrays, axis=0)
+    def _recursive_stack(list_of_dicts: List[Dict[str, Any]]) -> Dict[str, Any]:
+        if not list_of_dicts:
+            return {}
 
-    return merged
+        reference_dict = list_of_dicts[0]
+        stacked_result = {}
+
+        for key, value in reference_dict.items():
+            if isinstance(value, dict):
+                sub_list = [d[key] for d in list_of_dicts]
+                stacked_result[key] = _recursive_stack(sub_list)
+            else:
+                arrays_to_stack = [d[key] for d in list_of_dicts]
+                stacked_result[key] = np.stack(arrays_to_stack, axis=0)
+
+        return stacked_result
+
+    return _recursive_stack(json_list)
 
 
 def apply_to_double_dict(double_dict: Dict[str, Dict[str, np.ndarray]], fn: Callable, **kwargs: Optional[Dict]) -> Dict[str, Dict[str, np.ndarray]]:

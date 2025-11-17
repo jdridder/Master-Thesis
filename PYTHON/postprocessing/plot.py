@@ -745,6 +745,74 @@ def plot_intervall_widths(
         plt.show()
 
 
+def plot_coverage_width_vs_z(
+    z_coords: np.ndarray,
+    coverage_width_dict: Dict[str, Dict[str, np.ndarray]],
+    save_dir: str,
+    plot_cfg: Optional[Dict] = None,
+    save_cfg: Optional[Dict] = None,
+):
+
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+
+    final_save_path = os.path.join(save_dir, f"{save_cfg.get("export_name", "coverage_width")}.pdf")
+
+    # if not os.path.exists(final_save_path):
+    color_dict = plot_cfg.get("colors", {})
+    ylabel_dict = plot_cfg.get("ylabels", {})
+    ylims_dict = plot_cfg.get("ylims", {})
+    n_plots = len(coverage_width_dict)
+    fig, axes = plt.subplots(n_plots, sharex=True, figsize=(10, 6))
+    if not isinstance(axes, np.ndarray):
+        axes = np.array([axes])
+
+    for ax, (surrogate_key, surrogate_dict) in zip(axes, coverage_width_dict.items()):
+        flattened = {}
+        for metric_key, arr in surrogate_dict.items():
+            flattened[metric_key] = arr.reshape((-1, arr.shape[-1]))
+        boxplots = []
+
+        boxplots.append(
+            ax.boxplot(
+                flattened["intervall_width"],
+                positions=z_coords,
+                patch_artist=True,
+                widths=0.2,
+                showfliers=False,
+                medianprops=dict(color=color_dict["intervall_width"], linewidth=3),
+            )
+        )
+        ax.set_ylabel(ylabel_dict["intervall_width"], color=color_dict["intervall_width"])
+        ax.set_ylim(ylims_dict.get("intervall_width"))
+        ax.set_xlim(plot_cfg.get("xlims"))
+
+        twin_ax = ax.twinx()
+        boxplots.append(
+            twin_ax.boxplot(
+                flattened["coverage"],
+                positions=z_coords,
+                patch_artist=True,
+                widths=0.2,
+                showfliers=False,
+                medianprops=dict(color=color_dict["coverage"], linewidth=3),
+            )
+        )
+        twin_ax.set_ylabel(ylabel_dict["coverage"], color=color_dict["coverage"])
+        twin_ax.set_ylim(ylims_dict.get("coverage"))
+
+        for metric_key, boxplot in zip(surrogate_dict.keys(), boxplots):
+            for box in boxplot["boxes"]:
+                box.set_facecolor(color_dict[metric_key])
+                box.set_alpha(0.4)
+
+        axes[-1].set_xlabel("$z/L$ / -")
+        plt.tight_layout()
+        if save_cfg.get("show_fig", False):
+            plt.show()
+        plt.savefig(final_save_path)
+
+
 # -------- Summarization plots -----------
 
 
