@@ -116,7 +116,9 @@ def get_narx_input_shift_rhs(
     n_total_states = len(state_keys) * n_measurements
     current_states = []
     for state_key in state_keys:
-        current_states.append(model.set_variable("_x", state_key, shape=(n_measurements, 1)))
+        state_var = model.set_variable("_x", state_key, shape=(n_measurements, 1))
+        current_states.append(state_var)
+        model.set_meas(meas_name=state_key, expr=state_var)
     current_states = vertcat(*current_states)
 
     n_inputs = len(input_keys)

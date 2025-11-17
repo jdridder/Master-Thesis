@@ -251,6 +251,11 @@ class EtOxModel(MyModel):
                 var_name=state_key,
                 shape=(self.N_finite_diff, 1),
             )
+            step = self.N_finite_diff // self.model_cfg["N_meas"]
+            for i in range(self.model_cfg["N_meas"]):
+                meas_pos = (i + 1) * step - 1
+                model.set_meas(meas_name=f"{state_key}_{meas_pos}", expr=states[state_key][meas_pos])
+
         # parameters
         p = self.p
         # inputs
@@ -325,7 +330,7 @@ class EtOxModel(MyModel):
         #     model.set_expression(f"Re_{i}", Re(T=states["T"][i]))
         #     model.set_expression(f"Nu_w_{i}", Nu_w(T=states["T"][i]))
         #     model.set_expression(f"alph_w_{i}", alph_w(T=states["T"][i]))
-        #     model.set_expression(f"rho_tot{i}", rho_tot(T=states["T"][i]))
+        #     model.set_expression(f"rho_tot{i}", rho_tot(T=states["T"][i])
 
         delta_c_E = self.bc["chi_E"] - states["chi_E"][-1]
         selectivity = (states["chi_EO"][-1] - self.bc["chi_EO"]) / delta_c_E

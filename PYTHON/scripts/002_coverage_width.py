@@ -11,18 +11,17 @@ import yaml
 CURR_DIR = os.path.dirname(__file__)
 ROOT_DIR = os.path.abspath(os.path.join(CURR_DIR, ".."))
 sys.path.insert(0, ROOT_DIR)
-from configs.uncertainty_quantification import data_cfg, test_cfg_list, training_cfgs, uq_test_cfg
+from configs.uncertainty_quantification import data_cfg, test_cfg_list, uq_test_cfg
 from models import EtOxModel
 from postprocessing.performance_metrics import *
 from postprocessing.plot import *
 from postprocessing.plotting_helpers import format_legend, make_colors
 from routines.data_structurizer import DataStructurizer
-from routines.utils import apply_to_double_dict, filter_test_data_for_surrogates, get_directory_for_today, load_json_results_for_all
+from routines.utils import apply_to_double_dict, get_directory_for_today
 from simulation.data_generation import generate_data_for_specs
-from simulation.open_loop import run_open_loop_for_specs
+from simulation.open_loop import run_open_loop
 from simulation.simulation import generate_random_ramp_signal
 from simulation.simulation_process import run_parallel_simulations
-from training.run import run_training
 
 
 def run_coverage_width(
@@ -41,30 +40,28 @@ def run_coverage_width(
     current_experiment_working_dir = os.path.join(experiment_dir, get_directory_for_today(experiment_dir))
     os.makedirs(current_experiment_working_dir, exist_ok=True)
     test_data_cfg = data_cfg.get("test")
-    initial_state = meta_model.get_initial_state()
 
-    # load newest surrogates
+    trained_model_dir = os.path.join(current_experiment_working_dir, "trained_models")
+
+    initial_state = meta_model.get_initial_state()
 
     for run_i in range(uq_test_cfg.get("n_experiments", 2)):
         t_start = time.perf_counter()
-        print(f"--- Running coverage and intervall width calc for run {run_i}.")
+        print(f"--- Running coverage and intervall width calc for run {run_i} ---.")
 
-        input_trajectories = generate_random_ramp_signal(
-            batch_size=uq_test_cfg.get("N_fp_trajects", None),
-            randomize=False,
+        input_trajectory = generate_random_ramp_signal(
             feature_bounds=test_data_cfg.get("input_bounds"),
             num_steps=test_data_cfg.get("t_steps"),
             time_step=sim_cfg["simulation"].get("t_step", 1),
             tau=test_data_cfg.get("input_signal_tau"),
         )
-        tvp_trajectories = generate_random_ramp_signal(
-            batch_size=uq_test_cfg.get("N_fp_trajects", None),
-            randomize=False,
+        tvp_trajectory = generate_random_ramp_signal(
             feature_bounds=test_data_cfg.get("tvp_bounds"),
             num_steps=test_data_cfg.get("t_steps"),
             time_step=sim_cfg["simulation"].get("t_step", 1),
             tau=test_data_cfg.get("tvp_signal_tau"),
         )
+
         # sample parameters
         sampled_parameters = meta_model.sample_parameters(
             n_batches=uq_test_cfg.get("N_fp_trajects", None),
@@ -79,23 +76,45 @@ def run_coverage_width(
             t_steps=uq_test_cfg.get("t_steps"),
             model_type=SurrogateTypes.Rigorous.value,
             initial_states=np.repeat(initial_state, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
-            tvp_signals=tvp_trajectories,
-            input_signals=input_trajectories,
+            tvp_signals=np.repeat(tvp_trajectory, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
+            input_signals=np.repeat(input_trajectory, axis=0, repeats=uq_test_cfg.get("N_fp_trajects", None)),
             model_params=sampled_parameters,
-            save_kwargs={"save_as": "return"},
-            n_workers=uq_test_cfg.get("n_fp_workers", 2),
+            run_cfg={"save_as": "return", "save_variable_types": ["_y", "_u", "_tvp"]},
+            n_workers=uq_test_cfg.get("n_fp_workers", 1),
         )
-        print(first_principle_results)
 
         # run surrogates once
         # run for vanilla, naive_pc, pc, only upper and lower quantile models
+        narx_result_dict = {}
+        init_data = first_principle_results.mean(axis=0, keepdims=True)
+        for surrogate_key, state_dict_folder in zip(uq_test_cfg.get("surrogate_types"), uq_test_cfg.get("state_dict_folders")):
+            final_model_parameter_dir = os.path.join(trained_model_dir, state_dict_folder)
+            if surrogate_key not in narx_result_dict.keys():
+                narx_result_dict[surrogate_key] = {}
+
+            for scenario_key in ["upper", "lower"]:
+                narx_result = run_open_loop(
+                    sim_cfg=sim_cfg,
+                    meta_model=meta_model,
+                    data_structurizer=data_structurizer,
+                    t_steps=uq_test_cfg.get("t_steps") - uq_test_cfg.get("warm_up_steps"),
+                    warm_up_steps=uq_test_cfg.get("warm_up_steps"),
+                    surrogate_type=surrogate_key,
+                    scenario=scenario_key,
+                    model_parameter_dir=final_model_parameter_dir,
+                    initialization_data=init_data,
+                    run_cfg={"save_as": "return", "save_variable_types": ["_y"]},
+                    n_workers=uq_test_cfg.get("n_narx_workers", 1),
+                )
+                narx_result_dict[surrogate_key][scenario_key] = narx_result
 
         # calculate intervall width
 
         # save as .npy
+        print(narx_result_dict)
 
         duration = time.perf_counter() - t_start
-        print(f"--- Experimental run took {duration} s.")
+        print(f"--- Experimental run took {duration:.3f} s. ---")
         exit()
 
     # load npy files
@@ -103,20 +122,6 @@ def run_coverage_width(
     # summarize
 
     # make plots
-
-    # for specs in test_cfg_list:
-    #     # run simulation batches
-    #     specs["n_trajectories"] = test_data.shape[0]
-    #     final_model__parameter_dir = os.path.join(trained_model_dir, specs.get("state_dict_folder"))
-    #     run_open_loop_for_specs(
-    #         specs=specs,
-    #         meta_model=meta_model,
-    #         data_structurizer=data_structurizer,
-    #         sim_cfg=sim_cfg,
-    #         model_parameter_dir=final_model__parameter_dir,
-    #         save_dir=result_directory,
-    #         initialization_data=test_data[0],
-    #     )
 
     # # ----- Calculate intervall widths -----
     # intervall_widths = calculate_intervall_width(result_dict)

@@ -20,16 +20,15 @@ class SimulationProcess(Process):
         t_steps: int,
         meta_model: EtOxModel,
         dompc_model_type: Type[SurrogateTypes],
-        save_kwargs: Dict,
         tvp_signals: np.ndarray,
         input_signals: Union[np.ndarray, List[np.ndarray]],
         initial_states: Union[np.ndarray, List[np.ndarray]],
+        run_cfg: Optional[Dict] = None,
         scenario: Optional[str] = None,
         model_parameter_dir: Optional[str] = None,
         data_structurizer: Optional[DataStructurizer] = None,
         model_parameters: Optional[np.ndarray] = None,
         index: Optional[np.ndarray] = None,
-        integration_opts: Optional[Dict] = None,
     ) -> None:
         Process.__init__(self, name=name)
         self.cfg = cfg
@@ -44,9 +43,8 @@ class SimulationProcess(Process):
         self.initial_states = initial_states
         self.tvp_signals = tvp_signals
         self.model_params = model_parameters
-        self.save_kwargs = save_kwargs
+        self.run_cfg = run_cfg
         self.index = index
-        self.integration_opts = integration_opts
 
     def run(self):
         """Simulate a set of experiments defined by multiple input_trajectories and multiple parameter combination with a given set of parameters."""
@@ -68,10 +66,9 @@ class SimulationProcess(Process):
             input_signals=self.input_signals,
             process_name=self.name,
             index=self.index,
-            integration_opts=self.integration_opts,
-            **self.save_kwargs,
+            run_cfg=self.run_cfg,
         )
-        if result_arr:
+        if len(result_arr) > 0:
             self.result_queue.put(result_arr)
 
 
@@ -83,14 +80,13 @@ def run_parallel_simulations(
     tvp_signals: np.ndarray,
     input_signals: np.ndarray,
     initial_states: np.ndarray,
-    save_kwargs: Dict,
+    run_cfg: Optional[Dict] = None,
     model_parameter_dir: Optional[str] = None,
     scenario: Optional[str] = None,
     data_structurizer: Optional[DataStructurizer] = None,
     index: Optional[np.ndarray] = None,
     n_workers: Optional[int] = 10,
     model_params: Optional[np.ndarray] = None,
-    integration_opts: Optional[Dict] = None,
 ):
     """Either the input signal is constant and given across all simulations or it is randomly generated every signle time."""
     assert initial_states.shape[0] == input_signals.shape[0], f"The batch size of input signals {input_signals.shape[0]} and initial states {initial_states.shape[0]} must match."
@@ -126,8 +122,7 @@ def run_parallel_simulations(
             input_signals=input_signals_batched[core],
             model_parameters=model_params_batched[core],
             index=index_batched[core],
-            save_kwargs=save_kwargs,
-            integration_opts=integration_opts,
+            run_cfg=run_cfg,
         )
         procss.append(proc)
         proc.start()
@@ -135,7 +130,8 @@ def run_parallel_simulations(
     [proc.join() for proc in procss]
     results_concat = []
     while not results_queue.empty():
-        results_concat.append(results_queue.get_nowait())
-    results_concat = np.concatenate(results_concat, axis=0)
+        results_concat.append(results_queue.get())
+    if len(results_concat) > 0:
+        results_concat = np.concatenate(results_concat, axis=0)
     print("Processes joined.")
     return results_concat

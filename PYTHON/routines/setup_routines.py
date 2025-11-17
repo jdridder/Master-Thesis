@@ -97,6 +97,7 @@ def configure_narx_surrogate(data_structurizer: DataStructurizer, surrogate: Mod
     for i, state_key in enumerate(simulation_cfg["states"]["keys"]):
         start, stop = i * data_structurizer.n_measurements, (i + 1) * data_structurizer.n_measurements
         surrogate.set_rhs(state_key, rhs[start:stop])
+
     # stoic = {"E": -1, "EO": 1}
     # c_EO_in = super_model.bc["c_EO"]
     # c_E_in = super_model.bc["c_E"]

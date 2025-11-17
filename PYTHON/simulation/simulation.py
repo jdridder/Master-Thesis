@@ -22,13 +22,10 @@ def simulate(
     physical_params: Optional[np.ndarray] = None,
     index: Optional[np.ndarray] = None,
     process_name: Optional[str] = "",
-    save_dir: Optional[str] = None,
-    result_name: Optional[str] = "result",
-    save_as: Optional[str] = "json",
-    save_variable_types: Optional[List[str]] = ["_x", "_u", "_tvp"],
-    integration_opts: Optional[Dict] = None,
-) -> Union[np.ndarray]:
+    run_cfg: Optional[Dict] = None,
+) -> np.ndarray:
     assert n_time_steps <= input_signals.shape[1], f"The maximum number of time steps to simulate is {input_signals.shape[1]} you have {n_time_steps}."
+    run_cfg = run_cfg or {}
 
     if initial_states.ndim < 2:
         initial_states = np.expand_dims(initial_states, axis=0)  # add batch dimension
@@ -69,7 +66,7 @@ def simulate(
         if not np.allclose(previous_parameter_combination, parameter_combination) or not np.allclose(previous_tvp_signal, tvp_signal):
 
             # to set a new parameter combination, recreate the simulator object
-            simulator = configure_simulator(simulation_cfg, do_mpc_model, integration_opts=integration_opts)
+            simulator = configure_simulator(simulation_cfg, do_mpc_model, integration_opts=run_cfg.get("integration_opts", {}))
             # plot_rhs_jac(
             #     model=do_mpc_model,
             #     states=x0,
@@ -101,7 +98,7 @@ def simulate(
         try:
             start = time.perf_counter()
             for t in range(n_time_steps):
-                x_next = simulator.make_step(u0=input_signal[t].reshape((-1, 1)))
+                _ = simulator.make_step(u0=input_signal[t].reshape((-1, 1)))
             stop = time.perf_counter()
         except Exception as e:
             print(f"Simulation failed with error: {e}")
@@ -109,11 +106,13 @@ def simulate(
         meta_data_i = {"index": i, "t_wall_total": stop - start}
         simulator.data.set_meta(**meta_data_i)
 
+        save_as = run_cfg.get("save_as", "json")
+        save_dir = run_cfg.get("save_dir", None)
         if save_as in ["npy", "json"]:
             ind = 1
-            ext_result_name = result_name
+            ext_result_name = run_cfg.get("result_name", "result")
             while os.path.isfile(f"{save_dir}/{ext_result_name}.{save_as}"):
-                ext_result_name = f"{ind:03d}_{result_name}"
+                ext_result_name = f"{ind:03d}_{run_cfg.get("result_name", "result")}"
                 ind += 1
             complete_file_name = os.path.join(save_dir, f"{ext_result_name}")
 
@@ -122,21 +121,22 @@ def simulate(
             continue
         elif save_as == "return" or save_as == "npy":
             extracted_results = []
-            for var_type in save_variable_types:
+            for var_type in run_cfg.get("save_variable_types", ["_x", "_u", "_tvp"]):
                 extracted_results.append(simulator.data[var_type])
             extracted_results = np.concat(extracted_results, axis=-1)
             if save_as == "npy":
                 np.save(f"{complete_file_name}.npy", extracted_results)
             else:
-                results_concat.append(extracted_results)
+                results_concat.append(np.expand_dims(extracted_results, axis=0))
             continue
-        elif save_as == ".json":
+        elif save_as == "json":
             with open(f"{complete_file_name}.json", "w") as f:
                 json_result = simulator.data.export()
                 json_result.update({"meta_data": meta_data_i})
                 f.write(json.dumps(json_result, indent=4, cls=NumpyEncoder))
         else:
             raise NotImplementedError(f"The save as type {save_as} is not implemented.")
+    return np.concatenate(results_concat, axis=0)
 
 
 def save_data(model_name: str, data: np.ndarray, run_id: str, data_dir: str = None):
