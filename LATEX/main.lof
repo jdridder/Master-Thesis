@@ -17,10 +17,10 @@
 \contentsline {figure}{\numberline {5.2}{\ignorespaces Physics violation of the vanilla NARX}}{35}{figure.caption.26}%
 \contentsline {figure}{\numberline {5.3}{\ignorespaces Physics violation of the naive physics-constrained NARX}}{36}{figure.caption.27}%
 \contentsline {figure}{\numberline {5.4}{\ignorespaces Physics violation of the physics-constrained NARX}}{37}{figure.caption.28}%
-\contentsline {figure}{\numberline {5.5}{\ignorespaces Forward simulation of the vanilla NARX framework for the temperature.}}{38}{figure.caption.29}%
-\contentsline {figure}{\numberline {5.6}{\ignorespaces Forward simulation of the vanilla NARX framework for the dimensionless concentration.}}{39}{figure.caption.30}%
-\contentsline {figure}{\numberline {5.7}{\ignorespaces Forward simulation of the naive_pc NARX framework for the dimensionless concentration.}}{40}{figure.caption.31}%
-\contentsline {figure}{\numberline {5.8}{\ignorespaces Forward simulation of the pc NARX framework for the dimensionless concentration.}}{41}{figure.caption.32}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Forward simulation of the vanilla-NARX framework for the temperature.}}{38}{figure.caption.29}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Forward simulation of the vanilla-NARX framework for the dimensionless concentration.}}{39}{figure.caption.30}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Forward simulation of the naive-NARX framework for the dimensionless concentration.}}{40}{figure.caption.31}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Forward simulation of the pc NARX framework for the dimensionless concentration.}}{40}{figure.caption.32}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {A.1}{\ignorespaces Forward simulation of the naive NARX framework for the temperature quantiles.}}{46}{figure.caption.34}%

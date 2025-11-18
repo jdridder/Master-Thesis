@@ -117,20 +117,20 @@ training_cfgs = [
             "nominal_temperature": {
                 "name": "nominal_temperature",
                 "state_key": "T",
-                "last_layer_activation": "physics_constrained",
+                "last_layer_activation": "vanilla",
                 "loss_function": "mse",
             },
             "upper_temperature": {
                 "name": "upper_temperature",
                 "state_key": "T",
-                "last_layer_activation": "physics_constrained",
+                "last_layer_activation": "vanilla",
                 "loss_function": "quantile",
                 "quantile": 0.95,
             },
             "lower_temperature": {
                 "name": "lower_temperature",
                 "state_key": "T",
-                "last_layer_activation": "physics_constrained",
+                "last_layer_activation": "vanilla",
                 "loss_function": "quantile",
                 "quantile": 0.05,
             },

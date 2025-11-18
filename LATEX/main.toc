@@ -35,9 +35,10 @@
 \contentsline {subsection}{\numberline {4.6.1}Data Generation}{29}{subsection.4.6.1}%
 \contentsline {subsection}{\numberline {4.6.2}Training}{31}{subsection.4.6.2}%
 \contentsline {chapter}{\numberline {5}Results on Surrogate Model Performance}{33}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Training Effectivity}{33}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Physics Consistency}{34}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Simulation Capability}{38}{section.5.3}%
+\contentsline {section}{\numberline {5.1}Training Efficiency}{33}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Physics-consistency}{34}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Simulation Capability}{37}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Uncertainty Quantification}{41}{section.5.4}%
 \contentsline {chapter}{\numberline {6}Conclusions}{43}{chapter.6}%
 \contentsline {chapter}{\numberline {A}Datasheets and Plots}{45}{appendix.A}%
 \contentsline {section}{\numberline {A.1}Kinetic parameter normal distribution}{45}{section.A.1}%
