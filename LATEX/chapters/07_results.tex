@@ -1,17 +1,63 @@
 \chapter{Results on Surrogate Model Performance}
-Please choose a more expressive title for this chapter. If it makes sense for your work you can also have multiple chapters presenting your results.
+For the successful application of physics-consistent surrogate models
+under uncertainty in MPC, several performance indicators are of major interest.
+These include the computational efficiency of the NARX models during the offline training phase,
+the degree of balance violation and the adequacy of the uncertainty quantification.
+Furthermore, it is important, how the physics contrained activation function alters MPC runtime.
+
 
 \section{Training Effectivity}
 
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=1\textwidth]{Figures/Results/001_val_loss.pdf}
-%     \caption[Validation loss of vanilla NARX vs physics-constrained NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
-%     during the training of the vanilla NARX (dashed line) and the physics-constrained NARX (solid line). The three data rows each indicate
-%     \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons respectively. The physics-constrained NARX converges visibly faster
-%     than the vanilla NARX.}
-%     \label{intro:fig:01_data}
-% \end{figure}
+The \emph{validation losses} during the training of several different pc-NARX (solid line) and a vanilla-NARX models (dashed line) are compared
+as an evolvement over $512$ training epochs (fig.~\ref{results:fig:validation_loss}).
+As shallow neural networks, all NARX models posses only \emph{one} hidden layer with either
+$64$ (purple), $16$ (blue) or $4$ (yellow) hidden neurons. For a non-linear reaction system, that includes 24 outputs, the low amount
+of $4$ hidden neurons represents a challenge. The training is performed with identical learning rate
+of \SI{5e-5} and a batch size of $1024$ for all three NARX variations using \SI{1.024e6}{} data points.
+Here, the training and validation fractions are $0.8$ and $0.2$ respectively.
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/001_val_loss.pdf}
+    \caption[Validation loss of vanilla NARX vs physics-constrained NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
+    during the training of the vanilla NARX (dashed line) and the physics-constrained NARX (solid line). The three data rows each indicate
+    \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons respectively. The physics-constrained NARX converges visibly faster
+    than the vanilla NARX.}
+    \label{results:fig:validation_loss}
+\end{figure}
+\newline
+\newline
+Strikingly, all physics-constrained NARX models converge faster to lower validation losses than
+their unconstrained peers. After two consequent drops in validation loss during the first $150$ epochs,
+all models stagnate which is common in NN training. Close to a local minimum w.r.t to the trainable
+parameters, only slow improvement is made. Changes in the loss function become rather 
+stochastic in \emph{stochastic gradient descent} than systematic, when the gradient gets close to zero.
+Without regard to the training phase, the pc-NARX models always outperform the vanilla-NARX models
+with lower validation losses. The validation loss suggests that at $512$ epochs, a pc-NARX with $16$ hidden 
+neurons (solid, blue) is equally as accurate as a vanilla-NARX with $64$ hidden neurons (dashed, purple) (fig.~\ref{results:fig:validation_loss}).
+Similarly, the pc-NARX with $4$ hidden neurons presents a validation loss close to the vanilla-NARX with
+$16$ hidden neurons. This implies, the network size can be reduced to a quarter while achieving
+the same validation loss at first sight.
+\newline
+\newline
+It is questionable however, whether the pc-NARX can maintain its advantage for a growing number of training epochs.
+As the balance constraint implemented into the pc-NARX is present in the data, the vanilla-NARX
+will learn it accordingly, if the number of epochs is sufficiently high. The minimum possible 
+validation loss is determined by the network size, the amount and \emph{quality} of available training data and the training duration.
+So theoretically, the vanilla-NARX should approach the pc-NARX in exessive neural network training
+when a sufficiently large amount of high-quality data is supplied.
+\newline
+\newline
+In reality, training data is often noisy and available in a limited amount.
+Computing power and memory are expensive in time and investment. The training duration
+and network complexity should be kept to a minimum. Hence, the physics-constrained activation
+presents a great opportunity to speed up NN training convergence. It also
+allows to reduce the network size or the amount of training data,
+while the predicition accuracy of an unconstrained NN is retained. It can be shown, that
+physics-constrained NNs perform much better than basic NNs when the amount training
+data is cut by up to \SI{40}{\%} \cite{chen2024}.
+Reducing the network size is especially interesting for MPC applications, where it
+significantly influences the online optimization w.r.t the input variables.
+Thus, reducing the network size of a physics-constrained NARX may be truly advantagous.
 
 
 \section{Physics Consistency}
@@ -64,15 +110,15 @@ Additionally, the error does not add up over time.
     \label{results:fig:pc_violation_naive}
 \end{figure}
 
-The same is done with the \emph{naive\_pc} NARX models that are not trained with the physics constrained
+The same is done with the \emph{naive\_pc} NARX models that are not trained with the physics-constrained
 activation but simply apply it to their output (fig.~\ref{results:fig:pc_violation_naive}). The 
 balance error during the simulation shows a completely different picture. All models achieve
 vanishing balance errors at \SI{64}{bit} precision of \SI{3.4e-16}{}. These appear consistent over the complete
-simulation horizon. The naively physics constrained models exhibit even smaller balance errors than the initial state itself, which stems
+simulation horizon. The naively physics-constrained models exhibit even smaller balance errors than the initial state itself, which stems
 from a first principle simulation, due to fewer rounding errors. There is no noticable difference
 between the nominal predictions $\mathbb{E}$ (green) and the conditioned quantile predictions $Q_{0.9}$ (yellow) and $Q_{0.1}$ (purple)
 in contrast to the vanilla versions. Additionally, it can be interpreted as a proof of concept
-for the physics constrained activation $g_\text{pc}$. It enforces linear equality constraints up to machine precision, even
+for the physics-constrained activation $g_\text{pc}$. It enforces linear equality constraints up to machine precision, even
 if it is not used during training.
 
 
@@ -88,11 +134,11 @@ if it is not used during training.
     \label{results:fig:pc_violation_pc}
 \end{figure}
 
-Finally, the balance error is plotted for the \emph{pc}-NARX, that uses the physics constrained
+Finally, the balance error is plotted for the \emph{pc}-NARX, that uses the physics-constrained
 activation during training and simulation (fig.~\ref{results:fig:pc_violation_pc}). While it significantly improves
 training efficiency, it also enforces linear equality constraints in an open-loop simulation up to \SI{32}{\bit} precision.
 Similarly to the \emph{naive\_pc}, all three NARX models achieve the same contraint residual error
-of \SI{1.7e-7}{}. The difference between the physics constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
+of \SI{1.7e-7}{}. The difference between the physics-constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
 trajectories is non-existent. It is worth noticing, that the minimum possible contraint residual differs 
 between the \emph{naive\_pc} and the \emph{pc}-NARX. The \emph{naive} version is not trained with the 
 physics consistent activation $g_\text{pc}$. It is applied \emph{a posteriori} and implemented using
@@ -113,7 +159,7 @@ the simulation results for the expected value and quantile NARX models are illus
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_-1.pdf}
     \caption[Forward simulation of the vanilla NARX framework for the temperature.]
-    {Forward simulation of the vanilla NARX framework without physics constrained activation for 
+    {Forward simulation of the vanilla NARX framework without physics-constrained activation for 
     \SI{480}{\second}. The scaled temperature $T'$ is shown for two measurement positions $z=0.25L$ and
     $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
     \label{results:fig:vanilla_temperature_sim}
@@ -151,7 +197,7 @@ coordinates are presented (fig.~\ref{results:fig:vanilla_temperature_sim}).
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_2.pdf}
     \caption[Forward simulation of the vanilla NARX framework for the dimensionless concentration.]
-    {Forward simulation of the vanilla NARX framework without physics constrained activation for 
+    {Forward simulation of the vanilla NARX framework without physics-constrained activation for 
     \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
     for two measurement positions $z=0.25L$ and
     $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
@@ -161,7 +207,7 @@ coordinates are presented (fig.~\ref{results:fig:vanilla_temperature_sim}).
 Here, the expected value NARX (green) $\mathbb{E}$ again follows the trajectory mean sufficiently.
 The conditioned quantile trajectories (yellow and purple) however, cannot be accounted for
 reliable confidence predictions, as they repeatedly exclude the expected value trajectory.
-Especcially, for the position $z=0.25L$ with a tight uncertainty distribition, the 
+Especially, for the position $z=0.25L$ with a tight uncertainty distribition, the 
 conditioned models cross the expected value prediction more often. This behavior highlights,
 that the conditioned NARX models are not designed for a reliable uncertainty quantification, but represent 
 a rather pragmatic approach to allow for independent propagation of temperature quantiles.
@@ -178,27 +224,27 @@ interpretation. Furthermore, a distinct probabilistic coverage cannot be guarant
 To enhance the simulation capability of the quantile-conditioned models, the physics
 constrained activation function is employed. The dimensionless concentration
 measures act as the conservation quantity at all reactor positions.
-When the physics constrained activation is applied naively (fig.~\ref{results:fig:naive_concentration_sim}) (dash-dotted), so only during simulation
+When the physics-constrained activation is applied naively (fig.~\ref{results:fig:naive_concentration_sim}) (dash-dotted), so only during simulation
 but not in training, the trajectories of the quantile-conditioned models do not differ
 noticably to the vanilla version (fig.~\ref{results:fig:vanilla_concentration_sim}).
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_naive_pc_2.pdf}
     \caption[Forward simulation of the naive_pc NARX framework for the dimensionless concentration.]
-    {Forward simulation of the naive\_pc NARX framework with physics constrained activation for 
+    {Forward simulation of the naive\_pc NARX framework with physics-constrained activation for 
     \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
     for two measurement positions $z=0.25L$ and
     $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
     \label{results:fig:naive_concentration_sim}
 \end{figure}
 
-When the fully physics constrained NARX architecture is simulated forward in time, a small improvement
+When the fully physics-constrained NARX architecture is simulated forward in time, a small improvement
 w.r.t the positioning of the quantile-conditioned boundaries can be noticed (fig.~\ref{results:fig:pc-concentration-sim}).
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_2.pdf}
     \caption[Forward simulation of the pc NARX framework for the dimensionless concentration.]
-    {Forward simulation of the pc NARX framework with physics constrained activation for 
+    {Forward simulation of the pc NARX framework with physics-constrained activation for 
     \SI{480}{\second}. The fully physics consistent framework exhibits a minor improvement to the 
     vanilla NARX framework.}
     \label{results:fig:pc-concentration-sim}
@@ -207,9 +253,9 @@ For the majority of time instances, the upper quantile-conditioned NARX (yellow)
 trajectory (green) to its top even for the narrow distribition at $z=0.25L$. The same yields for the lower
 quantile-conditioned NARX (purple), which limits the expected value to the bottom. Accordingly, the number
 of crossing events is reduced. This represent a slightly more meaningful estimation of the concentration measure
-by the fully physics constrained NARX framework than by the naive or vanilla versions.
-Because the a posteriori application of the physics constrained activation does not truly alter
-the resulting trajectories, the physics constrained activation 
+by the fully physics-constrained NARX framework than by the naive or vanilla versions.
+Because the a posteriori application of the physics-constrained activation does not truly alter
+the resulting trajectories, the physics-constrained activation 
 is assumed to enhance the learning capability of NARX models.
 This statement is underlined by and the significantly faster training convergence.
 In summary, model parameters are learned much better for

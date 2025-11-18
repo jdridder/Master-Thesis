@@ -145,7 +145,7 @@ def run_coverage_width(
             plot_cfg={
                 "colors": {"coverage": deep_colors[0], "intervall_width": deep_colors[2]},
                 "ylabels": {"intervall_width": "intervall width / -", "coverage": "coverage / -"},
-                "ylims": {"intervall_width": (0, 0.2), "coverage": (0, 1.05)},
+                "ylims": {"intervall_width": (0, 0.1), "coverage": (0, 1.05)},
                 "xlims": (0, 1.25),
             },
             save_cfg={"export_name": f"{surrogate_key}_coverage_width"},

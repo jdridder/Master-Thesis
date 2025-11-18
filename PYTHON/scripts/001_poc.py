@@ -16,7 +16,7 @@ from postprocessing.plotting_helpers import make_colors
 from routines.data_structurizer import DataStructurizer
 from routines.utils import apply_to_double_dict, get_directory_for_today, load_json_results_for_all
 from simulation.data_generation import generate_data_for_specs
-from simulation.open_loop import run_open_loop_for_specs
+from simulation.open_loop import run_open_loop
 from training.run import run_training
 
 
@@ -79,18 +79,22 @@ def run_proof_of_concept(
     test_data_dir = os.path.join(experiment_dir, "..", "data", "test")
     test_data = data_structurizer.load_data(data_dir=test_data_dir, num_trajectories=n_test_trajectories)
 
-    for specs in test_cfg_list:
+    for test_cfg in test_cfg_list:
         # run simulation batches
-        specs["n_trajectories"] = test_data.shape[0]
-        final_model__parameter_dir = os.path.join(trained_model_dir, specs.get("state_dict_folder"))
-        run_open_loop_for_specs(
-            specs=specs,
+        test_cfg["n_trajectories"] = test_data.shape[0]
+        final_model__parameter_dir = os.path.join(trained_model_dir, test_cfg.get("state_dict_folder"))
+        run_open_loop(
+            sim_cfg=sim_cfg,
             meta_model=meta_model,
             data_structurizer=data_structurizer,
-            sim_cfg=sim_cfg,
+            scenario=test_cfg.get("scenario"),
+            surrogate_type=test_cfg.get("surrogate_type"),
+            t_steps=test_cfg.get("t_steps"),
+            n_workers=test_cfg.get("n_workers"),
             model_parameter_dir=final_model__parameter_dir,
-            save_dir=result_directory,
             initialization_data=test_data[0],
+            warm_up_steps=test_cfg.get("warm_up_steps"),
+            run_cfg={"save_as": "json"},
         )
 
     # --------------- Plot Training Statistics ---------------
