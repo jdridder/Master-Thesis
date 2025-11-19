@@ -148,6 +148,7 @@ disadvantageous.
 
 
 \section{Simulation Capability}
+\label{simulation-capability}
 
 To investigate, whether the NARX framework is able to track the distribution of state trajectories, 
 the simulation results for the expected value and quantile NARX models are illustrated (fig.~\ref{results:fig:vanilla_temperature_sim}).
@@ -261,3 +262,49 @@ the propageted temperature quantiles is minor, which is why they are included
 within the appendix (figs.~\ref{app:fig:naive-temperature-sim} and \ref{app:fig:pc-temperature-sim}).
 
 \section{Uncertainty Quantification}
+
+The quality of the uncertainty quantification is evaluated with two key measures – \emph{coverage} and 
+\emph{relative interval width}. Coverage resembels the key idea behind quantiles, where
+each quantile \emph{covers} a fraction of $\tau$ of the values within a distribution. The real 0.9-quantile
+covers \SI{90}{\%} of values, the real 0.1-quantile covers \SI{10}{\%} of values, whereas the interval
+between these two covers \SI{80}{\%} of the values. So to calculate the coverage of a given predicted interval
+for an output $j$, the fraction of ground truth points must be determined that lie within (eq.~\ref{results:eq: coverage}) \cite{kemmerling2025}.
+\begin{equation}
+    \label{results:eq: coverage}
+    \mathrm{coverage}_j = \frac{1}{m} \sum^m_{i=1} 
+    \bm{1}_{y_{j,i} \in [\tilde{y}^\downarrow_{j,i} \;, \tilde{y}^\uparrow_{j,i}]}
+\end{equation}
+Here, $\bm{1}$ represents the indicator function, that counts the number of instances, in which the indexed 
+condition is fulfilled. $m$ marks the number of total points, $y_{j,i}$ the true data point and $\tilde{y}_{j,i}^{(\cdot)}$
+the respective interval predictions. The closer the coverage approaches the specified confidence during
+quantile regression training, the more reliable the model quantifies the uncertainty.
+It can be seen as the accuracy of the quantile models.
+\newline
+\newline
+As the second measure, the relative interval width describes the precision of the uncertainty quantification.
+A model delivering the desired coverage with a tight interval is called precise in its predicition, whereas 
+wide intervals mean less precision.
+\begin{equation}
+    \label{results:eq: relative interval width}
+    \mathrm{rel. \; intervall \; width}_j = \frac{1}{m} \sum^m_{i=1} \frac{\tilde{y}^\uparrow_{j,i} - \tilde{y}^\downarrow_{j,i}}{|y_{j,i}|}
+\end{equation}
+\newline
+These two measures are compared between the tree NARX frameworks vanilla, naive and pc in the open-loop
+simulation environment seen previously. To improve the quantile predictions during simulation, that 
+show reasonable but wide intervals during the simulation capability (\ref{simulation-capability}) analysis,
+they are retrained with a greater network size. Hence, two layers with $64$ and $72$ hidden neurons each are
+implemented. To limit the complexity of the framework, all other NARX models remain at one hidden layer with $32$
+neurons. Mentioned frameworks are simulated forward in \SI{512} time steps for 100 independent input trajectories.
+For each trajectory, the first principle model is simulated accordingly $200$ times with MC-sampled
+parameter combinations to calculate the interval coverages. The yielded coverages (purple) and relative intervall
+widths (green) are supplied via boxplots (fig.~\ref{results:fig:vanilla-coverage-width}).
+\begin{figure} % TODO: Remove the force after writing
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/vanilla_coverage_width.pdf}
+    \caption[Coverage and relative interval width of the vanilla framework.]
+    {Coverage (purple) and relative interval width (green) for the temperature quantiles of the NARX models in the vanilla framework
+    grouped by measurement position. The ideal intended coverage (dashed line) lies at $0.8$.}
+    \label{results:fig:vanilla-coverage-width}
+\end{figure}
+\newline
+Hallo

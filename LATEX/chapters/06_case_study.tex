@@ -1,7 +1,7 @@
 \chapter{Case Study}
 
 The goal of this work is to derive a physics-consistent surrogate modelling technique to be applied within a robust MPC algorithm.
-Physics consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
+Physics-consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
 This reactor type is common in the chemical industry in many processes such as ethylene oxidation, carbon dioxide methanization or steam reforming.
 Especcially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}. For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
 biological resources.
@@ -31,7 +31,7 @@ conversion is set to be required via a constraint. In total, following general o
 \section{Reaction Kinetics}
 To focus on the surrogate modelling methology, the example system is kept rather simplistic. 
 The \emph{ethylene oxidation} process consists of only two parallel reactions. Parametric data
-is readily available due to extensive literature about this reaction system. Further, the reaction and 
+is readily available due to extensive reseach. Further, the reaction and 
 reactor configuration is taken from an optimal reactor design study by Pietschak et al. \cite{pietschak2018} and
 adjusted for the needs at hand. Thus, some proposed operating conditions may be unrealistic due to safety concerns
 or over-simplifications.
@@ -332,7 +332,7 @@ a measurement instead of discretizing spatially in a real-world scenario. The ou
 
 \section{Experimental Setup}
 
-The objective of this work is to derive, implement and analyze a physics consistent surrogate modelling strategy for
+The objective of this work is to derive, implement and analyze a physics-consistent surrogate modelling strategy for
 the ethene oxidation flow reactor under parametric uncertainty. During the whole procedure, the 
 previously defined NARX framework is employed (def.~\ref{sur:def: general rhs for uncertainty quantification}).
 It consists of a nominal prediction $\mathbb{E}$ and two quantile predictions $\hat{Q}_\tau$ (fig.~\ref{case:fig: narx framework}). 

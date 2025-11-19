@@ -45,12 +45,12 @@ independently trough time except for the initial state, which is the same for al
 (eq.~\ref{theory:eq: input feature vector}) is shifted after each iteration using the resulting
 state vector of the according NARX model. The function notation is summarized as $f_\text{UQ}$.
 It is important to note, that the initial feature vector $\bm{\phi}_\text{init}$ containts $h+1$
-past states and measurements. Which must be known to initiate the RHS based a NARX framework.
+past measurements and inputs. Which must be known to initiate the RHS based a NARX framework.
 \newline
 
-\section{NARX Framework for State Constraints}
+\section{NARX Framework for Chance Constraint Satisfaction}
 
-When recalling the bi-level formulation of a semi-infinite program (def.~\ref{theroy:def: bi-level program}),
+When recalling the bi-level formulation of a semi-infinite program (def.~\ref{theory:def: bi-level program}),
 worst case functions $\varphi_i(\vu)$ are assumed to ensure robust constraint satisfaction. For simplicity, only state constraints in the 
 form of $\vx_k \leq 0 \; \forall k$ are considered. This resembles a great amount of cases, as constraints
 often appear as pure state constraints.  So, the uncertainty quantification in form of 
@@ -75,6 +75,13 @@ This is marked by an expected value $\mathbb{E}_\tau$, that is conditioned by th
 Concatenated together, these two NARX architectures allow a state propagation. Whether the predictions of the conditioned
 model are physical meaningful is questionable, because it is trained using some correlation between the 
 quantile model's predictions and ground truth.
+To quantify the uncertainty for multiple states or measurements, 
+three additional NARX models must be set up, one for each quantile and one for the nominal case.
+In fact, the number of NARX models growths as a multiple of three which limits
+the number of states or measurements with uncertainty quantification.
+Here, a trade-off becomes clear – the framework allows to capture the effect of high-order uncertainty
+vectors $\vw$ for a small amount of target states or measurements. In contrast, multi-stage MPC
+is able to handle all uncertain states at once with a restriction on the number of uncertain parameters.
 
 \subsection{Quantile Conditioning}
 
@@ -98,7 +105,7 @@ calculated as the $l_2$-norm (eq.~\ref{sur:eq: distance to quantile prediction})
 These distances
 are used to calculate certain weights $w$ for a weighted MSE to serve as the loss function for 
 $\mathbb{E}_\tau$ (eq.~\ref{sur:eq: weighted mean squared error}). To train such a conditioned NARX model
-follwing steps must be executed (alg.~\ref{sur:algo: weighted MSE creation}).
+following steps must be executed (alg.~\ref{sur:algo: weighted MSE creation}).
 
 \begin{algorithm}
 	\caption{Calculation of the quantile based weights for a weighted MSE.}

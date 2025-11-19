@@ -406,7 +406,7 @@ Furthermore, \emph{quantile regression} (\ref{theory: quantile regression}) is u
 Under model uncertainty, the evolvement of the system described by $f(\vx, \vu, \vw)$ heavily
 depends of the uncertainty vector $\bm{w} \in \mathbb{W}$ (def.~\ref{theory:def: continuous mpc}).
 While multi-stage MPC roughly discretizes the parameter space for parameter extreme cases under tremendous computational effort,
-quantile regression can be used to directly discretize the space at given quantiles $\tau$.
+quantile regression can be used to directly estimate given quantiles $\tau$.
 This has the advantage, that the uncertainty quantification is done independently from the disturbances. As non-linear
 systems behave non-monotonous to uncertainties, extreme parameter cases do not necessarily account for
 system extreme cases. Explicit quantiles bound the system states with a given coverage lumping all
@@ -423,7 +423,12 @@ which is denoted as $\mathbb{E}(\vx_{k+1}|\bm{\phi}_k)$, and two quantiles, $Q_\
 with pre-defined probability coverages $\tau$. All are predicted given the feature vector $\bm{\phi}_k$
 of past states and inputs. In this work, models that predict the expected value $\mathbb{E}$ are trained 
 using the \emph{mean squared error} as loss function (eq.~\ref{eq: loss function}). 
-Quantile models $Q_\tau$ are trained using the \emph{quantile loss} function (eq.~\ref{theory:eq: quantile loss})
+Quantile models $Q_\tau$ are trained using the \emph{quantile loss} function (eq.~\ref{theory:eq: quantile loss}).
+Conformalization can be carried out, to calibrate quantile predictions
+which marginally guarantees a certain coverage of the distribution by adjusting the intervall widths \cite{romano2019cqr,kemmerling2025}. 
+As the focus lies on the mere effect of physics-consistency, conformalized quantile regression (CQR) is 
+not put to use for better interpretability.
+
 
 
 \section{Conservation of Atoms}
@@ -442,7 +447,7 @@ This can be expressed as follows.
 
 Here, $\bm{B}$ denotes the \emph{element-species-matrix} and $\bm{\Delta n}$ the changes in the molar amounts of all participating
 specieses in a reaction network. The sum of all atoms in all species must be equal at all times regardless of how the underlying reactions take place.
-This builds the foundation of reaction network analysis and the determination of key and non-key-components \cite{guttel2021}.
+This builds the foundation of reaction network analysis and the determination of key- and non-key-components \cite{guttel2021}.
 \begin{equation}
     \label{theory:eq: element-species-matrix}
     \bm{B} = \begin{pmatrix}
@@ -454,4 +459,13 @@ This builds the foundation of reaction network analysis and the determination of
 The element-species-matrix contains the elements $h$ as rows and the species $\alpha$ as columns. $\beta_{h, \alpha}$ describes
 the number of atoms of element $h$ in the species $\alpha$. This implies, that when the initial molar amounts of all species are known,
 all possible combinations of molar amounts must lie in a pre-defined space.
+In reaction system analysis, the element-species-matrix is directly tied to the matrix
+of stoichiometric coefficients denoted as $\bm{N}$. In fact, it acts as the null space of $\bm{N}$
+(eq.~\ref{theory:eq: null space stoichiometric matrix}) \cite{guttel2021} .
+\begin{equation}
+    \label{theory:eq: null space stoichiometric matrix}
+    \bm{B}\bm{N} = \bm{0}
+\end{equation}
+Where $\bm{0}$ stands for the zero matrix. So utilizing the null space of the matrix of stoichiometric
+coefficients or the element-species-matrix $\bm{B}$ is actually equivalent.
 

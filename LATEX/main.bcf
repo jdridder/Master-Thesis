@@ -2400,26 +2400,30 @@
     <bcf:citekey order="32" intorder="1">pytorch2019</bcf:citekey>
     <bcf:citekey order="32" intorder="2">incrementalpca2025</bcf:citekey>
     <bcf:citekey order="33" intorder="1">Brunton2019</bcf:citekey>
-    <bcf:citekey order="34" intorder="1">guttel2021</bcf:citekey>
-    <bcf:citekey order="35" intorder="1">chen2024</bcf:citekey>
-    <bcf:citekey order="36" intorder="1">raissi2019</bcf:citekey>
+    <bcf:citekey order="34" intorder="1">romano2019cqr</bcf:citekey>
+    <bcf:citekey order="34" intorder="2">kemmerling2025</bcf:citekey>
+    <bcf:citekey order="35" intorder="1">guttel2021</bcf:citekey>
+    <bcf:citekey order="36" intorder="1">guttel2021</bcf:citekey>
     <bcf:citekey order="37" intorder="1">chen2024</bcf:citekey>
-    <bcf:citekey order="38" intorder="1">empty000</bcf:citekey>
-    <bcf:citekey order="39" intorder="1">cvxpylayers2019</bcf:citekey>
-    <bcf:citekey order="40" intorder="1">chen2024</bcf:citekey>
-    <bcf:citekey order="41" intorder="1">lastrucci2025</bcf:citekey>
-    <bcf:citekey order="42" intorder="1">fischer2021</bcf:citekey>
-    <bcf:citekey order="43" intorder="1">guttel2021</bcf:citekey>
-    <bcf:citekey order="44" intorder="1">pietschak2018</bcf:citekey>
-    <bcf:citekey order="45" intorder="1">alsaleh1988</bcf:citekey>
-    <bcf:citekey order="46" intorder="1">fischer2021</bcf:citekey>
+    <bcf:citekey order="38" intorder="1">raissi2019</bcf:citekey>
+    <bcf:citekey order="39" intorder="1">chen2024</bcf:citekey>
+    <bcf:citekey order="40" intorder="1">empty000</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">cvxpylayers2019</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">chen2024</bcf:citekey>
+    <bcf:citekey order="43" intorder="1">lastrucci2025</bcf:citekey>
+    <bcf:citekey order="44" intorder="1">fischer2021</bcf:citekey>
+    <bcf:citekey order="45" intorder="1">guttel2021</bcf:citekey>
+    <bcf:citekey order="46" intorder="1">pietschak2018</bcf:citekey>
     <bcf:citekey order="47" intorder="1">alsaleh1988</bcf:citekey>
-    <bcf:citekey order="48" intorder="1">alsaleh1988</bcf:citekey>
-    <bcf:citekey order="49" intorder="1">zehner1970</bcf:citekey>
-    <bcf:citekey order="50" intorder="1">zehner1970</bcf:citekey>
+    <bcf:citekey order="48" intorder="1">fischer2021</bcf:citekey>
+    <bcf:citekey order="49" intorder="1">alsaleh1988</bcf:citekey>
+    <bcf:citekey order="50" intorder="1">alsaleh1988</bcf:citekey>
     <bcf:citekey order="51" intorder="1">zehner1970</bcf:citekey>
-    <bcf:citekey order="52" intorder="1">chen2024</bcf:citekey>
-    <bcf:citekey order="53" intorder="1">chen2024</bcf:citekey>
+    <bcf:citekey order="52" intorder="1">zehner1970</bcf:citekey>
+    <bcf:citekey order="53" intorder="1">zehner1970</bcf:citekey>
+    <bcf:citekey order="54" intorder="1">chen2024</bcf:citekey>
+    <bcf:citekey order="55" intorder="1">chen2024</bcf:citekey>
+    <bcf:citekey order="56" intorder="1">kemmerling2025</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

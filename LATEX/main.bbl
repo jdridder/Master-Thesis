@@ -890,6 +890,44 @@
       \field{year}{2025}
       \keyw{Incremental PCA,Dimensionality Reduction,PyTorch,GPU,Machine Learning}
     \endentry
+    \entry{romano2019cqr}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=b2349f448cc200f2492f372e9eda8c1e}{%
+           family={Romano},
+           familyi={R\bibinitperiod},
+           given={Yaniv},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=318b3f8d6da4d1c854033da07460a0cd}{%
+           family={Patterson},
+           familyi={P\bibinitperiod},
+           given={Evan},
+           giveni={E\bibinitperiod}}}%
+        {{hash=ae404faac8c8429af059d0185dcc9643}{%
+           family={Candès},
+           familyi={C\bibinitperiod},
+           given={Emmanuel\bibnamedelima J.},
+           giveni={E\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{fullhash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{bibnamehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{authorbibnamehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{authornamehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{authorfullhash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Advances in Neural Information Processing Systems (NeurIPS)}
+      \field{title}{Conformalized Quantile Regression}
+      \field{year}{2019}
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1905.03222
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1905.03222
+      \endverb
+    \endentry
     \entry{raissi2019}{article}{}
       \name{author}{3}{}{%
         {{hash=a3194cb4f8e3959e569236521aa2fd86}{%
@@ -976,8 +1014,8 @@
       \strng{authorbibnamehash}{3a2e73c8b36fe75431aaa17a99d757a4}
       \strng{authornamehash}{2f66e877c58e6ee278092df3e9f963cc}
       \strng{authorfullhash}{3a2e73c8b36fe75431aaa17a99d757a4}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{Advances in Neural Information Processing Systems}
@@ -1165,8 +1203,8 @@
       \strng{authorbibnamehash}{c5171255c0669e333dc715e4a10d156a}
       \strng{authornamehash}{c5171255c0669e333dc715e4a10d156a}
       \strng{authorfullhash}{c5171255c0669e333dc715e4a10d156a}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{abstract}{Abstract Die effektive Wärmeleitfähigkeit nicht durchströmter Schüttungen hängt stark von der Art der Berührung der Partikel ab; sie ist z. B. bei Kugeln und Zylindern unterschiedlich. Aus einem einfachen Modell werden Gleichungen entwickelt, die außer den Wärmeleitfähigkeiten der fluiden Phase und des Feststoffs die Porosität der Schüttung berücksichtigen. Die Gleichungen enthalten einen empirischen Anpassungsparameter, der nur von der Form der Partikel abhängt und aus in der Literatur veröffentlichten Meßwerten bestimmt wird.}

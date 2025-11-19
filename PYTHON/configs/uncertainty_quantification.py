@@ -267,7 +267,7 @@ test_cfg_list = [
 ]
 
 uq_test_cfg = {
-    "n_experiments": 8,
+    "n_experiments": 100,
     "N_fp_trajects": 200,
     "n_fp_workers": 10,
     "n_narx_workers": 1,
