@@ -772,41 +772,47 @@ def plot_coverage_width_vs_z(
         for metric_key, arr in surrogate_dict.items():
             flattened[metric_key] = arr.reshape((-1, arr.shape[-1]))
         boxplots = []
+        if "ideal_coverage" in plot_cfg.keys():
+            ax.axhline(y=plot_cfg.get("ideal_coverage"), color=color_dict.get("ideal_coverage", "gray"), linestyle="dashed", label=ylabel_dict.get("ideal_coverage", "ideal_coverage"))
+        ax.set_xlim(plot_cfg.get("xlims"))
 
         boxplots.append(
             ax.boxplot(
-                flattened["intervall_width"],
-                positions=z_coords,
-                patch_artist=True,
-                widths=0.2,
-                showfliers=False,
-                medianprops=dict(color=color_dict["intervall_width"], linewidth=3),
-            )
-        )
-        ax.set_ylabel(ylabel_dict["intervall_width"], color=color_dict["intervall_width"])
-        ax.set_ylim(ylims_dict.get("intervall_width"))
-        ax.set_xlim(plot_cfg.get("xlims"))
-
-        twin_ax = ax.twinx()
-        boxplots.append(
-            twin_ax.boxplot(
                 flattened["coverage"],
                 positions=z_coords,
                 patch_artist=True,
                 widths=0.2,
                 showfliers=False,
                 medianprops=dict(color=color_dict["coverage"], linewidth=3),
+                label=ylabel_dict.get("coverage", "coverage"),
             )
         )
-        twin_ax.set_ylabel(ylabel_dict["coverage"], color=color_dict["coverage"])
-        twin_ax.set_ylim(ylims_dict.get("coverage"))
+        ax.set_ylabel(ylabel_dict["coverage"], color=color_dict["coverage"])
+        ax.set_ylim(ylims_dict.get("coverage"))
 
-        for metric_key, boxplot in zip(surrogate_dict.keys(), boxplots):
+        twin_ax = ax.twinx()
+        boxplots.append(
+            twin_ax.boxplot(
+                flattened["intervall_width"],
+                positions=z_coords,
+                patch_artist=True,
+                widths=0.2,
+                showfliers=False,
+                medianprops=dict(color=color_dict["intervall_width"], linewidth=3),
+                label=ylabel_dict.get("intervall_width", "rel. intervall width"),
+            )
+        )
+        twin_ax.set_ylabel(ylabel_dict["intervall_width"], color=color_dict["intervall_width"])
+        twin_ax.set_ylim(ylims_dict.get("intervall_width"))
+
+        for metric_key, boxplot in zip(["coverage", "intervall_width"], boxplots):
             for box in boxplot["boxes"]:
                 box.set_facecolor(color_dict[metric_key])
                 box.set_alpha(0.4)
 
         axes[-1].set_xlabel("$z/L$ / -")
+        axes[0].legend()
+        format_legend(ax=axes[0], twin_ax=twin_ax, plot_cfg=plot_cfg)
         plt.tight_layout()
         if save_cfg.get("show_fig", False):
             plt.show()

@@ -69,7 +69,6 @@ def train_narx_module(
     """Trains one torch module using the in the training_cfg and individual_cfg supplied hyperparemeters, network architecture
     type and loss function. Takes the full training data and formats it for the network to train. The pca encoder is trained separately."""
     data_matrix = data_structurizer.reduce_measurements(training_data)
-
     if not os.path.exists(individual_cfg.get("save_path")):
         if individual_cfg.get("last_layer_activation") == LastLayerAct.PhysicsConstrained.value:
             assert constraint_matrix is not None, "You must provide at least a linear constraint matrix when training a physics constrained nn.Module."
@@ -105,12 +104,13 @@ def train_narx_module(
             raise NotImplementedError(f"Wrong loss function type declared {loss_func_type}.")
 
         last_layer_activation = individual_cfg.get("last_layer_activation", LastLayerAct.Vanilla.value)
+        hidden_units = individual_cfg.get("hidden_units", training_cfg.get("hidden_units"))
         if last_layer_activation == LastLayerAct.Vanilla.value:
             # initialize vanilla narx
             model = StatePredictor(
                 n_input=X_enc.shape[-1],
                 n_output=Y.shape[-1],
-                hidden_units=training_cfg.get("hidden_units"),
+                hidden_units=hidden_units,
                 in_scaler=input_scaler,
                 # out_scaler=output_scaler,
             )
@@ -123,7 +123,7 @@ def train_narx_module(
             model = PCStatePredictor(
                 n_input=X_enc.shape[-1],
                 n_output=Y.shape[-1],
-                hidden_units=training_cfg.get("hidden_units"),
+                hidden_units=hidden_units,
                 boundary_cond=boundary_cond,
                 n_constraints=constraint_matrix.shape[0],
                 in_scaler=input_scaler,
@@ -156,8 +156,8 @@ def train_narx_module(
             neural_model=model,
             train_loader=train_loader,
             val_loader=val_loader,
-            epochs=training_cfg.get("max_epochs", 128),
-            lr=training_cfg.get("lr", 5e-5),
+            epochs=individual_cfg.get("max_epochs", training_cfg.get("max_epochs", 128)),
+            lr=individual_cfg.get("lr", training_cfg.get("lr", 5e-5)),
             early_stopping=training_cfg.get("early_stopping", False),
             loss_function=loss_function,
         )

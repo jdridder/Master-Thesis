@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import matplotlib
 import matplotlib.cm as cm
@@ -113,8 +113,12 @@ def make_color_cycler(n_colors: int) -> cycler:
     return color_cycler
 
 
-def format_legend(ax, plot_cfg: Dict):
+def format_legend(ax, plot_cfg: Dict, twin_ax=None):
     handles, labels = ax.get_legend_handles_labels()
+    if twin_ax is not None:
+        h_twin, l_twin = twin_ax.get_legend_handles_labels()
+        handles = handles + h_twin
+        labels = labels + l_twin
     # Create a unique legend from all ax
     unique = dict(zip(labels, handles))
     ax.legend(unique.values(), unique.keys(), loc="upper center", bbox_to_anchor=(0.5, plot_cfg.get("legend_y_pos", 1.4)), ncol=plot_cfg.get("legend_cols", 3))

@@ -68,7 +68,7 @@ class SimulationProcess(Process):
             index=self.index,
             run_cfg=self.run_cfg,
         )
-        if len(result_arr) > 0:
+        if result_arr is not None:
             self.result_queue.put(result_arr)
 
 

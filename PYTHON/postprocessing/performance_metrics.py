@@ -253,6 +253,7 @@ def calculate_state_physics_vio(
 
 def calculate_intervall_width(
     surrogate_trajectory_dict: Dict[str, Dict[str, np.ndarray]],
+    true_expected_val_traj: Optional[np.ndarray] = None,
 ) -> Dict[str, np.ndarray]:
     """
     Compute absolute interval widths between upper and lower surrogate trajectories.
@@ -273,6 +274,8 @@ def calculate_intervall_width(
     """
     print("---- Calculating intervall widths. ----")
     intervall_widths = {}
+    if true_expected_val_traj is None:
+        true_expected_val_traj = 1
     for surrogate_key, surrogate_scenario_dict in surrogate_trajectory_dict.items():
         if not "upper" in surrogate_scenario_dict.keys() or not "lower" in surrogate_scenario_dict.keys():
             raise AssertionError("Upper and lower keys must be in the surrogate dict.")
@@ -281,7 +284,7 @@ def calculate_intervall_width(
         assert upper_bound.shape == lower_bound.shape, f"Upper states {upper_bound.shape}, lower states {lower_bound.shape} must have same shape."
         difference = upper_bound - lower_bound
         intervall_widths[surrogate_key] = {}
-        intervall_widths[surrogate_key]["intervall_width"] = np.abs(difference)
+        intervall_widths[surrogate_key]["intervall_width"] = np.abs(difference) / true_expected_val_traj
     # returned shape is {surrogate: np.ndarray (..., n_states)}
     return intervall_widths
 

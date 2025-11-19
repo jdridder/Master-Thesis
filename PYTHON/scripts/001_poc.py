@@ -78,43 +78,47 @@ def run_proof_of_concept(
     os.makedirs(result_directory, exist_ok=True)
     test_data_dir = os.path.join(experiment_dir, "..", "data", "test")
     test_data = data_structurizer.load_data(data_dir=test_data_dir, num_trajectories=n_test_trajectories)
+    init_data = data_structurizer.reduce_measurements(test_data).mean(axis=0, keepdims=True)
 
     for test_cfg in test_cfg_list:
         # run simulation batches
         test_cfg["n_trajectories"] = test_data.shape[0]
         final_model__parameter_dir = os.path.join(trained_model_dir, test_cfg.get("state_dict_folder"))
-        run_open_loop(
-            sim_cfg=sim_cfg,
-            meta_model=meta_model,
-            data_structurizer=data_structurizer,
-            scenario=test_cfg.get("scenario"),
-            surrogate_type=test_cfg.get("surrogate_type"),
-            t_steps=test_cfg.get("t_steps"),
-            n_workers=test_cfg.get("n_workers"),
-            model_parameter_dir=final_model__parameter_dir,
-            initialization_data=test_data[0],
-            warm_up_steps=test_cfg.get("warm_up_steps"),
-            run_cfg={"save_as": "json"},
-        )
+        final_result_path = os.path.join(result_directory, test_cfg.get("surrogate_type"), test_cfg.get("scenario"))
+        if not os.path.exists(final_result_path):
+            os.makedirs(final_result_path)
+            run_open_loop(
+                sim_cfg=sim_cfg,
+                meta_model=meta_model,
+                data_structurizer=data_structurizer,
+                scenario=test_cfg.get("scenario"),
+                surrogate_type=test_cfg.get("surrogate_type"),
+                t_steps=test_cfg.get("t_steps"),
+                n_workers=test_cfg.get("n_workers"),
+                model_parameter_dir=final_model__parameter_dir,
+                initialization_data=init_data,
+                warm_up_steps=test_cfg.get("warm_up_steps"),
+                run_cfg={"save_as": "json", "save_dir": final_result_path},
+            )
 
     # --------------- Plot Training Statistics ---------------
     plot_dir = os.path.join(current_experiment_working_dir, "plots")
     os.makedirs(plot_dir, exist_ok=True)
     light_colors = make_colors(4, alpha=0.1)
     full_colors = make_colors(4, alpha=1)
-    plot_weight_distances(
-        distance_dict=weight_distances,
-        save_dir=plot_dir,
-        sigma=0.002,
-        plot_cfg={
-            "colors": {"weight_function": full_colors[2], "90": light_colors[3], "10": light_colors[0]},
-            "labels": {"weight_function": r"$\mathcal{N}(d) \; \mathrm{with} \; \sigma = 0.002$", "10": r"$d_{0.1}$", "90": r"$d_{0.9}$"},
-            "xlabel": r"$d_\tau$ / -",
-            "xlims": (0, 0.02),
-            "ylabels": {"weight_function": "$w(d)$ / -", "distance": r"$N_\mathrm{points}$ / -"},
-            "legend_y_pos": 1.15,
-        },
-    )
+    # plot_weight_distances(
+    #     distance_dict=weight_distances,
+    #     save_dir=plot_dir,
+    #     sigma=0.002,
+    #     plot_cfg={
+    #         "colors": {"weight_function": full_colors[2], "90": light_colors[3], "10": light_colors[0]},
+    #         "labels": {"weight_function": r"$\mathcal{N}(d) \; \mathrm{with} \; \sigma = 0.002$", "10": r"$d_{0.1}$", "90": r"$d_{0.9}$"},
+    #         "xlabel": r"$d_\tau$ / -",
+    #         "xlims": (0, 0.02),
+    #         "ylabels": {"weight_function": "$w(d)$ / -", "distance": r"$N_\mathrm{points}$ / -"},
+    #         "legend_y_pos": 1.15,
+    #     },
+    # )
     # ------ Temperature Distances for Weight calculation
 
     # is the PC NARX better in predicting the state uncertainty ?
@@ -170,7 +174,7 @@ def run_proof_of_concept(
         plot_cfg={
             "figsize": (10, 8),
             "ylabels": [r"$T_\mathrm{w,1}$ / K", r"$T_\mathrm{w,2}$ / K", r"$T_\mathrm{w,3}$ / K", r"$T_\mathrm{w,4}$ / K"],
-            "colors": {"nominal": full_colors[2], "upper": full_colors[3], "lower": full_colors[0]},
+            "colors": {"nominal": full_colors[2], "upper": full_colors[3], "lower": full_colors[0], "test": full_colors[1]},
         },
         save_cfg={
             "save_name": "input_trajectories",

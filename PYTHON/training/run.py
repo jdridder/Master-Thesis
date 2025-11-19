@@ -52,10 +52,10 @@ def run_training(
                 # create model parameter path from training cfg
                 quantile = individual_cfg.get("quantile")
 
-                for module_cfg in training_cfg["training_jobs"].values():
-                    if LossFuncType.Quantile.value in module_cfg.keys():
-                        if module_cfg["quantile"] == quantile:
-                            path_to_quantile_temp_params = module_cfg.get("save_path")
+                for temperature_model_cfg in training_cfg["training_jobs"].values():
+                    if LossFuncType.Quantile.value in temperature_model_cfg.keys():
+                        if temperature_model_cfg["quantile"] == quantile:
+                            path_to_quantile_temp_params = temperature_model_cfg.get("save_path")
                             break
 
                 # check whether file exists
@@ -64,14 +64,18 @@ def run_training(
                 temp_model_params = torch.load(path_to_quantile_temp_params)
                 # prepare weights
                 weights, distances = infer_temperature_weights(
-                    data_structurizer=data_structurizer, training_data=training_data, training_cfg=training_cfg, pca_encoder=pca_encoder, temp_model_state_dict=temp_model_params
+                    data_structurizer=data_structurizer,
+                    training_data=training_data,
+                    training_cfg=training_cfg,
+                    pca_encoder=pca_encoder,
+                    temp_model_state_dict=temp_model_params,
+                    temp_model_cfg=temperature_model_cfg,
                 )
                 if training_cfg.get("save_distances", False):
                     distances_file_path = os.path.join(model_parameter_dir, f"distances_{quantile}.npy")
                     np.save(arr=distances.numpy(), file=distances_file_path)
             else:
                 weights = None
-
             train_narx_module(
                 data_structurizer=data_structurizer,
                 pca_encoder=pca_encoder,
@@ -84,7 +88,9 @@ def run_training(
             )
 
 
-def infer_temperature_weights(data_structurizer: DataStructurizer, training_data: np.ndarray, pca_encoder: PCA_Encoder, training_cfg: Dict, temp_model_state_dict: Dict) -> Tuple[torch.Tensor]:
+def infer_temperature_weights(
+    data_structurizer: DataStructurizer, training_data: np.ndarray, pca_encoder: PCA_Encoder, training_cfg: Dict, temp_model_cfg: Dict, temp_model_state_dict: Dict
+) -> Tuple[torch.Tensor]:
     training_data = data_structurizer.reduce_measurements(training_data)
     X, Y = data_structurizer.make_training_XY(data_matrix=training_data)
     X = torch.tensor(X.copy(), dtype=torch.float32)
@@ -93,7 +99,7 @@ def infer_temperature_weights(data_structurizer: DataStructurizer, training_data
     Y = data_structurizer.isolate_state(Y=Y, state_key="T")
     Y = torch.tensor(Y.copy(), dtype=torch.float32)
 
-    temp_model = StatePredictor(n_input=X_enc.shape[-1], n_output=Y.shape[-1], hidden_units=training_cfg.get("hidden_units"))
+    temp_model = StatePredictor(n_input=X_enc.shape[-1], n_output=Y.shape[-1], hidden_units=temp_model_cfg.get("hidden_units", training_cfg.get("hidden_units")))
     temp_model.load_state_dict(temp_model_state_dict)
     temp_model.to(torch.device("cpu"))
     temp_model.eval()

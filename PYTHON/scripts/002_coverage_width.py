@@ -60,7 +60,7 @@ def run_coverage_width(
                 feature_bounds=test_data_cfg.get("input_bounds"),
                 num_steps=test_data_cfg.get("t_steps"),
                 time_step=sim_cfg["simulation"].get("t_step", 1),
-                tau=test_data_cfg.get("input_signal_tau"),
+                tau=uq_test_cfg.get("input_signal_tau"),
             )
             tvp_trajectory = generate_random_ramp_signal(
                 feature_bounds=test_data_cfg.get("tvp_bounds"),
@@ -117,7 +117,8 @@ def run_coverage_width(
                     narx_result_dict[surrogate_key][scenario_key] = data_structurizer.get_states_from_data(data=narx_result, state="T")
 
             # ----- Calculate intervall widths and coverages for the temperature quantiles -----
-            intervall_dict = calculate_intervall_width(narx_result_dict)
+            expected_value_traj = data_structurizer.get_states_from_data(init_data[:, warm_up_steps:], state="T")
+            intervall_dict = calculate_intervall_width(narx_result_dict, true_expected_val_traj=expected_value_traj)
             fp_temperature_trajects = data_structurizer.get_states_from_data(data=first_principle_results, state="T")
             coverage_dict = calculate_coverage(surrogate_dict=narx_result_dict, test_data=fp_temperature_trajects[:, warm_up_steps:])
 
@@ -131,6 +132,9 @@ def run_coverage_width(
             duration = time.perf_counter() - t_start
             print(f"--- Experimental run took {duration:.3f} s. ---")
 
+    with open(os.path.join(results_dir, "uq_meta.json"), "w") as f:
+        f.write(json.dumps(uq_test_cfg, indent=4))
+
     # --- Analysis ---
     width_coverage_dict = load_json_results(result_dir=results_dir)
     # print(width_coverage_dict)
@@ -143,10 +147,12 @@ def run_coverage_width(
             coverage_width_dict={surrogate_key: surrogate_dict},
             save_dir=plot_dir,
             plot_cfg={
-                "colors": {"coverage": deep_colors[0], "intervall_width": deep_colors[2]},
-                "ylabels": {"intervall_width": "intervall width / -", "coverage": "coverage / -"},
+                "colors": {"coverage": deep_colors[0], "intervall_width": deep_colors[2], "ideal_coverage": "gray"},
+                "ylabels": {"intervall_width": "rel. intervall width / -", "coverage": "coverage / -", "ideal_coverage": "ideal coverage"},
                 "ylims": {"intervall_width": (0, 0.1), "coverage": (0, 1.05)},
                 "xlims": (0, 1.25),
+                "legend_y_pos": 1.15,
+                "ideal_coverage": 0.8,
             },
             save_cfg={"export_name": f"{surrogate_key}_coverage_width"},
         )

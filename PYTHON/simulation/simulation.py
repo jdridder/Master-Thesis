@@ -23,7 +23,7 @@ def simulate(
     index: Optional[np.ndarray] = None,
     process_name: Optional[str] = "",
     run_cfg: Optional[Dict] = None,
-) -> np.ndarray:
+) -> Union[np.ndarray, None]:
     assert n_time_steps <= input_signals.shape[1], f"The maximum number of time steps to simulate is {input_signals.shape[1]} you have {n_time_steps}."
     run_cfg = run_cfg or {}
 
@@ -136,7 +136,8 @@ def simulate(
                 f.write(json.dumps(json_result, indent=4, cls=NumpyEncoder))
         else:
             raise NotImplementedError(f"The save as type {save_as} is not implemented.")
-    return np.concatenate(results_concat, axis=0)
+    if len(results_concat) > 0:
+        return np.concatenate(results_concat, axis=0)
 
 
 def save_data(model_name: str, data: np.ndarray, run_id: str, data_dir: str = None):
