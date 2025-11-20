@@ -147,15 +147,14 @@ class StatePredictor(nn.Module):
 
 
 class CQRPredictor(StatePredictor):
-    def __init__(self, n_input: int, n_output: int, hidden_units: List[int], quantile: Optional[float] = None, in_scaler=None, out_scaler=None):
+    def __init__(self, n_input: int, n_output: int, hidden_units: List[int], in_scaler=None, out_scaler=None):
         super().__init__(n_input, n_output, hidden_units, in_scaler, out_scaler)
-        assert 1 > quantile > 0, "The quantile must lie between 0 and 1."
         self.register_buffer("q_correction", torch.empty(n_output))
-        self.register_buffer("quantile", quantile)
+        # q_correction must be registered with a negative sign for the lower quantile model
 
     def forward(self, x):
-        x = super().forward()
-        x = x + self.q_correction if self.quantile > 0.5 else x - self.q_correction
+        x = super().forward(x)
+        x = x + self.q_correction
         return x
 
 

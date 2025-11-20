@@ -104,6 +104,7 @@ def run_training(
         if not all(["q_correction" in state_dict.keys() for state_dict in quantile_state_dicts]):
             pca_encoder = torch.load(pca_encoder_path, weights_only=False)
             calibration_data = data_structurizer.reduce_measurements(data_structurizer.load_data(data_dir=calibration_data_dir, num_trajectories=training_cfg.get("n_calibration_trajectories", 16)))
+            print(f"---- Calibrating the quantile models using {calibration_data.shape[0] * calibration_data.shape[1]} points.")
 
             q_calibrated_models = calibrate_quantile_models(
                 quantile_state_dicts=quantile_state_dicts,

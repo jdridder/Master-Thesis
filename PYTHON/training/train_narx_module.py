@@ -222,8 +222,10 @@ def calibrate_quantile_models(
         q_correction = torch.quantile(conformity_scores.reshape((-1, conformity_scores.shape[-1])), q=q_corrected, dim=0)
 
         for quantile, q_model in zip(quantiles, q_models):
-            q_model.register_buffer("quantile", torch.tensor(quantile, dtype=torch.float32))
-            q_model.register_buffer("q_correction", q_correction)
+            if quantile > 0.5:
+                q_model.register_buffer("q_correction", q_correction)
+            elif quantile < 0.5:
+                q_model.register_buffer("q_correction", -q_correction)
 
     return q_models
 

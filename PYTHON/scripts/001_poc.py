@@ -75,7 +75,6 @@ def run_proof_of_concept(
                         weight_distances[surrogate_key] = {}
                     weight_distances[surrogate_key][quantile_key] = distances
 
-    exit()
     # # simulate open loop with uncertainty models
     result_directory = os.path.join(current_experiment_working_dir, "results")
     os.makedirs(result_directory, exist_ok=True)
