@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from neurals.TorchPredictors import CombinedStatePredictor, MinMaxScalerModule, PCA_Encoder, StatePredictor
+from neurals.TorchPredictors import CombinedStatePredictor, CQRPredictor, MinMaxScalerModule, PCA_Encoder, PCStatePredictor, StatePredictor
 from routines.data_structurizer import DataStructurizer
 from torch.utils.data import DataLoader, Dataset
 
@@ -171,6 +171,24 @@ def save_model(neural_model: Type[nn.Module], final_export_path: Path):
     print(f"Model saved to {final_export_path}")
 
 
+def get_unit_dims_from_state_dict(state_dict: Dict[str, torch.Tensor]):
+    """
+    Extracts the input dimension, hidden layer sizes, and output dimension
+    from a PyTorch state_dict by inspecting all tensors containing 'weight'.
+    Returns (input_dim, hidden_units, output_dim).
+    """
+    weight_keys = [k for k in state_dict.keys() if "weight" in k]
+    if not weight_keys:
+        raise ValueError("No tensors for ('weight') found.")
+    input_dim = state_dict[weight_keys[0]].shape[1]
+    output_dim = state_dict[weight_keys[-1]].shape[0]
+    hidden_units = []
+    for key in weight_keys[:-1]:
+        hidden_units.append(state_dict[key].shape[0])
+
+    return input_dim, hidden_units, output_dim
+
+
 def load_state_predictor(model_configurations: Dict, model_dir: str) -> torch.nn.Module:
     models = {}
     pca_encoder = torch.load(os.path.join(model_dir, "pca_encoder.pth"), weights_only=False)
@@ -178,21 +196,17 @@ def load_state_predictor(model_configurations: Dict, model_dir: str) -> torch.nn
         file_name = model_cfg["file_name"]
         model_params = torch.load(os.path.join(model_dir, file_name))
 
-        weight_keys = [k for k in model_params.keys() if "weight" in k]
-        if not weight_keys:
-            raise ValueError("No tensors for ('weight') found.")
-        input_dim = model_params[weight_keys[0]].shape[1]
-        output_dim = model_params[weight_keys[-1]].shape[0]
-        hidden_units = []
-
+        kwargs = {}
+        model_cls = StatePredictor
         if "constraint_rhs" in model_params.keys():
-            kwargs = {"n_constraints": len(model_params["constraint_rhs"])}
-        else:
-            kwargs = {}
+            kwargs.update({"n_constraints": len(model_params["constraint_rhs"])})
+            model_cls = PCStatePredictor
+        if "q_correction" in model_params.keys():
+            model_cls = CQRPredictor
 
-        for key in weight_keys[:-1]:
-            hidden_units.append(model_params[key].shape[0])
-        model = model_cfg["cls"](n_input=input_dim, n_output=output_dim, hidden_units=hidden_units, **kwargs)
+        input_dim, hidden_units, output_dim = get_unit_dims_from_state_dict(model_params)
+
+        model = model_cls(n_input=input_dim, n_output=output_dim, hidden_units=hidden_units, **kwargs)
         model.load_state_dict(model_params)
         models[model_key] = model
 

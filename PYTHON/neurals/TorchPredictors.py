@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -121,8 +121,8 @@ class StatePredictor(nn.Module):
         n_input: int,
         n_output: int,
         hidden_units: List[int],
-        in_scaler: MinMaxScalerModule = None,
-        out_scaler: MinMaxScalerModule = None,
+        in_scaler: Optional[MinMaxScalerModule] = None,
+        out_scaler: Optional[MinMaxScalerModule] = None,
     ):
         super().__init__()
         assert len(hidden_units) >= 1, "The number of hidden units must be greater or equal than one."
@@ -143,6 +143,19 @@ class StatePredictor(nn.Module):
         x = self.in_scaler(x) if self.in_scaler is not None else x
         x = self.network(x)
         # the reverse of the scaling must be done manually for inference
+        return x
+
+
+class CQRPredictor(StatePredictor):
+    def __init__(self, n_input: int, n_output: int, hidden_units: List[int], quantile: Optional[float] = None, in_scaler=None, out_scaler=None):
+        super().__init__(n_input, n_output, hidden_units, in_scaler, out_scaler)
+        assert 1 > quantile > 0, "The quantile must lie between 0 and 1."
+        self.register_buffer("q_correction", torch.empty(n_output))
+        self.register_buffer("quantile", quantile)
+
+    def forward(self, x):
+        x = super().forward()
+        x = x + self.q_correction if self.quantile > 0.5 else x - self.q_correction
         return x
 
 

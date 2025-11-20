@@ -48,6 +48,7 @@ def run_proof_of_concept(
     # train the narx and rom models
     trained_model_dir = os.path.join(current_experiment_working_dir, "trained_models")
     training_data_dir = os.path.join(experiment_dir, "..", "data", "train")
+    calibration_data_dir = os.path.join(experiment_dir, "..", "data", "calibration")
     os.makedirs(trained_model_dir, exist_ok=True)
     boundary_cond = meta_model.get_bc_for_all_measurements(n_measurements=data_structurizer.n_measurements)[:, :20]  # only chi states
     weight_distances = {}
@@ -58,6 +59,7 @@ def run_proof_of_concept(
         run_training(
             model_parameter_dir=final_model_dir,
             training_data_dir=training_data_dir,
+            calibration_data_dir=calibration_data_dir,
             data_structurizer=data_structurizer,
             training_cfg=training_cfg,
             constraint_matrix=meta_model.get_balance_constraint_matrix(num_stacks=data_structurizer.n_measurements, include_temp_as_zero=False),
@@ -73,6 +75,7 @@ def run_proof_of_concept(
                         weight_distances[surrogate_key] = {}
                     weight_distances[surrogate_key][quantile_key] = distances
 
+    exit()
     # # simulate open loop with uncertainty models
     result_directory = os.path.join(current_experiment_working_dir, "results")
     os.makedirs(result_directory, exist_ok=True)

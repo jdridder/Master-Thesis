@@ -12,7 +12,7 @@ from do_mpc.simulator import Simulator
 from models import EtOxModel
 from neurals.casadi import get_narx_input_shift_rhs, make_explicit_layer
 from neurals.torch_training import load_state_predictor
-from neurals.TorchPredictors import PCStatePredictor, StatePredictor
+from neurals.TorchPredictors import CQRPredictor, PCStatePredictor, StatePredictor
 
 from .data_structurizer import DataStructurizer
 
@@ -49,7 +49,6 @@ def get_narx_expressions(
     data_structurizer: DataStructurizer,
     simulation_cfg: Dict,
     super_model: EtOxModel,
-    module_cls: Type[StatePredictor],
     scenarios: Union[str, List[str]],
     model_parameter_dir: str,
     with_opt_layer: bool = False,
@@ -67,9 +66,9 @@ def get_narx_expressions(
         time_horizon=data_structurizer.time_horizon,
     )
     cfgs = {
-        "nominal": {"state_model": {"file_name": "nominal_states.pth", "cls": module_cls}, "temperature_model": {"file_name": "nominal_temperature.pth", "cls": StatePredictor}},
-        "upper": {"state_model": {"file_name": "upper_states.pth", "cls": module_cls}, "temperature_model": {"file_name": "upper_temperature.pth", "cls": StatePredictor}},
-        "lower": {"state_model": {"file_name": "lower_states.pth", "cls": module_cls}, "temperature_model": {"file_name": "lower_temperature.pth", "cls": StatePredictor}},
+        "nominal": {"state_model": {"file_name": "nominal_states.pth"}, "temperature_model": {"file_name": "nominal_temperature.pth"}},
+        "upper": {"state_model": {"file_name": "upper_states.pth"}, "temperature_model": {"file_name": "upper_temperature.pth"}},
+        "lower": {"state_model": {"file_name": "lower_states.pth"}, "temperature_model": {"file_name": "lower_temperature.pth"}},
     }
     torch_models = [load_state_predictor(cfgs[scenario_key], model_dir=model_parameter_dir) for scenario_key in scenarios]
     surrogate_expressions = {scenario_key: l4casadi.L4CasADi(torch_model, device="cpu") for scenario_key, torch_model in zip(scenarios, torch_models)}
@@ -163,12 +162,10 @@ def configure_dompc_model(
             assert sim_cfg is not None, f"A simulation cfg dict {assertion_error_message}."
 
             with_opt_layer = True if model_type == SurrogateTypes.Naive.value else False
-            nn_module_cls = PCStatePredictor if model_type == SurrogateTypes.Pc.value else StatePredictor
             narx_expressions, dompc_model = get_narx_expressions(
                 data_structurizer=data_structurizer,
                 model_parameter_dir=model_parameter_dir,
                 simulation_cfg=sim_cfg,
-                module_cls=nn_module_cls,
                 scenarios=scenario,
                 super_model=meta_model,
                 with_opt_layer=with_opt_layer,

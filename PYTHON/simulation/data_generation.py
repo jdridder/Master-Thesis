@@ -66,7 +66,6 @@ def generate_data(
     print(f"Generating data for {no_data_points} points.")
 
     run_parallel_simulations(
-        data_structurizer=None,
         initial_states=x0,
         input_signals=input_signals,
         tvp_signals=tvp_signals,
@@ -74,11 +73,10 @@ def generate_data(
         meta_model=meta_model,
         model_type=SurrogateTypes.Rigorous.value,
         n_workers=n_workers,
-        model_parameter_dir=None,
         simulation_cfg=sim_cfg,
         t_steps=t_steps,
         scenario="nominal",
-        save_kwargs={"result_name": result_name, "save_dir": data_dir, "save_as": save_as},
+        run_cfg={"result_name": result_name, "save_dir": data_dir, "save_as": save_as},
     )
     print(f"Training data save to {data_dir}")
     meta_data = {
