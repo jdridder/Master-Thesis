@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  19 NOV 2025 17:45
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  20 NOV 2025 16:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1200,17 +1200,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 151--171
  []
 
 [5] [6] [7] [8]
-Underfull \hbox (badness 10000) in paragraph at lines 284--312
+Underfull \hbox (badness 10000) in paragraph at lines 330--358
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 284--312
+Underfull \hbox (badness 10000) in paragraph at lines 330--358
 
  []
 
 [9]
-Underfull \hbox (badness 10000) in paragraph at lines 329--343
+Underfull \hbox (badness 10000) in paragraph at lines 375--389
 
  []
 
@@ -1218,16 +1218,19 @@ Underfull \hbox (badness 10000) in paragraph at lines 329--343
 File: Figures/Theory/narx-pca-encoder.pdf Graphic file (type pdf)
 <use Figures/Theory/narx-pca-encoder.pdf>
 
-Underfull \hbox (badness 10000) in paragraph at lines 405--431
+Underfull \hbox (badness 10000) in paragraph at lines 451--477
 
  []
 
 [11]
-Overfull \hbox (3.1434pt too wide) in paragraph at lines 448--451
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [12]
+Overfull \hbox (3.1434pt too wide) in paragraph at lines 494--497
 []\TU/lmr/m/n/10.95 Here, $\OML/cmm/b/it/10.95 B$ \TU/lmr/m/n/10.95 denotes the \TU/lmr/m/it/10.95 element-species-matrix \TU/lmr/m/n/10.95 and $[]\OML/cmm/b/it/10.95 n$ \TU/lmr/m/n/10.95 the changes in the molar amounts
  []
 
-[12]) (./chapters/05_surrogate_modelling.tex [13] [14
+) (./chapters/05_surrogate_modelling.tex [13] [14
 
 ]
 Chapter 3.
@@ -1435,16 +1438,16 @@ Overfull \hbox (10.7295pt too wide) in paragraph at lines 84--84
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 22070A58696A32099A5D698C0674DE7B;8298.
+(rerunfilecheck)             Checksum: 3EF44B76A2401C266FF6B8F595F184FB;8531.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 32152 strings out of 476683
- 670188 string characters out of 5804048
- 1867018 words of memory out of 5000000
- 51871 multiletter control sequences out of 15000+600000
+ 32156 strings out of 476683
+ 670319 string characters out of 5804048
+ 1868018 words of memory out of 5000000
+ 51875 multiletter control sequences out of 15000+600000
  527751 words of font info for 108 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  77i,19n,80p,2133b,5402s stack positions out of 10000i,1000n,20000p,200000b,200000s

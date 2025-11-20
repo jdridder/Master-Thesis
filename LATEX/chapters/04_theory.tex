@@ -260,6 +260,52 @@ For robust optimization, \emph{quantile regression} can be applied to learn uppe
 constraints $F_i(\vu, \vw)$ (eq.~\ref{theory:def: bi-level program}) in terms of confidence quantiles. This would reduce
 the semi-infinite program to an uncertainty-finite program.
 
+\subsection{Conformalized Quantile Regression}
+
+Quantile regressors trained by this approach achieve their specified coverage approximately. 
+Nonetheless, for data with strong heteroscedasticity the predicted confidence interval may be too
+tight or too narrow at local variations \cite{romano2019cqr}. \emph{Conformalized Quantile Regression}
+(CQR) is capable of calibrating the interval predictions of arbitrary quantile models to achieve
+a theoretical guarantee of the desired coverage. This is done, by calculating a conformity score with a
+trained quantile model and an unseen \emph{calibration} data set. Given a certain confidence level $\alpha$
+with the corresponding coverage $(1-\alpha)$,
+the respective upper and lower quantiles are defined (eq.~\ref{theory:eq: quantiles from confidence}).
+\begin{equation}
+    \label{theory:eq: quantiles from confidence}
+    \tau_1 = \alpha/2 \quad \text{and} \quad \tau_2 = (1 - \alpha/2)
+\end{equation}
+To correct the interval prediction of the corresponding quantile regressors $\tilde{q}_{\tau_1}$ and $\tilde{q}_{\tau_2}$.
+\begin{equation}
+    \label{theory:eq: conformity scores}
+    \begin{gathered}
+        \bm{\xi}^{(i)} \in \mathbb{X}_\text{cal} \quad 
+        \vy^{(i)} \in \mathbb{Y}_\text{cal} \quad
+        \text{with} \quad i \in \{0, 1, ..., m_\text{cal} - 1\}
+        \\ 
+        \bm{\epsilon}^{(i)} \coloneq \max(\tilde{q}_{\tau_1}(\bm{\xi}^{(i)}) - \vy^{(i)}, \vy^{(i)} - \tilde{q}_{\tau_2}(\bm{\xi}^{(i)}))
+    \end{gathered}
+\end{equation}
+
+
+
+\begin{equation}
+    \label{theory:eq: empirical quantile of scores}
+    Q_{1-\alpha}(\bm{\epsilon}) \coloneq (1-\alpha)(1+1/m_\text{cal})\text{-th empirical quantile of} \; \bm{\epsilon}
+\end{equation}
+
+\begin{theorem} Adjusted prediction intervall with the empirical quantile of the conformity scores
+     $\bm{\epsilon}^{(i)}$ \cite{romano2019cqr}.
+    \label{theory:th:CQR-update}
+    \[
+        \begin{pmatrix}
+            q_{\tau_1}(\bm{\xi}), q_{\tau_2}(\bm{\xi})
+        \end{pmatrix} = 
+        \begin{pmatrix}
+            \tilde{q}_{\tau_1}(\bm{\xi}) - Q_{1-\alpha}(\bm{\epsilon}), \tilde{q}_{\tau_2}(\bm{\xi}) + Q_{1-\alpha}(\bm{\epsilon})
+        \end{pmatrix}
+    \]
+\end{theorem}
+
 
 \section{NARX Models}
 

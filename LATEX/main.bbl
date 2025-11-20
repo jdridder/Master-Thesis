@@ -573,6 +573,44 @@
       \field{title}{Learning for CasADi: Data-driven Models in Numerical Optimization}
       \field{year}{2024}
     \endentry
+    \entry{romano2019cqr}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=b2349f448cc200f2492f372e9eda8c1e}{%
+           family={Romano},
+           familyi={R\bibinitperiod},
+           given={Yaniv},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=318b3f8d6da4d1c854033da07460a0cd}{%
+           family={Patterson},
+           familyi={P\bibinitperiod},
+           given={Evan},
+           giveni={E\bibinitperiod}}}%
+        {{hash=ae404faac8c8429af059d0185dcc9643}{%
+           family={Candès},
+           familyi={C\bibinitperiod},
+           given={Emmanuel\bibnamedelima J.},
+           giveni={E\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{fullhash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{bibnamehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{authorbibnamehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{authornamehash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \strng{authorfullhash}{f72e44b62b29cba4bc9d11874515a9b5}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Advances in Neural Information Processing Systems (NeurIPS)}
+      \field{title}{Conformalized Quantile Regression}
+      \field{year}{2019}
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1905.03222
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1905.03222
+      \endverb
+    \endentry
     \entry{benidis2022}{article}{}
       \name{author}{13}{}{%
         {{hash=d3095e65af4a4f40049359d3f9b83fff}{%
@@ -650,8 +688,8 @@
       \strng{authorbibnamehash}{e734b5b35ae4db0bfb7bfdf19537efe8}
       \strng{authornamehash}{e734b5b35ae4db0bfb7bfdf19537efe8}
       \strng{authorfullhash}{e1b7af6385412016b3f12bc8e3957067}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{issn}{1557-7341}
@@ -889,44 +927,6 @@
       \field{title}{torch-incremental-pca: A PyTorch Implementation of Incremental PCA}
       \field{year}{2025}
       \keyw{Incremental PCA,Dimensionality Reduction,PyTorch,GPU,Machine Learning}
-    \endentry
-    \entry{romano2019cqr}{inproceedings}{}
-      \name{author}{3}{}{%
-        {{hash=b2349f448cc200f2492f372e9eda8c1e}{%
-           family={Romano},
-           familyi={R\bibinitperiod},
-           given={Yaniv},
-           giveni={Y\bibinitperiod}}}%
-        {{hash=318b3f8d6da4d1c854033da07460a0cd}{%
-           family={Patterson},
-           familyi={P\bibinitperiod},
-           given={Evan},
-           giveni={E\bibinitperiod}}}%
-        {{hash=ae404faac8c8429af059d0185dcc9643}{%
-           family={Candès},
-           familyi={C\bibinitperiod},
-           given={Emmanuel\bibnamedelima J.},
-           giveni={E\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
-      }
-      \strng{namehash}{f72e44b62b29cba4bc9d11874515a9b5}
-      \strng{fullhash}{f72e44b62b29cba4bc9d11874515a9b5}
-      \strng{bibnamehash}{f72e44b62b29cba4bc9d11874515a9b5}
-      \strng{authorbibnamehash}{f72e44b62b29cba4bc9d11874515a9b5}
-      \strng{authornamehash}{f72e44b62b29cba4bc9d11874515a9b5}
-      \strng{authorfullhash}{f72e44b62b29cba4bc9d11874515a9b5}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{Advances in Neural Information Processing Systems (NeurIPS)}
-      \field{title}{Conformalized Quantile Regression}
-      \field{year}{2019}
-      \verb{urlraw}
-      \verb https://arxiv.org/abs/1905.03222
-      \endverb
-      \verb{url}
-      \verb https://arxiv.org/abs/1905.03222
-      \endverb
     \endentry
     \entry{raissi2019}{article}{}
       \name{author}{3}{}{%

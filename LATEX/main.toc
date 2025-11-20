@@ -10,11 +10,12 @@
 \contentsline {section}{\numberline {2.3}Multi-Stage Model Predictive Control}{5}{section.2.3}%
 \contentsline {section}{\numberline {2.4}Neural Networks}{7}{section.2.4}%
 \contentsline {subsection}{\numberline {2.4.1}Quantile Regression}{8}{subsection.2.4.1}%
-\contentsline {section}{\numberline {2.5}NARX Models}{8}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Input Compression}{9}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.4.2}Conformalized Quantile Regression}{8}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}NARX Models}{9}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Input Compression}{10}{subsection.2.5.1}%
 \contentsline {subsection}{\numberline {2.5.2}Singular Value Decomposition}{10}{subsection.2.5.2}%
 \contentsline {section}{\numberline {2.6}Uncertainty Quantification}{11}{section.2.6}%
-\contentsline {section}{\numberline {2.7}Conservation of Atoms}{12}{section.2.7}%
+\contentsline {section}{\numberline {2.7}Conservation of Atoms}{13}{section.2.7}%
 \contentsline {chapter}{\numberline {3}Surrogate Modelling}{15}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Framework for general Uncertainty Quantification}{15}{section.3.1}%
 \contentsline {section}{\numberline {3.2}NARX Framework for Chance Constraint Satisfaction}{16}{section.3.2}%
