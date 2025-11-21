@@ -573,6 +573,52 @@
       \field{title}{Learning for CasADi: Data-driven Models in Numerical Optimization}
       \field{year}{2024}
     \endentry
+    \entry{lange2017}{inbook}{}
+      \name{author}{2}{}{%
+        {{hash=6a1ba74e83f6ded58b75dbcd6e6e799c}{%
+           family={Lange},
+           familyi={L\bibinitperiod},
+           given={Tatjana},
+           giveni={T\bibinitperiod}}}%
+        {{hash=2d613eb2a7e39fd264ddf51bb0a8adf1}{%
+           family={Mosler},
+           familyi={M\bibinitperiod},
+           given={Karl},
+           giveni={K\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer Berlin Heidelberg}%
+      }
+      \strng{namehash}{ec358d816beca1400f5373668b84690c}
+      \strng{fullhash}{ec358d816beca1400f5373668b84690c}
+      \strng{bibnamehash}{ec358d816beca1400f5373668b84690c}
+      \strng{authorbibnamehash}{ec358d816beca1400f5373668b84690c}
+      \strng{authornamehash}{ec358d816beca1400f5373668b84690c}
+      \strng{authorfullhash}{ec358d816beca1400f5373668b84690c}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Der Umgang mit zufälligen Ereignissen und Wahrscheinlichkeiten wird sehr viel einfacher, wenn man die möglichen Ergebnisse eines Experiments durch Zahlen beschreibt. Dieses Kapitel handelt von Zufallsgrö{ß}en und ihren Wahrscheinlichkeitsverteilungen.}
+      \field{booktitle}{Statistik kompakt: Basiswissen für Ökonomen und Ingenieure}
+      \field{isbn}{978-3-662-53467-0}
+      \field{title}{Zufallsgrö{ß}en und Verteilungen}
+      \field{year}{2017}
+      \field{pages}{29\bibrangedash 43}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1007/978-3-662-53467-0_4
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/978-3-662-53467-0_4
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/978-3-662-53467-0_4
+      \endverb
+    \endentry
     \entry{romano2019cqr}{inproceedings}{}
       \name{author}{3}{}{%
         {{hash=b2349f448cc200f2492f372e9eda8c1e}{%
@@ -952,8 +998,8 @@
       \strng{authorbibnamehash}{a17a0649dc8bad70026488d4ea37c508}
       \strng{authornamehash}{a17a0649dc8bad70026488d4ea37c508}
       \strng{authorfullhash}{a17a0649dc8bad70026488d4ea37c508}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{abstract}{We introduce physics-informed neural networks – neural networks that are trained to solve supervised learning tasks while respecting any given laws of physics described by general nonlinear partial differential equations. In this work, we present our developments in the context of solving two main classes of problems: data-driven solution and data-driven discovery of partial differential equations. Depending on the nature and arrangement of the available data, we devise two distinct types of algorithms, namely continuous time and discrete time models. The first type of models forms a new family of data-efficient spatio-temporal function approximators, while the latter type allows the use of arbitrarily accurate implicit Runge–Kutta time stepping schemes with unlimited number of stages. The effectiveness of the proposed framework is demonstrated through a collection of classical problems in fluids, quantum mechanics, reaction–diffusion systems, and the propagation of nonlinear shallow-water waves.}
@@ -1135,8 +1181,8 @@
       \strng{authorbibnamehash}{e81e041386a3f1a61ccbda15a08b7f3b}
       \strng{authornamehash}{e81e041386a3f1a61ccbda15a08b7f3b}
       \strng{authorfullhash}{e81e041386a3f1a61ccbda15a08b7f3b}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{issn}{02638762}
@@ -1165,8 +1211,8 @@
       \strng{authorbibnamehash}{28a0bb18bc462c47a7484390e13f233d}
       \strng{authornamehash}{28a0bb18bc462c47a7484390e13f233d}
       \strng{authorfullhash}{28a0bb18bc462c47a7484390e13f233d}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{edition}{37}

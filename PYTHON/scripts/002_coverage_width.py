@@ -17,7 +17,7 @@ from postprocessing.performance_metrics import *
 from postprocessing.plot import *
 from postprocessing.plotting_helpers import format_legend, make_colors
 from routines.data_structurizer import DataStructurizer
-from routines.utils import NumpyEncoder, apply_to_double_dict, get_directory_for_today, load_json_results
+from routines.utils import NumpyEncoder, apply_to_double_dict, df_from_double_dict, get_directory_for_today, load_json_results
 from simulation.data_generation import generate_data_for_specs
 from simulation.open_loop import run_open_loop
 from simulation.simulation import generate_random_ramp_signal
@@ -136,9 +136,7 @@ def run_coverage_width(
         f.write(json.dumps(uq_test_cfg, indent=4))
 
     # --- Analysis ---
-    width_coverage_dict = load_json_results(result_dir=results_dir)
-    # print(width_coverage_dict)
-
+    width_coverage_dict = load_json_results(result_dir=results_dir, n_trajectories=10)
     # ---- Plotting functions
     deep_colors = make_colors(4)
     for surrogate_key, surrogate_dict in width_coverage_dict.items():
@@ -157,14 +155,20 @@ def run_coverage_width(
             save_cfg={"export_name": f"{surrogate_key}_coverage_width"},
         )
 
-    # calculate and plot the KPIs
-    # 1. coverage as f(t) over the complete horizon
-    #  -> does it become worse later in the horizon?
-    # pc narx better coverage (close to 90) ?
+    # ---- Dataframe Action ----
+    width_coverage_dict = apply_to_double_dict(width_coverage_dict, fn=np.squeeze)
+    width_coverage_dict_mean = apply_to_double_dict(width_coverage_dict, fn=np.mean, axis=(0, 1), keepdims=False)
+    width_coverage_dict_std = apply_to_double_dict(width_coverage_dict, fn=np.std, axis=(0, 1), keepdims=False)
 
-    # 2. intervall with
-    # -> increases over the horizon?
-    # pc narx smaller intervalls than narx?
+    positions = np.arange(start=0.25, stop=1.25, step=0.25)
+    mean_df = df_from_double_dict(width_coverage_dict_mean, column_names=["framework", "metric", "position", "value"], arr_indices=positions)
+    mean_df["param"] = "mean"
+    std_df = df_from_double_dict(width_coverage_dict_std, column_names=["framework", "metric", "position", "value"], arr_indices=positions)
+    std_df["param"] = "std"
+    df = pd.concat([mean_df, std_df], axis=0).reset_index(drop=True)
+    df = pd.pivot_table(df, index=["position", "framework"], columns=["metric", "param"], values="value")
+
+    print(df.to_latex(float_format="${:.4f}$".format))
 
     print(f"---- {exp_name} finished. -----")
 

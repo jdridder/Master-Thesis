@@ -5,6 +5,7 @@ import os
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
 import numpy as np
+import pandas as pd
 from joblib import Parallel, delayed
 
 
@@ -101,6 +102,12 @@ def load_json_results(result_dir: str, n_trajectories: int = -1) -> Dict[str, An
         return stacked_result
 
     return _recursive_stack(json_list)
+
+
+def df_from_double_dict(double_dict: Dict[str, Dict[str, np.ndarray]], column_names: List[str], arr_indices: Optional[np.ndarray] = None):
+    records = [(parent, child, ind, val) for parent, children in double_dict.items() for child, array in children.items() for ind, val in zip(arr_indices, array)]
+    df_final = pd.DataFrame(records, columns=column_names)
+    return df_final
 
 
 def apply_to_double_dict(double_dict: Dict[str, Dict[str, np.ndarray]], fn: Callable, **kwargs: Optional[Dict]) -> Dict[str, Dict[str, np.ndarray]]:

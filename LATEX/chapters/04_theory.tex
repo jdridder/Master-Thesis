@@ -238,9 +238,20 @@ is penalized quadratically to learn the expected value of a data distribution.
 
 \subsection{Quantile Regression}
 \label{theory: quantile regression}
+
+In probability theory, the quantiles are a foundational measure of distribution width. Given a certain 
+order $\tau$, its quantile definition is recalled as follows \cite{lange2017}.
+\begin{definition} Quantile function of order $\tau$.
+    \label{theory:def:quantile}
+    \[
+    P(q_\tau) = \int_{-\infty}^{q_\tau} p(\rx = x) dx = \tau
+    \]
+\end{definition}
+\noindent
+Where $p(\rx = x)$ represents the probability density function of the random variable $\rx$. The
+$\tau$-th quantile is reached when the probability mass $P(q_\tau)$ is equal to the quantile order.
 By utilizing a loss function in form of the MSE, an NN is trained to approximate the expected value of a distribution of data points.
 To specify the prediction characteristic of an NN, the type of training loss function is decisive.
-In a probabilistic environment, the prediction of confidence intervals in the form of quantiles may be of major interest.
 To learn the quantiles of a distribution of data points, the \emph{quantile loss} or \emph{pinball loss} can be used (eq.~\ref{theory:eq: quantile loss}).
 
 \begin{equation}
@@ -251,8 +262,8 @@ To learn the quantiles of a distribution of data points, the \emph{quantile loss
         (1 - \tau) \cdot (\tilde{y}(\bm{\theta}) - y), &y < \tilde{y}(\bm{\theta})
     \end{cases}
 \end{equation}
-
-The hyperparameter $\tau$ denotes the type and therefore position of the quantile. A small value for $\tau$, e.g.,
+\noindent
+The hyperparameter $\tau$ denotes the order and therefore position of the quantile. A small value for $\tau$, e.g.,
 $0.05$ or $0.1$, strongly penalizes data points that are below the threshold $y < \tilde{y}(\bm{\theta})$ via the $(1-\tau)$ term
 to keep the quantile small. A high value for $\tau$ (e.g., $0.95$) focuses on the penalization of data points above
 the threshold $y \geq \tilde{y}(\bm{\theta})$ to include a greater amount of points.
@@ -261,6 +272,7 @@ constraints $F_i(\vu, \vw)$ (eq.~\ref{theory:def: bi-level program}) in terms of
 the semi-infinite program to an uncertainty-finite program.
 
 \subsection{Conformalized Quantile Regression}
+\label{theory: CQR}
 
 Quantile regressors trained by this approach achieve their specified coverage approximately. 
 Nonetheless, for data with strong heteroscedasticity the predicted confidence interval may be too
@@ -269,12 +281,23 @@ tight or too narrow at local variations \cite{romano2019cqr}. \emph{Conformalize
 a theoretical guarantee of the desired coverage. This is done, by calculating a conformity score with a
 trained quantile model and an unseen \emph{calibration} data set. Given a certain confidence level $\alpha$
 with the corresponding coverage $(1-\alpha)$,
-the respective upper and lower quantiles are defined (eq.~\ref{theory:eq: quantiles from confidence}).
-\begin{equation}
-    \label{theory:eq: quantiles from confidence}
-    \tau_1 = \alpha/2 \quad \text{and} \quad \tau_2 = (1 - \alpha/2)
-\end{equation}
-To correct the interval prediction of the corresponding quantile regressors $\tilde{q}_{\tau_1}$ and $\tilde{q}_{\tau_2}$.
+the respective upper and lower quantiles are defined (def.~\ref{theory:def: trained quantile regressors}).
+\begin{definition} Quantile regressors trained by an arbitrary algorithm.
+    \label{theory:def: trained quantile regressors}
+    \[
+    \begin{gathered}
+        \begin{pmatrix}
+            \tilde{q}_{\tau_1}(\bm{\xi}), \tilde{q}_{\tau_2}(\bm{\xi})
+        \end{pmatrix} \leftarrow
+        \mathcal{A} \big (\mathbb{X}_\text{train}, \mathbb{Y}_\text{train} \big) \\
+        \text{with} \quad \tau_1 = \alpha/2 \quad \text{and} \quad \tau_2 = (1 - \alpha/2)
+    \end{gathered}
+    \]
+\end{definition}
+\noindent
+With any existent algorithm $\mathcal{A}$ and the corresponding training data $\big (\mathbb{X}_\text{train}, \mathbb{Y}_\text{train} \big)$,
+two quantile regression models $\tilde{q}_{\tau_1}$ and $\tilde{q}_{\tau_2}$ can be fitted (def.~\ref{theory:def: trained quantile regressors}).
+
 \begin{equation}
     \label{theory:eq: conformity scores}
     \begin{gathered}
@@ -285,13 +308,25 @@ To correct the interval prediction of the corresponding quantile regressors $\ti
         \bm{\epsilon}^{(i)} \coloneq \max(\tilde{q}_{\tau_1}(\bm{\xi}^{(i)}) - \vy^{(i)}, \vy^{(i)} - \tilde{q}_{\tau_2}(\bm{\xi}^{(i)}))
     \end{gathered}
 \end{equation}
-
-
+\noindent
+Using a second calibration data set $\big (\mathbb{X}_\text{cal}, \mathbb{Y}_\text{cal} \big)$, a conformity score
+$\bm{\epsilon}$ is computed, that acts as an empirical measure of how well the given
+quantile predictions cover the data (eq.~\ref{theory:eq: conformity scores}). If a data point $\vy^{(i)}$
+falls into the interval, the score is the maximum of the negative distances to the estimated quantiles.
+In case a calibration point is located below $\tilde{q}_{\tau_1}$, this distance is counted as a violation
+in the positive direction. The same occurs, when a point lies above $\tilde{q}_{\tau_2}$. In summary,
+coverage is counted as a negative and miscoverage as a positive in a quantitative manner.
 
 \begin{equation}
     \label{theory:eq: empirical quantile of scores}
     Q_{1-\alpha}(\bm{\epsilon}) \coloneq (1-\alpha)(1+1/m_\text{cal})\text{-th empirical quantile of} \; \bm{\epsilon}
 \end{equation}
+\noindent
+The violation of the desired coverage of $(1-\alpha)$ is encoded into the conformity scores. 
+Therefore, its respective empirical quantile acts as a correction term for the original quantile 
+predictions (eq.~\ref{theory:eq: empirical quantile of scores}). It must be substracted
+from the lower quantile prediction and added to the upper quantile prediction
+to yield the calibrated regressors  $q_{\tau_1}$ and $q_{\tau_2}$ (th.~\ref{theory:th:CQR-update}).
 
 \begin{theorem} Adjusted prediction intervall with the empirical quantile of the conformity scores
      $\bm{\epsilon}^{(i)}$ \cite{romano2019cqr}.
@@ -305,6 +340,12 @@ To correct the interval prediction of the corresponding quantile regressors $\ti
         \end{pmatrix}
     \]
 \end{theorem}
+\noindent
+Once calculated, the calibration term can be stored as an untrainable model parameter.
+In essence, CQR allows to improve the interval prediction of any quantile regression model in a 
+straightforward fashion. Its simplicity and general applicability makes it a powerful tool 
+for any probabilistic prediction framework. For further background,
+it is referred to the original work by Romano et al. \cite{romano2019cqr}.
 
 
 \section{NARX Models}
@@ -446,19 +487,19 @@ by a \emph{PCA encoder} placed before the first layer of a NARX model to reduce 
 \end{figure}
 
 
-\section{Uncertainty Quantification}
+\section{Quantification of Model Uncertainty}
 
-Furthermore, \emph{quantile regression} (\ref{theory: quantile regression}) is used to quantify the uncertainty of system states. 
+Furthermore, CQR (\ref{theory: CQR}) is used to quantify the uncertainty of system states. 
 Under model uncertainty, the evolvement of the system described by $f(\vx, \vu, \vw)$ heavily
 depends of the uncertainty vector $\bm{w} \in \mathbb{W}$ (def.~\ref{theory:def: continuous mpc}).
 While multi-stage MPC roughly discretizes the parameter space for parameter extreme cases under tremendous computational effort,
-quantile regression can be used to directly estimate given quantiles $\tau$.
+CQR can be used to directly estimate given quantiles $\tau$.
 This has the advantage, that the uncertainty quantification is done independently from the disturbances. As non-linear
 systems behave non-monotonous to uncertainties, extreme parameter cases do not necessarily account for
 system extreme cases. Explicit quantiles bound the system states with a given coverage lumping all
 possible disturbance effects together.
 Another advantage is, that the uncertainty quantification is done offline by training a quantile model beforehand instead
-of account for uncertainties during MPC runtime. This outsources computational effort out of the dynamic optimization loop.
+of accounting for uncertainties during MPC runtime. This outsources computational effort out of the dynamic optimization loop.
 \newline
 \newline
 Upper and lower
@@ -469,12 +510,8 @@ which is denoted as $\mathbb{E}(\vx_{k+1}|\bm{\phi}_k)$, and two quantiles, $Q_\
 with pre-defined probability coverages $\tau$. All are predicted given the feature vector $\bm{\phi}_k$
 of past states and inputs. In this work, models that predict the expected value $\mathbb{E}$ are trained 
 using the \emph{mean squared error} as loss function (eq.~\ref{eq: loss function}). 
-Quantile models $Q_\tau$ are trained using the \emph{quantile loss} function (eq.~\ref{theory:eq: quantile loss}).
-Conformalization can be carried out, to calibrate quantile predictions
-which marginally guarantees a certain coverage of the distribution by adjusting the intervall widths \cite{romano2019cqr,kemmerling2025}. 
-As the focus lies on the mere effect of physics-consistency, conformalized quantile regression (CQR) is 
-not put to use for better interpretability.
-
+Quantile models $Q_\tau$ are trained using the \emph{quantile loss} (eq.~\ref{theory:eq: quantile loss})
+in combination with CQR (\ref{theory: CQR}).
 
 
 \section{Conservation of Atoms}

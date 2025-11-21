@@ -294,10 +294,10 @@ simulation environment seen previously. To improve the quantile predictions duri
 show reasonable but wide intervals during the simulation capability (\ref{simulation-capability}) analysis,
 they are retrained with a greater network size. Hence, two layers with $64$ and $72$ hidden neurons each are
 implemented. To limit the complexity of the framework, all other NARX models remain at one hidden layer with $32$
-neurons. Mentioned frameworks are simulated forward in \SI{512} time steps for 100 independent input trajectories.
+neurons. Mentioned frameworks are simulated forward \SI{512} time steps for 100 independent input trajectories.
 For each trajectory, the first principle model is simulated accordingly $200$ times with MC-sampled
 parameter combinations to calculate the interval coverages. The yielded coverages (purple) and relative intervall
-widths (green) are supplied via boxplots (fig.~\ref{results:fig:vanilla-coverage-width}).
+widths (green) are supplied via boxplots for the vanilla framework (fig.~\ref{results:fig:vanilla-coverage-width}).
 \begin{figure} % TODO: Remove the force after writing
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/vanilla_coverage_width.pdf}
@@ -307,4 +307,37 @@ widths (green) are supplied via boxplots (fig.~\ref{results:fig:vanilla-coverage
     \label{results:fig:vanilla-coverage-width}
 \end{figure}
 \newline
-Hallo
+The mentioned metrics are determined for all four measurement positions (\ref{case:measurement-positions})
+and shown in a twin plot with the coverage on the left and the relative interval width on the
+right y-axis. The ideal coverage defined in training is marked at $0.8$ (gray, dashed) line. Perfect 
+quantile regressors would hit this target. Noticably, the vanilla framework
+achieves perfect coverage at the first measurement position with a range from $0.4$ to $1.0$.
+Its coverage increases successively towards over-coverage over the reactor length to $1.0$ while exhibiting
+less variance.
+
+\begin{table}
+    \label{results:tab:coverage-intervall-width}
+    \centering
+    \begin{tabular}{llrrrr}
+    &  & \multicolumn{2}{r}{coverage / -} & \multicolumn{2}{r}{rel. intervall width / -} \\
+    &  & $\mu$ & $ \pm \sigma$ & $\mu$ & $\pm \sigma$ \\
+    $z/L$/ - & framework &  &  &  &  \\
+    \midrule
+    \multirow[t]{3}{*}{$0.25$} & naive & $0.7813$ & $0.1846$ & $0.0071$ & $0.0026$ \\
+    & pc & $0.8144$ & $0.1544$ & $0.0075$ & $0.0028$ \\
+    & vanilla & $0.7676$ & $0.1884$ & $0.0067$ & $0.0026$ \\
+    \cline{1-6}
+    \multirow[t]{3}{*}{$0.50$} & naive & $0.8974$ & $0.1173$ & $0.0118$ & $0.0038$ \\
+    & pc & $0.9137$ & $0.0979$ & $0.0121$ & $0.0041$ \\
+    & vanilla & $0.8947$ & $0.1184$ & $0.0116$ & $0.0038$ \\
+    \cline{1-6}
+    \multirow[t]{3}{*}{$0.75$} & naive & $0.9599$ & $0.0756$ & $0.0178$ & $0.0051$ \\
+    & pc & $0.9651$ & $0.0619$ & $0.0180$ & $0.0055$ \\
+    & vanilla & $0.9589$ & $0.0762$ & $0.0176$ & $0.0051$ \\
+    \cline{1-6}
+    \multirow[t]{3}{*}{$1.0$} & naive & $0.9828$ & $0.0458$ & $0.0222$ & $0.0057$ \\
+    & pc & $0.9860$ & $0.0405$ & $0.0226$ & $0.0062$ \\
+    & vanilla & $0.9822$ & $0.0467$ & $0.0219$ & $0.0057$ \\
+    \end{tabular}
+\end{table}
+
