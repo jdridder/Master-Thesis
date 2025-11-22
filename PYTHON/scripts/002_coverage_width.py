@@ -136,7 +136,7 @@ def run_coverage_width(
         f.write(json.dumps(uq_test_cfg, indent=4))
 
     # --- Analysis ---
-    width_coverage_dict = load_json_results(result_dir=results_dir, n_trajectories=10)
+    width_coverage_dict = load_json_results(result_dir=results_dir, n_trajectories=-1)
     # ---- Plotting functions
     deep_colors = make_colors(4)
     for surrogate_key, surrogate_dict in width_coverage_dict.items():
@@ -146,7 +146,7 @@ def run_coverage_width(
             save_dir=plot_dir,
             plot_cfg={
                 "colors": {"coverage": deep_colors[0], "intervall_width": deep_colors[2], "ideal_coverage": "gray"},
-                "ylabels": {"intervall_width": "rel. intervall width / -", "coverage": "coverage / -", "ideal_coverage": "ideal coverage"},
+                "ylabels": {"intervall_width": "rel. interval width / -", "coverage": "coverage / -", "ideal_coverage": "ideal coverage"},
                 "ylims": {"intervall_width": (0, 0.1), "coverage": (0, 1.05)},
                 "xlims": (0, 1.25),
                 "legend_y_pos": 1.15,
@@ -167,8 +167,23 @@ def run_coverage_width(
     std_df["param"] = "std"
     df = pd.concat([mean_df, std_df], axis=0).reset_index(drop=True)
     df = pd.pivot_table(df, index=["position", "framework"], columns=["metric", "param"], values="value")
+    df[("coverage", "mean")] = df[("coverage", "mean")].apply("${:.3f}$".format)
+    df[("coverage", "std")] = df[("coverage", "std")].apply("${:.3f}$".format)
 
-    print(df.to_latex(float_format="${:.4f}$".format))
+    def format_interval_width(x):
+        formatted_str = f"{x:.2e}"
+        return r"\SI{" + formatted_str + "}{}"
+
+    df[("intervall_width", "mean")] = df[("intervall_width", "mean")].apply(format_interval_width)
+    df[("intervall_width", "std")] = df[("intervall_width", "std")].apply(format_interval_width)
+
+    print(df)
+
+    print(
+        df.to_latex(
+            column_format="cccccc",
+        )
+    )  # , "intervall_width": "${:.2E}$".format}))
 
     print(f"---- {exp_name} finished. -----")
 

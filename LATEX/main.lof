@@ -22,8 +22,10 @@
 \contentsline {figure}{\numberline {5.7}{\ignorespaces Forward simulation of the naive-NARX framework for the dimensionless concentration.}}{42}{figure.caption.31}%
 \contentsline {figure}{\numberline {5.8}{\ignorespaces Forward simulation of the pc NARX framework for the dimensionless concentration.}}{42}{figure.caption.32}%
 \contentsline {figure}{\numberline {5.9}{\ignorespaces Coverage and relative interval width of the vanilla framework.}}{44}{figure.caption.33}%
+\contentsline {figure}{\numberline {5.10}{\ignorespaces Coverage and relative interval width of the naive-pc framework.}}{46}{figure.caption.35}%
+\contentsline {figure}{\numberline {5.11}{\ignorespaces Coverage and relative interval width of the pc framework.}}{46}{figure.caption.36}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {A.1}{\ignorespaces Forward simulation of the naive NARX framework for the temperature quantiles.}}{50}{figure.caption.36}%
-\contentsline {figure}{\numberline {A.2}{\ignorespaces Forward simulation of the pc NARX framework for the temperature quantiles.}}{50}{figure.caption.37}%
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Forward simulation of the naive NARX framework for the temperature quantiles.}}{52}{figure.caption.38}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces Forward simulation of the pc NARX framework for the temperature quantiles.}}{52}{figure.caption.39}%
 \addvspace {10\p@ }

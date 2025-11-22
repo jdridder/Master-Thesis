@@ -40,11 +40,11 @@
 \contentsline {section}{\numberline {5.2}Physics-consistency}{36}{section.5.2}%
 \contentsline {section}{\numberline {5.3}Simulation Capability}{39}{section.5.3}%
 \contentsline {section}{\numberline {5.4}Uncertainty Quantification}{43}{section.5.4}%
-\contentsline {chapter}{\numberline {6}Conclusions}{47}{chapter.6}%
-\contentsline {chapter}{\numberline {A}Datasheets and Plots}{49}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Kinetic parameter normal distribution}{49}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Temperature Trajectories}{49}{section.A.2}%
-\contentsline {chapter}{\numberline {B}Proofs and Code}{51}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Forward pass through the physics constrained activation}{51}{section.B.1}%
-\contentsline {section}{\numberline {B.2}Change in molar amount}{51}{section.B.2}%
-\contentsline {chapter}{Bibliography}{53}{appendix*.38}%
+\contentsline {chapter}{\numberline {6}Conclusions}{49}{chapter.6}%
+\contentsline {chapter}{\numberline {A}Datasheets and Plots}{51}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Kinetic parameter normal distribution}{51}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Temperature Trajectories}{51}{section.A.2}%
+\contentsline {chapter}{\numberline {B}Proofs and Code}{53}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Forward pass through the physics constrained activation}{53}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Change in molar amount}{53}{section.B.2}%
+\contentsline {chapter}{Bibliography}{55}{appendix*.40}%

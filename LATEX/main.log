@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  21 NOV 2025 16:38
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2023.7.4)  22 NOV 2025 19:01
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1334,77 +1334,138 @@ Chapter 5.
 File: Figures/Results/001_val_loss.pdf Graphic file (type pdf)
 <use Figures/Results/001_val_loss.pdf>
 
-Underfull \hbox (badness 10000) in paragraph at lines 11--61
+Underfull \hbox (badness 10000) in paragraph at lines 12--62
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 11--61
+Underfull \hbox (badness 10000) in paragraph at lines 12--62
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 11--61
+Underfull \hbox (badness 10000) in paragraph at lines 12--62
 
  []
 
 [35]
 
-LaTeX Warning: Reference `sur:def:general rhs for uncertainty quantification' on page 36 undefined on input line 67.
+LaTeX Warning: Reference `sur:def:general rhs for uncertainty quantification' on page 36 undefined on input line 68.
 
 [36]
 File: Figures/Results/pc_violation_vanilla.pdf Graphic file (type pdf)
 <use Figures/Results/pc_violation_vanilla.pdf>
 File: Figures/Results/pc_violation_naive_pc.pdf Graphic file (type pdf)
 <use Figures/Results/pc_violation_naive_pc.pdf>
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [37]
 File: Figures/Results/pc_violation_pc.pdf Graphic file (type pdf)
 <use Figures/Results/pc_violation_pc.pdf>
 
-Overfull \hbox (6.19801pt too wide) in paragraph at lines 133--148
-[]\TU/lmr/m/n/10.95 Finally, the balance error is plotted for the pc-NARX, that uses the physics-constrained
+Underfull \hbox (badness 10000) in paragraph at lines 89--148
+
  []
 
-[38]
+
+Underfull \hbox (badness 10000) in paragraph at lines 89--148
+
+ []
+
+
+Underfull \vbox (badness 3735) has occurred while \output is active []
+
+ [37]
+Underfull \vbox (badness 1412) has occurred while \output is active []
+
+ [38]
 File: Figures/Results/test_with_vanilla_-1.pdf Graphic file (type pdf)
 <use Figures/Results/test_with_vanilla_-1.pdf>
 
 
-LaTeX Warning: Reference `case:fig:narx framework' on page 39 undefined on input line 187.
+LaTeX Warning: Reference `case:fig:narx framework' on page 39 undefined on input line 188.
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 165--192
-
- []
-
-[39]
 File: Figures/Results/test_with_vanilla_2.pdf Graphic file (type pdf)
 <use Figures/Results/test_with_vanilla_2.pdf>
 File: Figures/Results/test_with_naive_pc_2.pdf Graphic file (type pdf)
 <use Figures/Results/test_with_naive_pc_2.pdf>
+File: Figures/Results/test_with_pc_2.pdf Graphic file (type pdf)
+<use Figures/Results/test_with_pc_2.pdf>
 
-Underfull \hbox (badness 10000) in paragraph at lines 204--237
+Underfull \hbox (badness 10000) in paragraph at lines 153--265
 
  []
 
-[40]
-File: Figures/Results/test_with_pc_2.pdf Graphic file (type pdf)
-<use Figures/Results/test_with_pc_2.pdf>
- [41] [42]
-Underfull \hbox (badness 10000) in paragraph at lines 276--287
+
+Underfull \hbox (badness 10000) in paragraph at lines 153--265
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 153--265
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 153--265
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 153--265
+
+ []
+
+[39]
+Underfull \vbox (badness 3260) has occurred while \output is active []
+
+ [40] [41] [42]
+Underfull \hbox (badness 10000) in paragraph at lines 278--289
 
  []
 
 File: Figures/Results/Uncertainty-Quantification/vanilla_coverage_width.pdf Graphic file (type pdf)
 <use Figures/Results/Uncertainty-Quantification/vanilla_coverage_width.pdf>
-[43]) (./chapters/08_conclusion.tex [44] [45] [46
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--338
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--338
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--338
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--338
+
+ []
+
+[43] [44]
+File: Figures/Results/Uncertainty-Quantification/naive_pc_coverage_width.pdf Graphic file (type pdf)
+<use Figures/Results/Uncertainty-Quantification/naive_pc_coverage_width.pdf>
+
+Underfull \hbox (badness 10000) in paragraph at lines 378--387
+
+ []
+
+File: Figures/Results/Uncertainty-Quantification/pc_coverage_width.pdf Graphic file (type pdf)
+<use Figures/Results/Uncertainty-Quantification/pc_coverage_width.pdf>
+) (./chapters/08_conclusion.tex
+Underfull \hbox (badness 10000) in paragraph at lines 396--1
+
+ []
+
+
+Underfull \vbox (badness 1565) has occurred while \output is active []
+
+ [45] [46] [47] [48
 
 ]
 Chapter 6.
-) (./appendices/appendix.tex [47] [48
+) (./appendices/appendix.tex [49] [50
 
 ]
 Appendix A.
@@ -1417,39 +1478,39 @@ File: Figures/Results/test_with_naive_pc_-1.pdf Graphic file (type pdf)
 <use Figures/Results/test_with_naive_pc_-1.pdf>
 File: Figures/Results/test_with_pc_-1.pdf Graphic file (type pdf)
 <use Figures/Results/test_with_pc_-1.pdf>
-[49] [50]
+[51] [52]
 Appendix B.
-) [51
+) [53
 
-] [52
+] [54
 
 ]
 Overfull \hbox (10.51181pt too wide) in paragraph at lines 84--84
 \TU/lmr/m/n/10.95 Slides jointly developed with Titus Quah, Katrin Baumgärtner, and Florian Messerer,
  []
 
-[53]
+[55]
 Overfull \hbox (10.7295pt too wide) in paragraph at lines 84--84
 []\TU/lmr/m/n/10.95 A. Paszke, S. Gross, F. Massa, \TU/lmr/m/it/10.95 et al.\TU/lmr/m/n/10.95 , “  Pytorch: An imperative style, high-performance
  []
 
-[54] [55] (./main.aux)
+[56] [57] (./main.aux)
 
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 1D6C014BDBA0FB26956EE6F77412A9F6;8582.
+(rerunfilecheck)             Checksum: 609A9D2AD4F243F0600139EA3157DEFB;8582.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 32165 strings out of 476683
- 670568 string characters out of 5804048
- 1869018 words of memory out of 5000000
- 51884 multiletter control sequences out of 15000+600000
+ 32184 strings out of 476683
+ 671751 string characters out of 5804048
+ 1873018 words of memory out of 5000000
+ 51901 multiletter control sequences out of 15000+600000
  527751 words of font info for 108 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  77i,19n,80p,2133b,5402s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (73 pages).
+Output written on main.pdf (75 pages).
