@@ -376,17 +376,16 @@ class DataStructurizer:
         x_previous: np.ndarray,
         u_applied: np.ndarray,
         tvp_applied: np.ndarray,
-        x_current_full: np.ndarray,
+        y_current: np.ndarray,
         n_full_measurements: Optional[int] = None,
     ) -> np.ndarray:
         """All in puts must be of shape (features, 1)"""
         n_full_measurements = n_full_measurements or self.n_initial_measurements
-        current_states = self.reduce_measurements(x_current_full.T, n_full_measurements).T
         past_states, past_inputs, past_tvps = self.slice_dompc_vector(x_previous)
         past_states = past_states[: -len(self.state_keys) * self.n_measurements]  # drop the oldest instance of states, inputs and tvps
         past_inputs = past_inputs[: -len(self.input_keys)]
         past_tvps = past_tvps[: -len(self.tvp_keys)]
-        return np.concatenate([current_states, past_states, u_applied, past_inputs, tvp_applied, past_tvps], axis=0)
+        return np.concatenate([y_current, past_states, u_applied, past_inputs, tvp_applied, past_tvps], axis=0)
 
     def casadi_stack(self, current_states: MX, past_states: MX, current_inputs: MX, past_inputs: MX, current_tvps: MX, past_tvps: MX) -> MX:
         stacked = vertcat(current_states, past_states, current_inputs, past_inputs, current_tvps, past_tvps)

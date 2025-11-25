@@ -16,6 +16,7 @@ from postprocessing.plotting_helpers import make_colors
 from routines.data_structurizer import DataStructurizer
 from routines.utils import apply_to_double_dict, get_directory_for_today, load_json_results_for_all
 from simulation.closed_loop import run_narx_mpc_loop
+from simulation.closed_loop_process import run_parallel_mpc_loop
 from simulation.data_generation import generate_random_ramp_signal, run_parallel_simulations
 
 
@@ -45,7 +46,7 @@ def run_mpc_performance(
     )
     tvp_signals = generate_random_ramp_signal(
         feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
-        num_steps=mpc_perf_cfg.get("t_steps"),
+        num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon"),
         tau=mpc_perf_cfg.get("tvp_tau"),
         batch_size=mpc_perf_cfg.get("n_experiments"),
         time_step=sim_cfg["simulation"]["t_step"],
@@ -65,8 +66,10 @@ def run_mpc_performance(
     for surrogate_key in mpc_perf_cfg.get("surrogate_types"):
         state_dict_path = os.path.join(trained_model_dir, mpc_perf_cfg["state_dict_folder"][surrogate_key])
         final_results_dir = os.path.join(results_dir, surrogate_key)
+        os.makedirs(final_results_dir, exist_ok=True)
 
-        run_narx_mpc_loop(
+        run_parallel_mpc_loop(
+            n_workers=mpc_perf_cfg.get("n_workers", 1),
             t_steps=mpc_perf_cfg.get("t_steps"),
             data_structurizer=data_structurizer,
             meta_model=meta_model,
@@ -79,7 +82,7 @@ def run_mpc_performance(
             tvp_signals=tvp_signals,
             sim_cfg=sim_cfg,
             mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
-            run_cfg={"save_path": final_results_dir, "save_as": "json", "result_name": "narx_mpc"},
+            run_cfg={"save_dir": final_results_dir, "save_as": "json", "result_name": "narx_mpc"},
         )
 
     # load json results

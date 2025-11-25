@@ -9,8 +9,9 @@ from routines.setup_routines import *
 from routines.utils import NumpyEncoder
 from tqdm import tqdm
 
-
 # create a parallel function for this to executed on multiple cores
+
+
 def run_narx_mpc_loop(
     t_steps: int,
     sim_cfg: Dict,
@@ -128,6 +129,9 @@ def control(
                 mpc.set_uncertainty_values(**uncertainty_vals)
             mpc.setup()
 
+            simulator_x0 = np.expand_dims(simulator_x0, axis=1)
+            mpc_x0 = np.expand_dims(mpc_x0, axis=1)
+
         simulator.reset_history()
         simulator.x0 = simulator_x0
         simulator.set_initial_guess()
@@ -139,16 +143,16 @@ def control(
         try:
             for t in range(n_time_steps):
                 u_t = mpc.make_step(mpc_x0)
-                x_sys = simulator.make_step(u_t)
+                y_next = simulator.make_step(u_t)
                 tvp_t = tvp_signal[t].reshape((-1, 1))
-                mpc_x0 = data_structurizer.update_dompc_vector(mpc_x0, u_t, tvp_t, x_current_full=x_sys)
+                mpc_x0 = data_structurizer.update_dompc_vector(mpc_x0, u_t, tvp_t, y_next)
 
         except Exception as e:
             print(f"MPC control loop failed with error: {e}")
             continue
 
         save_as = run_cfg.get("save_as", "json")
-        save_dir = run_cfg.get("save_dir", None)
+        save_dir = run_cfg["save_dir"]
         var_types = run_cfg.get("save_variable_types", ["_x", "_u", "_tvp"])
         if save_as in ["npy", "json"]:
             ind = 1
@@ -201,8 +205,8 @@ def configure_mpc(mpc: MPC, mpc_cfg: Dict) -> MPC:
     mpc._settings.store_full_solution = mpc_cfg["store_full_solution"]
 
     mpc._settings.nlpsol_opts = solver_opts
-    # if surpress_ipopt_output:
-    #     mpc._settings.supress_ipopt_output()
+    if mpc_cfg.get("surpress_ipopt_output", False):
+        mpc._settings.supress_ipopt_output()
 
     return mpc
 
