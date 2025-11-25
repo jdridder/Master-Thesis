@@ -297,3 +297,39 @@ uq_test_cfg = {
     "state_dict_folders": ["vanilla", "vanilla", "pc"],
     "input_signal_tau": 15,
 }
+
+
+mpc_perf_cfg = {
+    "n_experiments": 2,
+    "n_workers": 1,
+    "covariance_gain": 3,
+    "lam_bed_std": 0.08,
+    "tvp_tau": 20,
+    "surrogate_types": ["vanilla"],
+    "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
+    "t_steps": 32,
+    "mpc_cfg": {
+        "n_horizon": 8,
+        "n_robust": 0,
+        "uncertainty_values": {"alpha": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]},
+        "scenarios": ["upper", "nominal", "lower"],
+        "t_step": 1,
+        "lam_Tmax": 1,
+        "lam_dudt": {"T_c0": 2, "T_c1": 0.1, "T_c2": 0.1, "T_c3": 0.1},
+        "lam_X": 0,
+        "input_scale": 630,
+        "tvp_scale": 0.4,
+        "store_full_solution": False,
+        "solver_opts": {
+            "ipopt": {
+                "max_iter": 1000,
+                "tol": 1e-4,
+                "acceptable_tol": 5e-4,
+                "print_level": 5,
+                "warm_start_init_point": "yes",
+                "linear_solver": "ma57",
+                "hessian_approximation": "limited-memory",
+            }
+        },
+    },
+}

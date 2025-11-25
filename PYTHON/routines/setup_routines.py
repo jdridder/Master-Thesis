@@ -6,6 +6,7 @@ from typing import Callable, Dict, List, Optional, Type, Union
 import l4casadi
 import numpy as np
 from casadi import DM, vertcat
+from do_mpc.controller import MPC
 from do_mpc.model import Model
 from do_mpc.model._pod_model import ProperOrthogonalDecomposition
 from do_mpc.simulator import Simulator
@@ -85,9 +86,9 @@ def get_narx_expressions(
     return surrogate_expressions, mpc_surrogate
 
 
-def configure_narx_surrogate(data_structurizer: DataStructurizer, surrogate: Model, super_model: EtOxModel, surrogate_expressions: Dict, simulation_cfg: Dict, scenario: str = None) -> Model:
-    assert scenario in ["nominal", "upper", "lower"], f"The scenario case {scenario} must be one of nominal, upper or lower."
-    if scenario is not None:
+def configure_narx_surrogate(data_structurizer: DataStructurizer, surrogate: Model, surrogate_expressions: Dict, simulation_cfg: Dict, scenario: str = None) -> Model:
+    if isinstance(scenario, str):
+        assert scenario in ["nominal", "upper", "lower"], f"The scenario case {scenario} must be one of nominal, upper or lower."
         rhs = surrogate_expressions[scenario]  # choose either "nominal", "lower", or "upper"
     else:
         alpha = surrogate.set_variable("_p", "alpha", shape=(3, 1))
@@ -96,15 +97,6 @@ def configure_narx_surrogate(data_structurizer: DataStructurizer, surrogate: Mod
     for i, state_key in enumerate(simulation_cfg["states"]["keys"]):
         start, stop = i * data_structurizer.n_measurements, (i + 1) * data_structurizer.n_measurements
         surrogate.set_rhs(state_key, rhs[start:stop])
-
-    # stoic = {"E": -1, "EO": 1}
-    # c_EO_in = super_model.bc["c_EO"]
-    # c_E_in = super_model.bc["c_E"]
-    # conversion = (c_E_in - surrogate.x["c_E"][-1]) / c_E_in
-    # selectivity = (surrogate.x["c_EO"][-1] - c_EO_in) / (surrogate.x["c_E"][-1] - c_E_in) * stoic["E"] / stoic["EO"]
-    # surrogate.set_expression("X", conversion)
-    # surrogate.set_expression("S", selectivity)
-    surrogate.setup()
     return surrogate
 
 
@@ -158,7 +150,6 @@ def configure_dompc_model(
                 model_parameter_dir=model_parameter_dir,
             )
         elif model_type == SurrogateTypes.Vanilla.value or SurrogateTypes.Naive.value or SurrogateTypes.Pc.value:
-            assert scenario is not None, f"A scenario {assertion_error_message}."
             assert sim_cfg is not None, f"A simulation cfg dict {assertion_error_message}."
 
             with_opt_layer = True if model_type == SurrogateTypes.Naive.value else False
@@ -173,7 +164,6 @@ def configure_dompc_model(
             dompc_model = configure_narx_surrogate(
                 data_structurizer=data_structurizer,
                 simulation_cfg=sim_cfg,
-                super_model=meta_model,
                 surrogate_expressions=narx_expressions,
                 surrogate=dompc_model,
                 scenario=scenario,
@@ -183,7 +173,7 @@ def configure_dompc_model(
     return dompc_model
 
 
-def set_p_fun(simulator: Simulator, params: np.ndarray) -> Simulator:
+def set_p_fun(simulator: Union[Simulator, MPC], params: np.ndarray) -> Simulator:
     """Sets the do-mpc parameter function for the simulator. This function is called at the beginning of each simulation step to retrieve the nominal parameters.
 
     Args:

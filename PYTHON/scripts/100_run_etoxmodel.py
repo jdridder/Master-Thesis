@@ -17,7 +17,7 @@ from postprocessing.plot import plot_loop
 from routines.setup_routines import configure_simulator, make_simulator_tvp_fun, set_p_fun
 from simulation.data_generation import generate_initial_state, generate_random_ramp_signal
 
-t_steps = 2**10
+t_steps = 2**8
 
 
 def main():
@@ -31,9 +31,9 @@ def main():
     model.setup()
 
     u = generate_random_ramp_signal(
-        feature_bounds=[cfg["inputs"]["level_bounds"]] * 4,
+        feature_bounds=[[580, 630]] * 4,
         num_steps=t_steps,
-        tau=20,
+        tau=200,
         time_step=cfg["simulation"]["t_step"],
         hold_time_range=(0.8, 2),
         ramp_time_range=(0.1, 0.4),
@@ -46,7 +46,7 @@ def main():
         feature_bounds=[cfg["tvps"]["level_bounds"]],
         num_steps=t_steps,
         time_step=cfg["simulation"]["t_step"],
-        tau=20,
+        tau=200,
         # seed=42,
         hold_time_range=(4, 4),
         ramp_time_range=(0.5, 0.5),
@@ -72,7 +72,11 @@ def main():
 
     plot_loop(sim_cfg=cfg, data=simulator.data, surrogate_type="full", n_measurements=128)
 
-    # save_results([simulator], result_path=f"{RESULTS_DIR}/full/", result_name="full_model", overwrite=False)
+    # result = np.concatenate([simulator.data["_x"], simulator.data["_u"], simulator.data["_tvp"]], axis=-1)
+    # np.save("initialization_data", result[-20:-1])
+
+
+# save_results([simulator], result_path=f"{RESULTS_DIR}/full/", result_name="full_model", overwrite=False)
 
 
 if __name__ == "__main__":

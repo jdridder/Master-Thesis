@@ -362,7 +362,7 @@ class DataStructurizer:
         """
         stacked = self.stack_data(reduced_data_matrix)
         dompc_vector = np.delete(stacked, self.t0_indizes, axis=-1)
-        return np.swapaxes(dompc_vector, -1, -2)
+        return dompc_vector
 
     def slice_dompc_vector(self, dompc_vector: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Slices a dompc_vector into states at all time points, inputs at all time points and tvps at all time points.
@@ -377,9 +377,10 @@ class DataStructurizer:
         u_applied: np.ndarray,
         tvp_applied: np.ndarray,
         x_current_full: np.ndarray,
-        n_full_measurements: int,
+        n_full_measurements: Optional[int] = None,
     ) -> np.ndarray:
         """All in puts must be of shape (features, 1)"""
+        n_full_measurements = n_full_measurements or self.n_initial_measurements
         current_states = self.reduce_measurements(x_current_full.T, n_full_measurements).T
         past_states, past_inputs, past_tvps = self.slice_dompc_vector(x_previous)
         past_states = past_states[: -len(self.state_keys) * self.n_measurements]  # drop the oldest instance of states, inputs and tvps
