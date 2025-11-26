@@ -72,7 +72,7 @@ def get_narx_expressions(
         "lower": {"state_model": {"file_name": "lower_states.pth"}, "temperature_model": {"file_name": "lower_temperature.pth"}},
     }
     torch_models = [load_state_predictor(cfgs[scenario_key], model_dir=model_parameter_dir) for scenario_key in scenarios]
-    surrogate_expressions = {scenario_key: l4casadi.L4CasADi(torch_model, device="cpu") for scenario_key, torch_model in zip(scenarios, torch_models)}
+    surrogate_expressions = {scenario_key: l4casadi.L4CasADi(torch_model, device="cpu", name=scenario_key) for scenario_key, torch_model in zip(scenarios, torch_models)}
 
     for key in surrogate_expressions.keys():
         surrogate_expressions[key] = surrogate_expressions[key](narx_input.T).T

@@ -3,6 +3,7 @@ import sys
 from typing import Dict, Optional
 
 import numpy as np
+import pandas as pd
 import yaml
 
 CURR_DIR = os.path.dirname(__file__)
@@ -14,7 +15,7 @@ from postprocessing.performance_metrics import *
 from postprocessing.plot import *
 from postprocessing.plotting_helpers import make_colors
 from routines.data_structurizer import DataStructurizer
-from routines.utils import apply_to_double_dict, get_directory_for_today, load_json_results_for_all
+from routines.utils import apply_to_double_dict, df_from_double_dict, get_directory_for_today, load_json_results_for_all
 from simulation.closed_loop import run_narx_mpc_loop
 from simulation.closed_loop_process import run_parallel_mpc_loop
 from simulation.data_generation import generate_random_ramp_signal, run_parallel_simulations
@@ -37,6 +38,7 @@ def run_mpc_performance(
     current_experiment_working_dir = os.path.join(experiment_dir, get_directory_for_today(experiment_dir))
     os.makedirs(current_experiment_working_dir, exist_ok=True)
     trained_model_dir = os.path.join(current_experiment_working_dir, "trained_models")
+    plot_dir = os.path.join(current_experiment_working_dir, "plots")
     assert os.path.exists(trained_model_dir), "The folder of the trained models does not exist."
 
     kinetic_parameters = meta_model.sample_parameters(
@@ -66,31 +68,52 @@ def run_mpc_performance(
     for surrogate_key in mpc_perf_cfg.get("surrogate_types"):
         state_dict_path = os.path.join(trained_model_dir, mpc_perf_cfg["state_dict_folder"][surrogate_key])
         final_results_dir = os.path.join(results_dir, surrogate_key)
-        os.makedirs(final_results_dir, exist_ok=True)
-
-        run_parallel_mpc_loop(
-            n_workers=mpc_perf_cfg.get("n_workers", 1),
-            t_steps=mpc_perf_cfg.get("t_steps"),
-            data_structurizer=data_structurizer,
-            meta_model=meta_model,
-            mpc_initial_states=narx_initial_states,
-            simulator_initial_states=sim_initial_states,
-            state_dict_dir=state_dict_path,
-            narx_type=surrogate_key,
-            scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
-            physical_params=kinetic_parameters,
-            tvp_signals=tvp_signals,
-            sim_cfg=sim_cfg,
-            mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
-            run_cfg={"save_dir": final_results_dir, "save_as": "json", "result_name": "narx_mpc"},
-        )
+        if not os.path.exists(final_results_dir):
+            os.makedirs(final_results_dir, exist_ok=True)
+            run_parallel_mpc_loop(
+                n_workers=mpc_perf_cfg.get("n_workers", 1),
+                t_steps=mpc_perf_cfg.get("t_steps"),
+                data_structurizer=data_structurizer,
+                meta_model=meta_model,
+                mpc_initial_states=narx_initial_states,
+                simulator_initial_states=sim_initial_states,
+                state_dict_dir=state_dict_path,
+                narx_type=surrogate_key,
+                scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
+                physical_params=kinetic_parameters,
+                tvp_signals=tvp_signals,
+                sim_cfg=sim_cfg,
+                mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
+                run_cfg={
+                    "save_dir": final_results_dir,
+                    "save_as": "json",
+                    "result_name": "narx_mpc",
+                    "save_variable_types": ["_y", "_u", "_tvp", "_aux", "t_wall_total"],
+                },
+            )
 
     # load json results
-    # plot trajects to check
+    complete_result_dict = load_json_results_for_all(results_dir)
 
-    # calculate mean performance
-    # calculate mean constraint violation
-    # calculate mean optimization time
+    # calculate mean performance -> mean selectivity
+    kpi_dict = {}
+    for surrogate_key, surrogate_dict in complete_result_dict.items():
+        mean_sel = surrogate_dict["_aux"][..., 1].mean()  # selectivity has index 1
+        temp_arr = data_structurizer.get_states_from_data(surrogate_dict["_y"], state="T")
+        conv_arr = surrogate_dict["_aux"][..., 2]  # conversion has index 2
+
+        temp_violated = 0 < temp_arr - sim_cfg["states"]["upper_bounds"]["T"] / sim_cfg["scales"]["T"]
+        conv_violated = 0 > conv_arr - sim_cfg["aux"]["lower_bounds"]["X"]
+        temp_violated = temp_violated.mean()
+        conv_violated = conv_violated.mean()
+        t_mean = surrogate_dict["t_wall_total"].mean()
+
+        if surrogate_key not in kpi_dict.keys():
+            kpi_dict[surrogate_key] = {"selectivity": mean_sel, "wall_time": t_mean, "temp_vio": temp_violated, "conv_vio": conv_violated}
+
+    kpi_df = pd.DataFrame(kpi_dict).T
+
+    print(kpi_df.to_latex(column_format="ccccc", float_format="${:.4f}$".format))
 
 
 if __name__ == "__main__":

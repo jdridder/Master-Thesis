@@ -1,12 +1,14 @@
 import json
 import os
-from typing import Dict, List, Optional
+from collections import defaultdict
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 from cycler import cycler
+from matplotlib import gridspec
 from routines.data_structurizer import DataStructurizer
 from routines.setup_routines import SurrogateTypes
 
@@ -157,3 +159,40 @@ def make_meta_data_annotation(meta_data: Dict, include: List) -> str:
             lhs = latex_notation_map[key] if key in latex_notation_map.keys() else key
             annotation += f"{lhs} = {meta_data[key]}"
     return annotation
+
+
+def make_axes_for_all_vars(n_plots: int, cbar: bool = True, figsize=(10, 6), cmap_key: Optional[str] = "viridis") -> Tuple[plt.Figure, List[plt.Axes]]:
+    """Creates a grid of axes for all unique states, inputs, tvps and auxillary vars."""
+    n_grids = n_plots + 2 if cbar else n_plots
+    height_ratios = [1.5, 1] + [10] * n_plots if cbar else [10] * n_plots
+    plot_idx = 2 if cbar else 0
+    fig = plt.figure(figsize=figsize)
+    gs = gridspec.GridSpec(n_grids, 1, height_ratios=height_ratios)
+    # Colorbar on the top
+    if cbar:
+        cbar_ax = fig.add_subplot(gs[0, 0])
+        norm = matplotlib.colors.Normalize(0, 1)
+        mappable = cm.ScalarMappable(norm=norm, cmap=cm.get_cmap(cmap_key))
+        cbar = fig.colorbar(mappable, cax=cbar_ax, orientation="horizontal")
+        cbar.ax.set_ylabel(r"$\frac{z}{L}$ / -", rotation=0)
+    axes = []
+    for i in range(n_plots):
+        ax_i = fig.add_subplot(gs[i + plot_idx, 0], sharex=axes[0] if axes else None)
+        if i < n_plots - 1:
+            ax_i.label_outer()
+        axes.append(ax_i)
+    return fig, axes
+
+
+def sync_ylims(axes: List, plot_keys: List):
+    grouped_axes = defaultdict(list)
+    for axis, label in zip(axes, plot_keys):
+        key = label[0]
+        grouped_axes[key].append(axis)
+    for _, axes_group in grouped_axes.items():
+        ymins = [a.get_ylim()[0] for a in axes_group]
+        ymaxs = [a.get_ylim()[1] for a in axes_group]
+        shared_ylim = (min(ymins), max(ymaxs))
+        for a in axes_group:
+            a.set_ylim(shared_ylim)
+    return axes

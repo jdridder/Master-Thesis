@@ -1,7 +1,9 @@
+from time import perf_counter
 from typing import Dict, List, Optional, Type
 
 import numpy as np
 from do_mpc.controller import MPC
+from do_mpc.data import save_results
 from do_mpc.model import Model
 from do_mpc.simulator import Simulator
 from routines.data_structurizer import DataStructurizer
@@ -97,7 +99,7 @@ def control(
     ), f"The number of trajectories to control {n_trajects} must equal the batch size of mpc initial states {mpc_initial_states.shape[0]} and the simulator initial states {simulator_initial_states.shape[0]}."
 
     iterable = zip(tvp_signals, physical_params, mpc_initial_states, simulator_initial_states)
-    iterable = tqdm(iterable, desc="Running MPC control loop.", total=n_trajects) if process_name == "Proc 0" else iterable
+    iterable = tqdm(iterable, desc="Running MPC control loops.", total=n_trajects) if process_name == "Proc 0" else iterable
     previous_parameter_combination = np.random.rand(*physical_params[0].shape) if physical_params is not None else None
     previous_tvp_signal = np.random.rand(*tvp_signals[0].shape)
 
@@ -119,7 +121,7 @@ def control(
             simulator.setup()
 
             mpc = MPC(model=mpc_model)
-            mpc = configure_mpc(mpc=mpc, mpc_cfg=mpc_cfg)
+            mpc = configure_mpc(mpc=mpc, mpc_cfg=mpc_cfg, surpress_ipopt=True if process_name != "Proc 0" else mpc_cfg.get("surpress_ipopt_output", False))
             if mpc_model.n_tvp > 0:
                 tvp_template = mpc.get_tvp_template()
                 tvp_fun = make_mpc_tvp_fun(simulation_time_step=simulation_cfg["simulation"]["t_step"], tvp_template=tvp_template, tvp_traj=tvp_signal)
@@ -140,9 +142,13 @@ def control(
         mpc.x0 = mpc_x0
         mpc.set_initial_guess()
 
+        wall_times = np.zeros(n_time_steps)
         try:
-            for t in range(n_time_steps):
+            loop_iter = tqdm(range(n_time_steps), desc="Running control loop") if process_name == "Proc 0" else range(n_time_steps)
+            for t in loop_iter:
+                start = perf_counter()
                 u_t = mpc.make_step(mpc_x0)
+                wall_times[t] = perf_counter() - start
                 y_next = simulator.make_step(u_t)
                 tvp_t = tvp_signal[t].reshape((-1, 1))
                 mpc_x0 = data_structurizer.update_dompc_vector(mpc_x0, u_t, tvp_t, y_next)
@@ -153,7 +159,7 @@ def control(
 
         save_as = run_cfg.get("save_as", "json")
         save_dir = run_cfg["save_dir"]
-        var_types = run_cfg.get("save_variable_types", ["_x", "_u", "_tvp"])
+        var_types = run_cfg.get("save_variable_types")
         if save_as in ["npy", "json"]:
             ind = 1
             ext_result_name = run_cfg.get("result_name", "result")
@@ -167,12 +173,17 @@ def control(
         elif save_as == "json":
             with open(f"{complete_file_name}.json", "w") as f:
                 json_result = simulator.data.export()
+                json_result.update({"t_wall_total": wall_times})
+                if var_types is not None:
+                    json_result = {key: arr for key, arr in json_result.items() if key in var_types}
                 f.write(json.dumps(json_result, indent=4, cls=NumpyEncoder))
+        elif save_as == "pkl":
+            save_results(save_list=[simulator], result_path=save_dir, result_name=f"/{run_cfg.get("result_name", "result")}")
         else:
             raise NotImplementedError(f"The save as type {save_as} is not implemented.")
 
 
-def configure_mpc(mpc: MPC, mpc_cfg: Dict) -> MPC:
+def configure_mpc(mpc: MPC, mpc_cfg: Dict, surpress_ipopt: Optional[bool] = False) -> MPC:
     for state_key in mpc.model.x.keys():
         mpc.bounds["lower", "_x", state_key] = 0
     # mpc.bounds["upper", "_x", "T"] = 630
@@ -205,7 +216,7 @@ def configure_mpc(mpc: MPC, mpc_cfg: Dict) -> MPC:
     mpc._settings.store_full_solution = mpc_cfg["store_full_solution"]
 
     mpc._settings.nlpsol_opts = solver_opts
-    if mpc_cfg.get("surpress_ipopt_output", False):
+    if surpress_ipopt:
         mpc._settings.supress_ipopt_output()
 
     return mpc

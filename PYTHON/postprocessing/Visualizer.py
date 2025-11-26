@@ -1,5 +1,4 @@
 import inspect
-from collections import defaultdict
 from typing import Callable, Dict, List, Tuple
 
 import matplotlib
@@ -92,41 +91,6 @@ class Visualizer:
 
         animation = FuncAnimation(fig, update, frames=len(t), interval=30, blit=True)
         return animation
-
-    def make_axes_for_all_vars(self, n_plots: int, cbar: bool = True, figsize=(10, 6)) -> Tuple[Figure, List[Axes]]:
-        """Creates a grid of axes for all unique states, inputs, tvps and auxillary vars."""
-        n_grids = n_plots + 2 if cbar else n_plots
-        height_ratios = [1.5, 1] + [10] * n_plots if cbar else [10] * n_plots
-        plot_idx = 2 if cbar else 0
-        fig = plt.figure(figsize=figsize)
-        gs = gridspec.GridSpec(n_grids, 1, height_ratios=height_ratios)
-        # Colorbar on the top
-        if cbar:
-            cbar_ax = fig.add_subplot(gs[0, 0])
-            norm = matplotlib.colors.Normalize(0, 1)
-            mappable = cm.ScalarMappable(norm=norm, cmap=self.cmap)
-            cbar = fig.colorbar(mappable, cax=cbar_ax, orientation="horizontal")
-            cbar.ax.set_ylabel(r"$\frac{z}{L}$ / -", rotation=0, labelpad=self.y_label_pad)
-        axes = []
-        for i in range(n_plots):
-            ax_i = fig.add_subplot(gs[i + plot_idx, 0], sharex=axes[0] if axes else None)
-            if i < n_plots - 1:
-                ax_i.label_outer()
-            axes.append(ax_i)
-        return fig, axes
-
-    def sync_ylims(self, axes: List, plot_keys: List):
-        grouped_axes = defaultdict(list)
-        for axis, label in zip(axes, plot_keys):
-            key = label[0]
-            grouped_axes[key].append(axis)
-        for _, axes_group in grouped_axes.items():
-            ymins = [a.get_ylim()[0] for a in axes_group]
-            ymaxs = [a.get_ylim()[1] for a in axes_group]
-            shared_ylim = (min(ymins), max(ymaxs))
-            for a in axes_group:
-                a.set_ylim(shared_ylim)
-        return axes
 
     def plot_horizon_high_fideltiy(self, N_z: int, data: Data, title: str = "") -> Tuple[plt.figure, List[Graphics]]:
         graphic = Graphics(data)

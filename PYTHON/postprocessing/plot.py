@@ -124,6 +124,45 @@ def plot_val_loss(
 # ------- Plots for System Trajectories ----------
 
 
+# def plot_first_principle(system_dict: Dict[str : np.ndarray], sim_cfg: Dict, save_path: str, var_type: Optional[str] = "_x", plot_cfg: Optional[Dict] = None):
+#     plot_cfg = plot_cfg or {}
+#     final_safe_path = os.path.join(save_path, f"{plot_cfg.get("export_name", "fp")}.pdf")
+
+#     if not os.path.exists(final_safe_path):
+#         plot_keys = sim_cfg["plotting"]["ylabels"].keys()
+#         fig, axes = make_axes_for_all_vars(len(plot_keys))
+
+#         input_index = len(sim_cfg["states"]["keys"])
+#         tvp_index = input_index + 1
+#         aux_index = tvp_index + 1
+#         input_color_cycler = make_color_cycler(n_colors=len(sim_cfg["inputs"]["all_keys"]))
+#         state_color_cycler = make_color_cycler(n_colors=sim_cfg["narx"]["n_measurements"])
+#         add_color_cyclers(axes, state_color_cycler, input_color_cycler, input_index)
+
+#         time = system_dict["_time"] if "_time" in system_dict.keys() else None
+#         for i, state_key in enumerate(sim_cfg["states"]["keys"]):
+#             axes[i].plot(time, system_dict[var_type])
+#             g.add_line(vartype, state_key, axis=axes[i])
+
+#         for input_key in data.model["_u"].keys():
+#             g.add_line("_u", input_key, axis=axes[input_index])
+#         g.add_line("_tvp", "u", axis=axes[tvp_index])
+
+#         g.add_line("_aux", "S", axis=axes[aux_index], label=r"$S_{mpc}$")
+#         g.add_line("_aux", "X", axis=axes[aux_index], label=r"$X_{mpc}$")
+#         add_constraint_line(axes=axes, axes_index=input_index - 1, value=630 / sim_cfg["scales"].get("T"), kwargs={"label": r"$T_{max}$"})
+#         add_constraint_line(axes, axes_index=aux_index, value=0.6, kwargs={"label": r"$X_{min}$"})
+#         # axes[-1].legend()
+#         set_labels(sim_cfg=sim_cfg, latex_notation_map=latex_notation_map, axes=axes)
+#         sync_ylims(axes, plot_keys=plot_keys)
+
+#         fig.align_ylabels()
+#         if plot_cfg.get("show_plot"):
+#             plt.show()
+
+#         # plt.savefig(final_safe_path)
+
+
 def plot_open_loop_state(
     sim_cfg: Dict[str, Any],
     surrogate_results: Dict[str, Dict],
@@ -189,19 +228,6 @@ def plot_open_loop_state(
     warm_up_steps = meta_data.get("warm_up_steps", structurizer.time_horizon) if meta_data else structurizer.time_horizon
     var_key = "_y" if surrogate_type == SurrogateTypes.Rom.value else "_x"
 
-    # --- MSE Calculation ---
-    mse = None
-    if surrogate_results:
-        # Use the first result to determine the trajectory for MSE calculation
-        first_result = next(iter(surrogate_results.values()))
-        surrogate_trajectory = structurizer.get_states_from_data(data=first_result[var_key], state=state)[:t_steps]
-        test_trajectory = test_data_for_state[..., warm_up_steps : t_steps + warm_up_steps, :]
-        if test_trajectory.ndim == 3:
-            # average over all trajectories to calculate the mse
-            test_trajectory = test_trajectory.mean(axis=0)
-        state_idx = sim_cfg["states"].get("keys").index(state)
-        mse = calculate_state_mse(test_trajectory, surrogate_trajectory, state_scale=sim_cfg["states"]["scales"][state_idx])
-
     # --- Plotting ---
     vis = Visualizer(sim_cfg, cmap="viridis")
     fig, axes = vis.make_axes_for_all_vars(n_plots=len(positions), cbar=False)
@@ -232,8 +258,7 @@ def plot_open_loop_state(
 
     # --- Annotations and Legend ---
     if annotations and meta_data:
-        complete_meta_data = {**meta_data, "mse": f"{mse.mean():.6f}"} if mse is not None else meta_data
-        axes[-1].annotate(complete_meta_data, xy=(0.05, 0.85), xycoords="axes fraction")
+        axes[-1].annotate(meta_data, xy=(0.05, 0.85), xycoords="axes fraction")
 
     if surrogate_results:
         format_legend(ax=axes[0], plot_cfg=plot_cfg)
@@ -246,7 +271,7 @@ def plot_open_loop_state(
         export_name = save_cfg.get("export_name", default_name)
         plt.savefig(os.path.join(save_dir, f"{export_name}.pdf"))
         if save_cfg.get("save_meta", False) and "complete_meta_data" in locals():
-            save_meta_data(save_dir, export_name, complete_meta_data)
+            save_meta_data(save_dir, export_name, meta_data)
 
     if show_fig:
         plt.show()
@@ -256,9 +281,9 @@ def plot_open_loop_state(
 def plot_loop(
     sim_cfg: Dict,
     data: Union[Data, MPCData],
-    surrogate_type: Type[SurrogateTypes],
     n_measurements: int,
-    annotations: Optional[List[str]] = None,
+    surrogate_type: Optional[Type[SurrogateTypes]] = None,
+    var_type: Optional[str] = "_x",
     animate: Optional[bool] = False,
     show_fig: Optional[bool] = True,
 ):
@@ -306,7 +331,7 @@ def plot_loop(
     state_color_cycler = make_color_cycler(n_colors=n_measurements)
     add_color_cyclers(axes, state_color_cycler, input_color_cycler, input_index)
     for i, state_key in enumerate(sim_cfg["states"]["keys"]):
-        vartype = "_y" if surrogate_type == SurrogateTypes.Rom else "_x"
+        vartype = "_y" if surrogate_type == SurrogateTypes.Rom else var_type
         g.add_line(vartype, state_key, axis=axes[i])
     for input_key in data.model["_u"].keys():
         g.add_line("_u", input_key, axis=axes[input_index])
@@ -319,10 +344,6 @@ def plot_loop(
     # axes[-1].legend()
     set_labels(sim_cfg=sim_cfg, latex_notation_map=latex_notation_map, axes=axes)
     vis.sync_ylims(axes, plot_keys=plot_keys)
-
-    # annotation = make_meta_data_annotation(data=data, include=annotations)
-    # axes[-1].annotate(annotation, xy=(0, -1.5), xycoords="axes fraction", size=12)
-    # fig.text(0.5, -0.05, annotation, ha="center", va="center", size="12")
 
     def update(frame):
         if isinstance(data, MPCData):

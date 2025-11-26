@@ -37,7 +37,8 @@ states:
   keys: ["chi_E", "chi_O2", "chi_EO", "chi_H2O", "chi_CO2", "T"]  # The abbreviations of the unique states.
   scales: [1, 1, 1, 1, 1, 1]
   lower_bounds: [0, 0, 0, 0, 0, 0]
-  upper_bounds: [630]
+  upper_bounds: 
+    T: 630
 
 inputs:
   keys: ["T_c"]
