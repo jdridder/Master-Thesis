@@ -204,7 +204,7 @@ class EtOxModel(MyModel):
         )
 
     def get_initial_state(self, u0: float = 0.3, Tc_0: float = 615, n_batches: int = 1, path: str = None) -> np.ndarray:
-        path = "/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/PYTHON/models/EtOxModel/initial_state.npy"
+        path = path or "/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/PYTHON/models/EtOxModel/initial_state.npy"
         if os.path.exists(path):
             x = np.load(file=path)
         else:
@@ -281,20 +281,33 @@ class EtOxModel(MyModel):
         lam_expressions = {
             # Gas phase equations
             "chi_E": (
-                lambda chi_E, chi_E_b, chi_O2, chi_CO2, T: -u_flow * (chi_E - chi_E_b) / self.Del_z
+                lambda chi_E_n, chi_E, chi_E_b, chi_O2, chi_CO2, T: -u_flow * (chi_E - chi_E_b) / self.Del_z
+                - p["Dax"] * (chi_E_n - 2 * chi_E + chi_E_b) / self.Del_z**2
                 + (1 - eps) / A * (self.nu_E[0] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1) + self.nu_E[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
             ),
             "chi_O2": (
-                lambda chi_O2, chi_O2_b, chi_E, chi_CO2, T: -u_flow * (chi_O2 - chi_O2_b) / self.Del_z
+                lambda chi_O2_n, chi_O2, chi_O2_b, chi_E, chi_CO2, T: -u_flow * (chi_O2 - chi_O2_b) / self.Del_z
+                - p["Dax"] * (chi_O2_n - 2 * chi_O2 + chi_O2_b) / self.Del_z**2
                 + (1 - eps) / A * (self.nu_O2[0] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1) + self.nu_O2[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
             ),
-            "chi_EO": (lambda chi_EO, chi_EO_b, chi_E, chi_O2, chi_CO2, T: -u_flow * (chi_EO - chi_EO_b) / self.Del_z + (1 - eps) / A * (self.nu_EO[0] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1))),
-            "chi_H2O": (
-                lambda chi_H2O, chi_H2O_b, chi_E, chi_O2, chi_CO2, T: -u_flow * (chi_H2O - chi_H2O_b) / self.Del_z + (1 - eps) / A * (self.nu_H2O[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+            "chi_EO": (
+                lambda chi_EO_n, chi_EO, chi_EO_b, chi_E, chi_O2, chi_CO2, T: -u_flow * (chi_EO - chi_EO_b) / self.Del_z
+                - p["Dax"] * (chi_EO_n - 2 * chi_EO + chi_EO_b) / self.Del_z**2
+                + (1 - eps) / A * (self.nu_EO[0] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1))
             ),
-            "chi_CO2": (lambda chi_CO2, chi_CO2_b, chi_E, chi_O2, T: -u_flow * (chi_CO2 - chi_CO2_b) / self.Del_z + (1 - eps) / A * (self.nu_CO2[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))),
-            "T": lambda T, T_b, chi_E, chi_O2, chi_CO2, T_c: (
+            "chi_H2O": (
+                lambda chi_H2O_n, chi_H2O, chi_H2O_b, chi_E, chi_O2, chi_CO2, T: -u_flow * (chi_H2O - chi_H2O_b) / self.Del_z
+                - p["Dax"] * (chi_H2O_n - 2 * chi_H2O + chi_H2O_b) / self.Del_z**2
+                + (1 - eps) / A * (self.nu_H2O[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+            ),
+            "chi_CO2": (
+                lambda chi_CO2_n, chi_CO2, chi_CO2_b, chi_E, chi_O2, T: -u_flow * (chi_CO2 - chi_CO2_b) / self.Del_z
+                - p["Dax"] * (chi_CO2_n - 2 * chi_CO2 + chi_CO2_b) / self.Del_z**2
+                + (1 - eps) / A * (self.nu_CO2[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+            ),
+            "T": lambda T_n, T, T_b, chi_E, chi_O2, chi_CO2, T_c: (
                 -u_flow * (T - T_b) / self.Del_z
+                - p["Dax"] * (T_n - 2 * T + T_b) / self.Del_z**2
                 + (self._rho_tot(T, eps) * cp_tot) ** (-1)
                 * (
                     (1 - eps) / p["T_in"] * (-p["dHR1"] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1) - p["dHR2"] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))

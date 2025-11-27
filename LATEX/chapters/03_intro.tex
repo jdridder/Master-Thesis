@@ -1,45 +1,58 @@
 \chapter{Introduction}\label{intro} 
 
-In the chemical process industry, system models are a fundamental tool for design and operation. Due to its
-techno-scientific nature, chemical engineering is about modelling physical and chemical phenomena in an
-accurate enough manner to realize a save and profitable conversion process. These models vary in complexity and 
-prediction potency from single equations such as the Bernoulli equation to detailed partial differentail equation systems
-such as multi-phase Navier-Stokes. Physico-chemical models are at the core of optimal design or optimal control
-of most unit operations.
-\newline
-As these \emph{first principle models} rely on intrinsic parameters such as activation energies, friction coefficients, etc.
-that are usually fitted by experiments, they exhibit some kind of prediction uncertainty. This uncertainty is 
-heavily tied to the measurement uncertainty of the underlying experiments and the non-linearity in the propagation by the model. 
-For example parametric uncertainties of $ \pm 50~\%$ can occur in multi-component reaction systems \cite{empty000}.
-As most phenomena in chemical engineering exhibit strong non-lineatities, such as reaction kinetics or activity coefficients,
-uncertainty quantification represents a great challenge. 
-\newline
-\emph{Model Predictive Control} (MPC) is a potent optimal control algorithm that allows the optimal operation of various systems. 
-The algorithm optimizes a custom loss or reward function under a set of constraints and the dynamics of the system model. The optimal inputs
-of the system are determined at every time instant as the solution of the optimization. MPC is able do deal with uncertain parameter
-scenarios in the form of \emph{multi-stage} MPC, where all possible scenarios are optimized over simultaneously. This leads
-to tremendous computational effort especcialy for detailed system models. The computational effort growths multiplicatory with the 
-amount of parameters and exponentially with the robust horizon \cite{empty000}. These optimization tasks are impossible to solve
-in real time with current hardware.
-\newline
-\emph{Neural Networks} (NNs) are able to approximate any continuous function that maps from a finite dimensional space to
-another up to an arbitrary small error \cite{empty000}. Thus, NNs are a key component of machine learning advancements of the 2010s enabling
-data approximation of almost any kind such as autoregressive language generation \cite{vaswani2023}, protein folding \cite{empty000} or
-reduction of partial differential equations (PDEs). Their universal approximation ability, differentiatability and fast evaluation makes NNs greatly suitable to reduce first principle models in
-the context of optimal control.
-\newline
-For NNs to be applied successfully and savely in process engineering, another measure is of great importance – The alignment of 
-predictions with physical conservation laws such as mass or energy. By definition, NN predictions seek to minimize a loss function
-to the ground truth data. The aligment of the predictions with real balance equations is only achieved until test accuracy. Deviations
-accumulate especcialy in propagation scenarios where predictions are propagated through different networks or through a time horizon
-in autoregressive manner. This leads to bad predictions or even unstable behavior in late propagation stages and makes MPC
-implementations challenging.
-\newline
-This work investigates the usage of physics-consistent (PC) NNs in the context of robust model predictive control under
-parametric uncertainty. The NNs in focus shall significantly reduce the computational effort due to different parameter scenarios as well as 
-guarantee physical correctness of the predictions over the whole prediction horizon. To account for uncertainties, quantile
-regression is utilized which captures a prediction confidence intervall. PC is enforced by implementing a recent
-type of activation function that elegantly maps a prediction into the allowed output space without altering the inference time \cite{chen2024}.
-\newline
-The developed surrogate models are later evaluated regarding their simulation accuracy using a fictional plug flow tubular reactor (PFTR) model of the ethene oxide synthesis.
 
+Whether finance, science or engineering, optimality is the key objective in
+a vast amount of applications. A specified outcome should be realized with the least amount
+of resources or investment. It becomes especially challenging to 
+find a trustworthy optimal solution, when unconsidered effects influence the underlying mathematical model.
+In many real-world scenarios, future conditions are uncertain. 
+For self-driving cars, a road may inherit varying grip. Investments must be taken under uncertain market behavior.
+Catalysts degrade and exhibit slower reaction speeds over time.
+Thus, \emph{robust optimization} is a major field of research to yield optimality under
+uncertain conditions with \emph{robustness} regarding constraints and \emph{performance} regarding the objective. 
+This means that the constraints should be satisfied in all cases, while the specified performance
+is as good as possible.
+\newline
+\newline
+\noindent
+\emph{Model predictive control} (MPC) is an online optimization algorithm that repeatedly 
+chooses optimal actions for a system based on a specified objective. With regard to
+self-driving cars, autonomous aviation or load-flexible chemical plants, MPC can enable
+optimal operation under dynamic conditions. However, uncertainty remains a key challenge
+in safe application. \emph{Multi-stage MPC} can handle low-order uncertainties with good performance
+in the objective but leads to tremendous computational effort, when the uncertainty set grows \cite{lucia2013}.
+\newline
+\newline
+\noindent
+With advancements in parallelization of \emph{neural network} (NN) training, NNs have become
+state of the art in data-driven modelling \cite{mcbride2019}. Thanks to the \emph{universal approximation theorem}
+\cite{hornik1990} and transformer architectures such as large language models \cite{vaswani2023},
+the 2010s caused a breakthrough in machine learning. Therefore, NNs are well suited to replace the physical model
+of an MPC algorithm to capture complex system dynamics without extensive integration effort.
+Further, they are able to learn the effects of uncertainty on the system behavior. When a distribution
+of data points is presented, NNs can be trained to infer confidence intervals and thus quantify uncertainty.
+This comes with one downside.
+\newline
+\newline
+\noindent
+Due to its black-box-nature, a basic NN cannot obey strict equations regarding its output vector.
+This might be a problem in strict cases, where balance equations such as energy, mass or capital need to be met precisely.
+When outputs become propagated through NNs several times, errors accumulate. Exactly this is performed
+by MPC algorithms making them prone to the accumulation of errors. To takle this, a recent type of
+activation function is presented equivalently to Chen et al. \cite{chen2024}, that corrects NN outputs based on
+linear equality constraints during both forward and backward passes.
+\newline
+\newline
+\noindent
+The performance of the yieled \emph{physics-constrained} NNs is later evaluated in a case study.
+Here, a dynamic \emph{plug-flow tubular reactor} (PFTR) of the \emph{ethylene oxidation} is modeled to
+imitate a load-flexible process under parameteric uncertainty. It is exhibited through the Gaussian-distributed
+kinetic parameters \emph{activation energy} and \emph{pre-exponential collision factor} as well as the \emph{radial heat conductivity}
+of the packed bed. A surrogate model framework is supposed to be developed, that 
+captures the system uncertainty while yielding accurate predictions for an MPC algorithm. A comparison
+is drawn between basic NNs and physics-constrained NNs in terms of training efficiency,
+physics-consistency, simulation capability, uncertainty quantification and MPC robustness and performance.
+This is realized in \texttt{python} with the open-source libraries \texttt{pyTorch} \cite{pytorch2019} for
+training, \texttt{l4casadi} \cite{salzmann2023} for hessian-acceleration and interconnection,
+\texttt{do\_mpc} \cite{dompc} for simulation and control, \texttt{casadi} \cite{casadi}
+for numerical optimization and \texttt{ipopt} \cite{Waechter2006} for solving.

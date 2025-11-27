@@ -30,7 +30,7 @@ narx:
   n_measurements: 4
   
 scales:
-  T: 615
+  T: 625
   c: 80
 
 states:

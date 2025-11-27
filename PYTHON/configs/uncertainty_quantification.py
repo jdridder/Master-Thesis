@@ -299,7 +299,6 @@ uq_test_cfg = {
     "input_signal_tau": 15,
 }
 
-
 mpc_perf_cfg = {
     "n_experiments": 1,
     "n_workers": 1,
@@ -316,11 +315,11 @@ mpc_perf_cfg = {
         "scenarios": ["upper", "nominal", "lower"],
         "t_step": 1,
         "lam_Tmax": 5e6,
-        "ub_T": 630 / 615,
+        "ub_T": 630 / 625,
         "lam_dudt": {"T_c0": 200, "T_c1": 100, "T_c2": 100, "T_c3": 100},
         "lam_X": 1e1,
         "lb_X": 0.5,
-        "input_scale": 615,
+        "input_scale": 625,
         "tvp_scale": 0.4,
         "store_full_solution": True,
         "surpress_ipopt_output": False,

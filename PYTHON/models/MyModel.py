@@ -40,8 +40,7 @@ class MyModel:
                 bounds[var_key] = np.array(bounds[var_key])
         return bounds
 
-    @staticmethod
-    def get_rhs_args(i: int, j: int, states: Dict, inputs: Dict, expr_key: str, arg_names: Dict, bc_expr: Union[float, SX] = None) -> Dict[str, SX]:
+    def get_rhs_args(self, i: int, j: int, states: Dict, inputs: Dict, expr_key: str, arg_names: Dict, bc_expr: Union[float, SX] = None) -> Dict[str, SX]:
         """Helper function to extract the needed current and previous states for the finite difference equations."""
         if i == 0 and bc_expr is None:
             raise ValueError("Provide a value for the boundary condition at i = 0.")
@@ -53,6 +52,11 @@ class MyModel:
                     args[arg_name] = bc_expr
                 else:
                     args[arg_name] = states[arg_name.replace("_b", "")][i - 1]
+            elif arg_name.endswith("_n"):  # the next point ends with _n
+                if i + 1 == self.N_finite_diff:
+                    args[arg_name] = states[arg_name.replace("_n", "")][i]
+                else:
+                    args[arg_name] = states[arg_name.replace("_n", "")][i + 1]
             elif arg_name.endswith("_c"):
                 # edit the argnames of the wall temperatures to match the cooling section
                 args[arg_name] = inputs[arg_name + f"{j}"]

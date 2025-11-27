@@ -24,7 +24,7 @@ mpc_perf_cfg = {
     "tvp_tau": 20,
     "surrogate_types": ["vanilla"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
-    "t_steps": 64,
+    "t_steps": 256,
     "mpc_cfg": {
         "n_horizon": 30,
         "n_robust": 1,
@@ -92,7 +92,7 @@ def main():
 
     tvp_signals = generate_random_ramp_signal(
         # feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
-        feature_bounds=[[0.35, 0.35]],
+        feature_bounds=[[0.25, 0.35]],
         num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon") * mpc_perf_cfg["mpc_cfg"].get("t_step"),
         tau=mpc_perf_cfg.get("tvp_tau"),
         batch_size=mpc_perf_cfg.get("n_experiments"),

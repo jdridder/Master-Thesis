@@ -17,7 +17,7 @@ from postprocessing.plot import plot_loop
 from routines.setup_routines import configure_simulator, make_simulator_tvp_fun, set_p_fun
 from simulation.data_generation import generate_initial_state, generate_random_ramp_signal
 
-t_steps = 2**8
+t_steps = 2**9
 
 
 def main():
@@ -31,23 +31,24 @@ def main():
     model.setup()
 
     u = generate_random_ramp_signal(
-        feature_bounds=[[580, 630]] * 4,
+        feature_bounds=[[600, 630]] * 4,
         num_steps=t_steps,
         tau=200,
+        seed=37,
         time_step=cfg["simulation"]["t_step"],
         hold_time_range=(0.8, 2),
         ramp_time_range=(0.1, 0.4),
     )
 
     # u = np.array([590, 590, 650, 610, 620])
-    x0 = etox_model.get_initial_state(u0=0.3, Tc_0=620, path="/Users/jandavidridder/Desktop/Masterarbeit/src/PYTHON/MYCODE/models/EtOxModel/initial_state.npy")
+    x0 = etox_model.get_initial_state(u0=0.3, Tc_0=620, path="/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/PYTHON/models/EtOxModel/initial_state.npy")
 
     tvp_traj = generate_random_ramp_signal(
-        feature_bounds=[cfg["tvps"]["level_bounds"]],
+        feature_bounds=[[0.25, 0.35]],
         num_steps=t_steps,
         time_step=cfg["simulation"]["t_step"],
-        tau=200,
-        # seed=42,
+        tau=20,
+        seed=42,
         hold_time_range=(4, 4),
         ramp_time_range=(0.5, 0.5),
     )
@@ -61,7 +62,7 @@ def main():
         tvp_key="u",
     )
     simulator.set_tvp_fun(tvp_fun)
-    kinetic_parameters = etox_model.sample_parameters(covariance_gain=2)
+    kinetic_parameters = etox_model.get_true_parameters()
     set_p_fun(simulator, params=kinetic_parameters.flatten())
     simulator.setup()
     simulator.reset_history()
@@ -70,10 +71,11 @@ def main():
     for i in tqdm(range(t_steps), desc="Simulating High Fidelity Model"):
         x_next = simulator.make_step(u0=u[i].reshape((-1, 1)))
 
-    plot_loop(sim_cfg=cfg, data=simulator.data, surrogate_type="full", n_measurements=128)
+    plot_loop(sim_cfg=cfg, data=simulator.data, n_measurements=128, plot_cfg={"show_fig": True})
 
-    # result = np.concatenate([simulator.data["_x"], simulator.data["_u"], simulator.data["_tvp"]], axis=-1)
-    # np.save("initialization_data", result[-20:-1])
+    result = np.concatenate([simulator.data["_x"], simulator.data["_u"], simulator.data["_tvp"]], axis=-1)
+    # result = simulator.data["_x"][-1]
+    np.save("initialization_data", result)
 
 
 # save_results([simulator], result_path=f"{RESULTS_DIR}/full/", result_name="full_model", overwrite=False)

@@ -4,7 +4,7 @@ symvar_type: "SX"
 model_name: "EtOxModel"
 
 
-boundary_conditions: {"x_E": 0.3, "x_O2": 0.25, "x_EO": 0, "x_H2O": 0.0025, "x_CO2": 0.08, "T": 615}  # at the inlet
+boundary_conditions: {"x_E": 0.3, "x_O2": 0.25, "x_EO": 0, "x_H2O": 0.0025, "x_CO2": 0.08, "T": 625}  # at the inlet
 bounds: {}
 
 states:
@@ -19,7 +19,7 @@ N_meas: 4  # number of equidistant measurement positions
 
 equation_parameters:
   # Constants
-  T_in: 615
+  T_in: 625
   x_E_in: 0.3
   R_g: 8.314  # J / mol K
   M: [28.05, 32, 44.05, 18, 44.01, 28] # molar masses [g / mol]
@@ -81,6 +81,7 @@ equation_parameters:
 
   alpha: 200  # [W m-2 K-1]
   lam_bed: 0.4037066551257339 # [W m-1 K-1]
+  Dax: 0.000375
 
   # Reactor Parameters
   L: 10  # length of the reactor [m]
