@@ -44,7 +44,6 @@ def run_training(
         with open(os.path.join(model_parameter_dir, "training_cfg.json"), "w") as f:
             f.write(json.dumps(training_cfg, indent=4))
 
-        pca_encoder = torch.load(pca_encoder_path, weights_only=False)
         training_data = data_structurizer.load_data(data_dir=training_data_dir, num_trajectories=training_cfg.get("n_trajectories", 16))
 
         train_pca_encoder(
@@ -53,6 +52,7 @@ def run_training(
             save_cfg={"save_path": pca_encoder_path},
             training_data=training_data,
         )
+        pca_encoder = torch.load(pca_encoder_path, weights_only=False)
 
         for individual_cfg in training_cfg["training_jobs"].values():
             if not os.path.exists(individual_cfg.get("save_path")):
@@ -128,13 +128,13 @@ def infer_temperature_weights(
     Y = data_structurizer.isolate_state(Y=Y, state_key="T")
     Y = torch.tensor(Y.copy(), dtype=torch.float32)
 
-    temp_model.load_state_dict(temp_model_state_dict)
     if "q_correction" in temp_model_state_dict:
         cls = CQRPredictor
     else:
         cls = StatePredictor
 
     temp_model = cls(n_input=X_enc.shape[-1], n_output=Y.shape[-1], hidden_units=temp_model_cfg.get("hidden_units", training_cfg.get("hidden_units")))
+    temp_model.load_state_dict(temp_model_state_dict)
     temp_model.to(torch.device("cpu"))
     temp_model.eval()
 

@@ -19,15 +19,16 @@ class BatchVarNames(Enum):
 
 
 class EarlyStopping:
-    def __init__(self, patience=5, min_delta=0.0, mode="min"):
+    def __init__(self, patience=5, min_delta=0.0, min_epochs: Optional[int] = 0, mode="min"):
         self.patience = patience
         self.min_delta = min_delta
         self.mode = mode
         self.best_score = None
         self.counter = 0
         self.early_stop = False
+        self.min_epochs = min_epochs
 
-    def __call__(self, current_score):
+    def __call__(self, current_score: float, epoch: int):
         if self.best_score is None:
             self.best_score = current_score
             return
@@ -39,7 +40,7 @@ class EarlyStopping:
             self.counter = 0
         else:
             self.counter += 1
-            if self.counter >= self.patience:
+            if self.counter >= self.patience and epoch >= self.min_epochs:
                 self.early_stop = True
 
 
@@ -93,6 +94,7 @@ def train(
     loss_function: Optional[Type[nn.Module]] = None,
     lr: Optional[float] = 1.0e-4,
     early_stopping: Optional[bool] = False,
+    min_epochs: Optional[int] = 0,
 ) -> nn:
     if torch.cuda.is_available():
         device_name = "cuda"  # Train on NVIDIA GPU, if available
@@ -108,7 +110,7 @@ def train(
     optimizer = optim.Adam(neural_model.parameters(), lr=lr)
     history = {"epoch": [], "loss": [], "val_loss": []}
     if early_stopping:
-        early_stopping = EarlyStopping()
+        early_stopping = EarlyStopping(min_epochs=min_epochs)
     loss_function = loss_function or nn.MSELoss()
 
     for epoch in range(epochs):
@@ -158,7 +160,7 @@ def train(
             print(f"Epoch {epoch}, Train loss: {loss:.7f}, Val loss: {val_loss:.7f}")
 
         if early_stopping is not False:
-            early_stopping(val_loss.item())
+            early_stopping(val_loss.item(), epoch)
             if early_stopping.early_stop:
                 print(f"Early stopping at epoch {epoch}.")
                 break

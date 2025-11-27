@@ -50,7 +50,7 @@ def run_narx_mpc_loop(
 
     fp_model = configure_dompc_model(model_type=SurrogateTypes.Rigorous.value, meta_model=meta_model)
 
-    control(
+    results = control(
         simulation_cfg=sim_cfg,
         n_time_steps=t_steps,
         data_structurizer=data_structurizer,
@@ -64,6 +64,7 @@ def run_narx_mpc_loop(
         run_cfg=run_cfg,
         process_name=proc_name,
     )
+    return results
 
 
 def control(
@@ -158,7 +159,7 @@ def control(
             continue
 
         save_as = run_cfg.get("save_as", "json")
-        save_dir = run_cfg["save_dir"]
+        save_dir = run_cfg.get("save_dir")
         var_types = run_cfg.get("save_variable_types")
         if save_as in ["npy", "json"]:
             ind = 1
@@ -179,6 +180,10 @@ def control(
                 f.write(json.dumps(json_result, indent=4, cls=NumpyEncoder))
         elif save_as == "pkl":
             save_results(save_list=[simulator], result_path=save_dir, result_name=f"/{run_cfg.get("result_name", "result")}")
+        elif save_as == "return_simulator":
+            return simulator.data
+        elif save_as == "return_mpc":
+            return mpc.data
         else:
             raise NotImplementedError(f"The save as type {save_as} is not implemented.")
 
@@ -192,13 +197,13 @@ def configure_mpc(mpc: MPC, mpc_cfg: Dict, surpress_ipopt: Optional[bool] = Fals
     mpc.scaling["_x", "past_tvps"] = mpc_cfg.get("tvp_scale", 1)
 
     # ------ Common for both ROM and NARX surrogate models -----
-    mterm = (0.6 - mpc.model.aux["X"]) ** 2  # objective_function(selectivity)
-    lterm = (0.6 - mpc.model.aux["X"]) ** 2  # objective_function(selectivity)
+    mterm = -((mpc.model.aux["S"]) ** 2)  # objective_function(selectivity)
+    lterm = -((mpc.model.aux["S"]) ** 2)  # objective_function(selectivity)
     mpc.set_objective(lterm=lterm, mterm=mterm)
     # constraints
-    mpc.set_nl_cons("T_max", mpc.model.x["T"], ub=630, soft_constraint=True, penalty_term_cons=mpc_cfg.get("lam_Tmax", 0))
-    mpc.set_nl_cons("conversion", -mpc.model.aux["X"], ub=-0.3, soft_constraint=True, penalty_term_cons=mpc_cfg.get("lam_X", 0))
-    # mpc.set_rterm(**mpc_cfg.get("lam_dudt"))
+    mpc.set_nl_cons("T_max", mpc.model.x["T"], ub=mpc_cfg["ub_T"], soft_constraint=True, penalty_term_cons=mpc_cfg.get("lam_Tmax", 0))
+    mpc.set_nl_cons("conversion", -mpc.model.aux["X"], ub=-mpc_cfg["lb_X"], soft_constraint=True, penalty_term_cons=mpc_cfg.get("lam_X", 0))
+    mpc.set_rterm(**mpc_cfg.get("lam_dudt"))
 
     for input_key in mpc.model.u.keys():
         mpc.scaling["_u", input_key] = mpc_cfg.get("input_scale")

@@ -91,8 +91,10 @@ def configure_narx_surrogate(data_structurizer: DataStructurizer, surrogate: Mod
         assert scenario in ["nominal", "upper", "lower"], f"The scenario case {scenario} must be one of nominal, upper or lower."
         rhs = surrogate_expressions[scenario]  # choose either "nominal", "lower", or "upper"
     else:
-        alpha = surrogate.set_variable("_p", "alpha", shape=(3, 1))
-        rhs = alpha[0] * surrogate_expressions["nominal"] + alpha[1] * surrogate_expressions["upper"] + alpha[2] * surrogate_expressions["lower"]
+        alpha = surrogate.set_variable("_p", "alpha", shape=(len(surrogate_expressions), 1))
+        rhs = DM(0)
+        for i, expression in enumerate(surrogate_expressions.values()):
+            rhs += alpha[i] * expression
         # one-hot-encoding for the different models that account for different scenarios
     for i, state_key in enumerate(simulation_cfg["states"]["keys"]):
         start, stop = i * data_structurizer.n_measurements, (i + 1) * data_structurizer.n_measurements

@@ -15,7 +15,6 @@ from routines.utils import _load_single_json, load_json_results_for_all
 
 from .performance_metrics import calculate_state_mse
 from .plotting_helpers import *
-from .Visualizer import Visualizer
 
 set_mpt_settings()
 
@@ -229,8 +228,7 @@ def plot_open_loop_state(
     var_key = "_y" if surrogate_type == SurrogateTypes.Rom.value else "_x"
 
     # --- Plotting ---
-    vis = Visualizer(sim_cfg, cmap="viridis")
-    fig, axes = vis.make_axes_for_all_vars(n_plots=len(positions), cbar=False)
+    fig, axes = make_axes_for_all_vars(n_plots=len(positions), cbar=False)
 
     time_vector = np.arange(-warm_up_steps, t_steps if t_steps != -1 else test_data_for_state.shape[1] - warm_up_steps) * sim_cfg["simulation"]["t_step"]
 
@@ -285,7 +283,7 @@ def plot_loop(
     surrogate_type: Optional[Type[SurrogateTypes]] = None,
     var_type: Optional[str] = "_x",
     animate: Optional[bool] = False,
-    show_fig: Optional[bool] = True,
+    plot_cfg: Optional[Dict] = None,
 ):
     """
     Plot and animate closed-loop simulation results from an MPC (Model Predictive Control) run.
@@ -316,12 +314,12 @@ def plot_loop(
     6. Define an update function to refresh plots at each simulation time step.
     7. Display final results and create an animated visualization.
     """
-    vis = Visualizer(sim_cfg, cmap="viridis")
+    plot_cfg = plot_cfg or {}
     time = data["_time"]
     # Change the Data Object from the NARX Simulation to separate the dummy states "x" into the original states
     g = Graphics(data)
     plot_keys = sim_cfg["plotting"]["ylabels"].keys()
-    fig, axes = vis.make_axes_for_all_vars(len(plot_keys))
+    fig, axes = make_axes_for_all_vars(len(plot_keys), figsize=(9, 16))
     input_index = len(sim_cfg["states"]["keys"])
     tvp_index = input_index + 1
     aux_index = tvp_index + 1
@@ -340,10 +338,10 @@ def plot_loop(
     g.add_line("_aux", "S", axis=axes[aux_index], label=r"$S_{mpc}$")
     g.add_line("_aux", "X", axis=axes[aux_index], label=r"$X_{mpc}$")
     add_constraint_line(axes=axes, axes_index=input_index - 1, value=630 / sim_cfg["scales"].get("T"), kwargs={"label": r"$T_{max}$"})
-    add_constraint_line(axes, axes_index=aux_index, value=0.6, kwargs={"label": r"$X_{min}$"})
+    add_constraint_line(axes, axes_index=aux_index, value=sim_cfg["aux"]["lower_bounds"]["X"], kwargs={"label": r"$X_{min}$"})
     # axes[-1].legend()
     set_labels(sim_cfg=sim_cfg, latex_notation_map=latex_notation_map, axes=axes)
-    vis.sync_ylims(axes, plot_keys=plot_keys)
+    sync_ylims(axes, plot_keys=plot_keys)
 
     def update(frame):
         if isinstance(data, MPCData):
@@ -351,13 +349,18 @@ def plot_loop(
         g.plot_results(frame)
         g.reset_axes()
 
-    # plt.savefig(file_path.replace(".pkl", ".pdf"))
+    update(-1)
+
     fig.align_ylabels()
     if animate:
         animation = FuncAnimation(fig, update, frames=range(time.shape[0]), repeat=False)
-    # animation.save("rom_mpc.gif", writer="imagemagick", fps=2, dpi=160)
-    update(-1)
-    if show_fig:
+    save_path = plot_cfg.get("save_path")
+    if save_path:
+        plt.savefig(f"{save_path}/system_evolvement.pdf")
+        if animate:
+            animation.save(f"{save_path}/system_evolvement.gif", writer="imagemagick", fps=2, dpi=120)
+
+    if plot_cfg.get("show_fig"):
         plt.show()
     return fig
 

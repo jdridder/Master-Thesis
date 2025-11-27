@@ -25,13 +25,14 @@ class MPCLoopProcess(Process):
         simulator_initial_states: np.ndarray,
         narx_type: Type[SurrogateTypes],
         scenarios: List[str],
+        result_queue: Optional[Queue] = None,
         run_cfg: Optional[Dict] = None,
         name: Optional[str] = "",
     ) -> None:
         Process.__init__(self, name=name)
         self.cfg = sim_cfg
         self.meta_model = meta_model
-        # self.result_queue = result_queue
+        self.result_queue = result_queue
         self.t_steps = t_steps
         self.scenarios = scenarios
         self.data_structurizer = data_structurizer
@@ -45,7 +46,7 @@ class MPCLoopProcess(Process):
         self.run_cfg = run_cfg
 
     def run(self):
-        run_narx_mpc_loop(
+        result = run_narx_mpc_loop(
             t_steps=self.t_steps,
             narx_type=self.narx_type,
             tvp_signals=self.tvp_signals,
@@ -61,8 +62,9 @@ class MPCLoopProcess(Process):
             mpc_cfg=self.mpc_cfg,
             run_cfg=self.run_cfg,
         )
-        # if result_arr is not None:
-        #     self.result_queue.put(result_arr)
+        if result is not None:
+            assert self.result_queue is not None, "Provide a result queue to the mpc process."
+            self.result_queue.put(result)
 
 
 def run_parallel_mpc_loop(
@@ -85,8 +87,8 @@ def run_parallel_mpc_loop(
         physical_params = np.expand_dims(physical_params, axis=0)
         physical_params = physical_params.repeat(axis=0, repeats=mpc_initial_states.shape[0])  # duplicate the parameters for all input trajectories.
 
-    # manager = multiprocessing.Manager()
-    # results_queue = manager.Queue()
+    manager = multiprocessing.Manager()
+    results_queue = manager.Queue()
     procss = []
     sim_initial_states_batched = np.array_split(simulator_initial_states, n_workers, axis=0)
     mpc_input_signals_batched = np.array_split(mpc_initial_states, n_workers, axis=0)
@@ -107,6 +109,7 @@ def run_parallel_mpc_loop(
             state_dict_dir=state_dict_dir,
             t_steps=t_steps,
             name=f"Proc {core}",
+            result_queue=results_queue,
             mpc_cfg=mpc_cfg,
             sim_cfg=sim_cfg,
             run_cfg=run_cfg,
@@ -115,10 +118,9 @@ def run_parallel_mpc_loop(
         proc.start()
     # wait for all processes to join
     [proc.join() for proc in procss]
-    # results_concat = []
-    # while not results_queue.empty():
-    #     results_concat.append(results_queue.get())
-    # if len(results_concat) > 0:
-    #     results_concat = np.concatenate(results_concat, axis=0)
     print("Processes joined.")
-    # return results_concat
+    results_concat = []
+    while not results_queue.empty():
+        results_concat.append(results_queue.get())
+    if len(results_concat) > 0:
+        return results_concat

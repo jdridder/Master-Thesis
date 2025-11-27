@@ -153,10 +153,11 @@ def train_narx_module(
         neural_model=model,
         train_loader=train_loader,
         val_loader=val_loader,
+        loss_function=loss_function,
         epochs=individual_cfg.get("max_epochs", training_cfg.get("max_epochs", 128)),
         lr=individual_cfg.get("lr", training_cfg.get("lr", 5e-5)),
         early_stopping=training_cfg.get("early_stopping", False),
-        loss_function=loss_function,
+        min_epochs=training_cfg.get("min_epochs", 0),
     )
     if training_cfg.get("save_history"):
         save_path = individual_cfg.get("save_path")
