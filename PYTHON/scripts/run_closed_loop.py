@@ -24,19 +24,20 @@ mpc_perf_cfg = {
     "tvp_tau": 20,
     "surrogate_types": ["vanilla"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
-    "t_steps": 256,
+    "t_steps": 64,
     "mpc_cfg": {
-        "n_horizon": 30,
+        "input_bounds": {"lower": 550, "upper": 625},
+        "n_horizon": 25,
         "n_robust": 1,
         "uncertainty_values": {"alpha": [[1, 0], [0, 1]]},
         "scenarios": ["nominal", "upper"],
         "t_step": 1,
         "lam_Tmax": 1e5,
-        "ub_T": 630 / 615,
-        "lam_dudt": {"T_c0": 100, "T_c1": 100, "T_c2": 100, "T_c3": 100},
+        "ub_T": 630 / 625,
+        "lam_dudt": {"T_c0": 100, "T_c1": 100, "T_c2": 150, "T_c3": 150},
         "lam_X": 1e4,
         "lb_X": 0.5,
-        "input_scale": 615,
+        "input_scale": 625,
         "tvp_scale": 0.4,
         "store_full_solution": False,
         "surpress_ipopt_output": False,
@@ -105,7 +106,7 @@ def main():
     init_data = np.repeat(init_data, repeats=mpc_perf_cfg.get("n_experiments"), axis=0)
     sim_initial_states = structurizer.get_states_from_data(init_data[:, -1], n_measurements=sim_cfg["simulation"]["N_finite_diff"])
     narx_initial_states = structurizer.reduce_measurements(init_data)
-    narx_initial_states = structurizer.to_dompc_vector(narx_initial_states)[:, -1]
+    narx_initial_states = structurizer.to_dompc_vector(narx_initial_states)[..., -1]
 
     # loop over surrogate types
     data_list = run_parallel_mpc_loop(

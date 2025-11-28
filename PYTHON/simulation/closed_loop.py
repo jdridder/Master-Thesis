@@ -98,11 +98,13 @@ def control(
     assert (
         n_trajects == mpc_initial_states.shape[0] == simulator_initial_states.shape[0]
     ), f"The number of trajectories to control {n_trajects} must equal the batch size of mpc initial states {mpc_initial_states.shape[0]} and the simulator initial states {simulator_initial_states.shape[0]}."
-
     iterable = zip(tvp_signals, physical_params, mpc_initial_states, simulator_initial_states)
     iterable = tqdm(iterable, desc="Running MPC control loops.", total=n_trajects) if process_name == "Proc 0" else iterable
     previous_parameter_combination = np.random.rand(*physical_params[0].shape) if physical_params is not None else None
     previous_tvp_signal = np.random.rand(*tvp_signals[0].shape)
+
+    save_as = run_cfg.get("save_as", "json")
+    save_dir = run_cfg.get("save_dir")
 
     for tvp_signal, parameter_combination, mpc_x0, simulator_x0 in iterable:
         if not np.allclose(previous_parameter_combination, parameter_combination) or not np.allclose(previous_tvp_signal, tvp_signal):
@@ -157,9 +159,8 @@ def control(
         except Exception as e:
             print(f"MPC control loop failed with error: {e}")
             continue
+        del mpc
 
-        save_as = run_cfg.get("save_as", "json")
-        save_dir = run_cfg.get("save_dir")
         var_types = run_cfg.get("save_variable_types")
         if save_as in ["npy", "json"]:
             ind = 1
@@ -207,8 +208,8 @@ def configure_mpc(mpc: MPC, mpc_cfg: Dict, surpress_ipopt: Optional[bool] = Fals
 
     for input_key in mpc.model.u.keys():
         mpc.scaling["_u", input_key] = mpc_cfg.get("input_scale")
-        mpc.bounds["upper", "_u", input_key] = 630
-        mpc.bounds["lower", "_u", input_key] = 580
+        mpc.bounds["upper", "_u", input_key] = mpc_cfg["input_bounds"]["upper"]
+        mpc.bounds["lower", "_u", input_key] = mpc_cfg["input_bounds"]["lower"]
 
     solver_opts = mpc_cfg.get("solver_opts", None)
     if solver_opts is not None:

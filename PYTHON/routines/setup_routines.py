@@ -33,6 +33,7 @@ class SurrogateTypes(Enum):
 
 
 def configure_simulator(simulation_cfg: Dict, simulator_model: Model, integration_opts: Optional[Dict] = None) -> Simulator:
+    assert simulator_model.flags["setup"], "The simulator model is not set up."
     simulator = Simulator(model=simulator_model)
     if simulator_model.model_type == "continuous":
         simulator.set_param(

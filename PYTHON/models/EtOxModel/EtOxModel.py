@@ -92,7 +92,7 @@ class EtOxModel(MyModel):
         parameters[..., 2] = np.exp(parameters[..., 2])
         return parameters
 
-    def sample_parameters(self, n_batches: int = 1, covariance_gain: float = 1, lam_bed_std: float = 0.05) -> np.ndarray:
+    def sample_parameters(self, n_batches: int = 1, covariance_gain: float = 1, lam_bed_std: float = 0.05, seed: Optional[int] = None) -> np.ndarray:
         """Samples a set of parameters."""
         # covariance matrix of the parameter fitting # [W m1- K-1]
         covariance = np.array(
@@ -104,7 +104,7 @@ class EtOxModel(MyModel):
             ]
         )
         # order is ln k1, EA1, ln k2, EA2
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(seed=seed)
         # create new generator in case of parallel execution
         sampled = rng.multivariate_normal(self.mean_kinetic_parameters[:4], covariance * covariance_gain, size=n_batches)
         parameters = self._apply_exp_to_lnk(parameters=sampled)

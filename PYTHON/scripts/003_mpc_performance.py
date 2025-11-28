@@ -45,11 +45,13 @@ def run_mpc_performance(
         n_batches=mpc_perf_cfg.get("n_experiments", 10),
         covariance_gain=mpc_perf_cfg.get("covariance_gain", 1),
         lam_bed_std=mpc_perf_cfg.get("lam_bed_std", 0.01),
+        seed=55,
     )
     tvp_signals = generate_random_ramp_signal(
         feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
         num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon"),
         tau=mpc_perf_cfg.get("tvp_tau"),
+        seed=40,
         batch_size=mpc_perf_cfg.get("n_experiments"),
         time_step=sim_cfg["simulation"]["t_step"],
     )
@@ -60,7 +62,7 @@ def run_mpc_performance(
     init_data = np.repeat(init_data, repeats=mpc_perf_cfg.get("n_experiments"), axis=0)
     sim_initial_states = data_structurizer.get_states_from_data(init_data[:, -1], n_measurements=sim_cfg["simulation"]["N_finite_diff"])
     narx_initial_states = data_structurizer.reduce_measurements(init_data)
-    narx_initial_states = data_structurizer.to_dompc_vector(narx_initial_states)[:, -1]
+    narx_initial_states = data_structurizer.to_dompc_vector(narx_initial_states)[..., -1]
 
     results_dir = os.path.join(current_experiment_working_dir, "results")
 
@@ -68,29 +70,29 @@ def run_mpc_performance(
     for surrogate_key in mpc_perf_cfg.get("surrogate_types"):
         state_dict_path = os.path.join(trained_model_dir, mpc_perf_cfg["state_dict_folder"][surrogate_key])
         final_results_dir = os.path.join(results_dir, surrogate_key)
-        if not os.path.exists(final_results_dir):
-            os.makedirs(final_results_dir, exist_ok=True)
-            run_parallel_mpc_loop(
-                n_workers=mpc_perf_cfg.get("n_workers", 1),
-                t_steps=mpc_perf_cfg.get("t_steps"),
-                data_structurizer=data_structurizer,
-                meta_model=meta_model,
-                mpc_initial_states=narx_initial_states,
-                simulator_initial_states=sim_initial_states,
-                state_dict_dir=state_dict_path,
-                narx_type=surrogate_key,
-                scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
-                physical_params=kinetic_parameters,
-                tvp_signals=tvp_signals,
-                sim_cfg=sim_cfg,
-                mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
-                run_cfg={
-                    "save_dir": final_results_dir,
-                    "save_as": "json",
-                    "result_name": "narx_mpc",
-                    "save_variable_types": ["_y", "_u", "_tvp", "_aux", "t_wall_total"],
-                },
-            )
+        # if not os.path.exists(final_results_dir):
+        os.makedirs(final_results_dir, exist_ok=True)
+        run_parallel_mpc_loop(
+            n_workers=mpc_perf_cfg.get("n_workers", 1),
+            t_steps=mpc_perf_cfg.get("t_steps"),
+            data_structurizer=data_structurizer,
+            meta_model=meta_model,
+            mpc_initial_states=narx_initial_states,
+            simulator_initial_states=sim_initial_states,
+            state_dict_dir=state_dict_path,
+            narx_type=surrogate_key,
+            scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
+            physical_params=kinetic_parameters,
+            tvp_signals=tvp_signals,
+            sim_cfg=sim_cfg,
+            mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
+            run_cfg={
+                "save_dir": final_results_dir,
+                "save_as": "json",
+                "result_name": "narx_mpc",
+                "save_variable_types": ["_y", "_u", "_tvp", "_aux", "t_wall_total"],
+            },
+        )
 
     # load json results
     complete_result_dict = load_json_results_for_all(results_dir)

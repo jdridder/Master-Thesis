@@ -3,7 +3,7 @@
 The goal of this work is to derive a physics-consistent surrogate modelling technique to be applied within a robust MPC algorithm.
 Physics-consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
 This reactor type is common in the chemical industry in many processes such as ethylene oxidation, carbon dioxide methanization or steam reforming.
-Especcially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}. For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
+Especially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}. For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
 biological resources.
 \newline
 \newline
@@ -11,29 +11,20 @@ For exothermal reactions, \emph{transient behavior} is a mayor safety concern of
 In a dynamic operating environment, the thermal inertia of the catalytic packed bed can abruptly heat up unreacted feed mixture.
 This can cause a self-accelerating temperature runaway leading to thermal damage or even explosion.
 Furthermore, high temperatures can cause several catalyst deactivation effects such as sintering. Therefore, the temperature
-is considered a safety-crucial state that needs to obey to a maximum constraint in the sense of $F_i \leq 0$ in the original optimization (def.~\ref{theroy:def: bi-level program}) for all possible disturbances $\vw$.
+is considered a safety-critical state that needs to obey to a maximum constraint in the sense of $F_i \leq 0$ in the original optimization (def.~\ref{theory:def: bi-level program}) for all possible disturbances $\vw$.
 The maximum of $F_i$ should be approximated by $\tilde{\varphi}_i(\vu)$. This will be achieved by training a NARX model that predicts
 a tuned upper and lower bound for $\tilde{\varphi}_i(\vu)$ independent from the uncertainty $\vw$ using quantile regression.
 Apart from safety, the maximization of the selectivity towards the value product is a reasonable control objective, as the selectivity
 is most correlated to process profitability in many cases. To achieve a reasonable turnover from educts to products, a minimum 
-conversion is set to be required via a constraint. In total, following general optimization structure is proposed.
-\begin{equation}
-    \label{case:eq: general optimization}
-    \begin{gathered}
-        \max \; S \\
-        \begin{aligned}
-            \text{s.t.} \quad T &\leq T_\text{max} \\
-            X &\geq X_\text{min}
-        \end{aligned}
-    \end{gathered}
-\end{equation}
+conversion is set to be required via a constraint. The actual control formulation is presented during the
+MPC performance evaluation (\ref{MPC-Performance-and-Robustness}). 
 
 \section{Reaction Kinetics}
 To focus on the surrogate modelling methology, the example system is kept rather simplistic. 
-The \emph{ethylene oxidation} process consists of only two parallel reactions. Parametric data
+The \emph{ethylene oxidation} process consists of two parallel reactions. Parametric data
 is readily available due to extensive reseach. Further, the reaction and 
 reactor configuration is taken from an optimal reactor design study by Pietschak et al. \cite{pietschak2018} and
-adjusted for the needs at hand. Thus, some proposed operating conditions may be unrealistic due to safety concerns
+adjusted. Thus, some proposed operating conditions may be unrealistic due to safety concerns
 or over-simplifications.
 \newline
 \newline
@@ -75,7 +66,8 @@ The kinetic parameters are listed below (tab.~\ref{case:tab: true kinetic parame
 
 \section{Packed-bed Tubular Reactor Model}
 The reactor as a packed-bed tubular reactor (TR) is assumed to be already existend with a fixed design to clearly separate the model derivation
-from an optimal design task (fig.~\ref{case:fig: complete reactor}). To ensure thermal stability, the additional enthalpy balance is mandatory. 
+from an optimal design task (fig.~\ref{case:fig: complete reactor}).
+For the first principle model, the mass and energy balances are set up.
 
 \begin{figure}
     \centering
@@ -96,7 +88,7 @@ The input flow velocity $u$ can fluctuate due to flexible feed availability such
 where the throughput heavily relies on the hydrogen supply \cite{fischer2021}. Because isobaric conditions and a non-compressible phase are assumed,
 the simulated states narrow down to the molar fractions of the rate-determining species $x_\alpha$ and the temperature $T$.
 These are considered to be constant at the inlet, which is important for the later application of 
-linear equality constraints in a NN. 
+linear equality constraints in an NN. 
 Using the component balace in local form (eq.~\ref{case:eq: component balance in local form}), a PDE can be derived that
 describes the dynamic concentration gradients of the components $\alpha$.
 Furthermore, the enthalpy balance shall be covered to calculate the temperature field regarding the exothermic
@@ -108,7 +100,7 @@ reactions.
 \end{equation}
 The general component density $\rho_\alpha$ is expressed in mol/m$^3$, while $\partial z_k$ indicates
 the spatial derivative in direction $k$. $u_k$ and $j_{\alpha, k}$ denote the convective velocity and the 
-diffusive mass transport in direction $k$. The source or sink term $\sigma_\alpha$ allows to consider chemical reations.
+diffusive mass transport in direction $k$. The source or sink term $\sigma_\alpha$ allows to consider chemical reactions.
 Ideal gas behavior is considered (eq.~\ref{case:eq: ideal gas law}).
 \begin{equation}
     \label{case:eq: ideal gas law}
@@ -139,8 +131,6 @@ an \emph{output scaler} which simplifies implementation and training. These refe
 Due to the ideal gas behavior (eq.~\ref{case:eq: ideal gas law}), the molar density $\rho_\alpha$ varies not only
 with the molar fraction but also with the temperature. Therefore, an artificial state $\chi_\alpha$ is introduced
 to enable an easy and explicit formulation of the PDE via substitution (eq.~\ref{case:eq: dimensionless component PDE}).
-\newline
-\newline
 The general enthalpy balance in local form (eq.~\ref{case:eq: enthalpy balance local form}) can be significantly reduced under isobaric conditions with neither volume forces,
 nor friction, nor dispersive, nor conductive enthalpy transfer.
 \begin{equation}
@@ -150,7 +140,7 @@ nor friction, nor dispersive, nor conductive enthalpy transfer.
     u_k \frac{\partial p}{\partial z_k} + \sum_i j_{k,i} f_{k,i} -
     \Pi_{j,k} \frac{\partial u_j}{\partial z_k} + \sigma_h
 \end{equation}
-
+\noindent
 The final PDE to describe the temperature field in the reactor is yielded (eq.~\ref{case:eq: dimensionless temperature PDE}).
 \begin{equation}
     \label{case:eq: dimensionless temperature PDE}
@@ -185,7 +175,7 @@ The system of non-linear PDEs is discretized in $z$-direction via \emph{backward
     \end{aligned}
     \]
 \end{definition}
-
+\noindent
 The nodes of the discretization are choosen to be equidistant. For a reactor length of $L=10 \; \mathrm{m}$, $128$
 points are used. This results in a length of $\Delta z = 0.0781 \; \mathrm{m}$ for each element.
 As the finite difference method exhibits a significant truncation error of $\mathcal{O}(\Delta z)$, more accurate discretization
@@ -194,7 +184,7 @@ methods such as finite volumes should be used for a real application.
 \section{Parametric Uncertainty}
 
 Because model parameters such as the activation energy or the pre-exponential collision factor are mostly fitted
-by laboratory experiments that exhibit some kind of measurement uncertainty, the parameters themselves cannot be
+by laboratory experiments, that exhibit some kind of measurement uncertainty, the parameters themselves cannot be
 exactly determined. They lie in a confidence intervall. Furthermore, fitting results with counteracting mechanisms
 produce cross-correlations between parameters. For example, when a higher activation energy is determined, simutaneously
 the according pre-exponential factor must be also higher to compensate for the reduced reaction speed. In this case study,
@@ -211,7 +201,7 @@ The true values for all kinetic parameters are listed (tab.~\ref{case:tab: true 
         \multirow{2}{*}{\textbf{parameter}} & \multicolumn{2}{c}{\textbf{value}}\\ \cmidrule{2-3}
         & main reaction & side reaction \\
         \midrule
-        $k_{0,j}$ & $6.275\times 10^6  \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{1.1} \; s^{-1}}$ & $1.206\times10^7 \; \mathrm{mol \; kg_{cat}^{-1} \; Pa \; s^{-1}}$ \\
+        $k_{0,j}$ & $6.275\times 10^6  \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{-1.1} \; s^{-1}}$ & $1.206\times10^7 \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{-1} \; s^{-1}}$ \\
         $E_{\text{A},j}$ & \SI{74900}{\joule \; \mole^{-1}}  & \SI{89900}{\joule \; \mole^{-1}} \\
         $K_{0,j}$ & \SI{1.985e2}{\pascal^{-1}}  & \SI{1.08e2}{\pascal^{-1}} \\
         $T_{\text{ads},j}$ & \SI{2400}{\kelvin}  & \SI{1530}{\kelvin} \\
@@ -246,6 +236,7 @@ can be determined from a cross-correlated parameter fitting (def.~\ref{case:def:
         \end{pmatrix} \sim \mathcal{N}(\bm{\mu}, \bm{\Sigma})
     \]
 \end{definition}
+\noindent
 The activation energy of the main reaction is plotted against its pre-exponential collision factor (fig.~\ref{case:fig: kinetic parameter distribution}).
 While the true parameter combination is marked with a yellow point, the blue crosses indicate
 the possible parameter combinations by sampling the multi-variate normal distribution (eq.~\ref{case:def: multi-variate distribution}).
@@ -253,7 +244,7 @@ The sampling is done $1000$ times. Activation enegies can range between \SI{6500
 whereas the pre-exponential factor varies between \SI{1.5e6}{} and $3.0 \times 10^7 \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{1.1} \; s^{-1}}$.
 To calculate the mean vector $\bm{\mu}$ and the covariance matrix $\bm{\Sigma}$, an actual parameter fitting with emulated
 measurement noise has been executed using a \emph{berty} reactor model.
-Mean and covariance can be consulted in the appendix (tab.~\ref{app:tab: mean and covariance}).
+Mean and covariance can be consulted in the appendix (tab.~\ref{app:tab:mean-and-covariance}).
 
 \begin{figure}
     \centering
@@ -290,9 +281,11 @@ ethene oxidation, the element-species-matrix $\bm{B}$ needs to be set up (def.~\
     \end{pmatrix}
     \]
 \end{definition}
+
+\noindent
 Here, the columns are ordered as follows: ethene, oxygen molecule, ethylene oxide, water and carbon dioxide.
 The rows indicate elementary hydrogen, elementary carbon and elementary oxygen.
-Under the assumptions taken earlier, mainly as ideal gas behavior and incompressibility, the change in molar amount
+Under the assumptions taken earlier, mainly ideal gas behavior and incompressibility, the change in molar amount
 can be expressed in terms of the dimensionless state $\chi_i$ (eq.~\ref{case:ed: molar amount difference}).
 \begin{equation}
     \label{case:ed: molar amount difference}
@@ -305,7 +298,8 @@ Thus, the original conservation law is yielded as follows.
     \[
         \bm{B} \bm{\Delta \chi} = \bm{0}
     \]
-\end{corollary} 
+\end{corollary}
+\noindent
 Where, $\bm{\Delta \chi}$ marks the vector of the dimensionless changes for all components divided by the temperature.
 
 
@@ -317,9 +311,10 @@ and the dimensionless concentration measure $\chi_i$ should be measured and pred
 The distribution is done equidistantly. Taking all system states into account, meaning the concentration
 measure for all five components and the temperature, $6 \cdot 4 = 24$
 measurements form. This denotes the output size of a surrogate model. Using the backward finite difference method with $128$ points,
-the states at the positions $32, 64, 96$ and $128$ are considered as the measurements.
-Regarding the contraint satisfaction of the temperature, it is suitable to use the maximum temperature in the reactor as
-a measurement instead of discretizing spatially in a real-world scenario. The outlet states are of major interest in all cases.
+the states at the element indices $32, 64, 96$ and $128$ are considered as the measurements.
+Regarding the contraint satisfaction of the temperature, it is suitable to solely focus on the maximum temperature in the reactor.
+But for NARX models to learn the system correctly, spatial information about the temperature profile is needed.
+The outlet states are of major interest in all cases.
 
 
 \begin{figure}
@@ -404,7 +399,6 @@ approximately \SI{20}{\second} (eq.~\ref{case:eq: time constant}).
     of the test data are shown for a simulation horizon of \SI{512}{\second}.}
     \label{case:fig: input trajectories}
 \end{figure}
+\noindent
 The excited input signals of the wall temperatures are shown (fig.~\ref{case:fig: input trajectories}) for
 \SI{512}{\second} with a sampling frequency of \SI{1}{\second^{-1}}.
-
-\subsection{Training}

@@ -56,6 +56,9 @@ class SimulationProcess(Process):
             meta_model=self.meta_model,
             model_parameter_dir=self.model_parameter_dir,
         )
+        if not do_mpc_model.flags["setup"]:
+            do_mpc_model.setup()
+
         result_arr = simulate(
             simulation_cfg=self.cfg,
             n_time_steps=self.t_steps,

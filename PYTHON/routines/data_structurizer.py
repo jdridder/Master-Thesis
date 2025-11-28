@@ -362,7 +362,8 @@ class DataStructurizer:
         """
         stacked = self.stack_data(reduced_data_matrix)
         dompc_vector = np.delete(stacked, self.t0_indizes, axis=-1)
-        return dompc_vector
+        # swaps the axis such that the do_mpc vector is of shape (optional_batch_dim, features, time_steps)
+        return np.swapaxes(dompc_vector, axis1=-1, axis2=-2)
 
     def slice_dompc_vector(self, dompc_vector: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Slices a dompc_vector into states at all time points, inputs at all time points and tvps at all time points.
