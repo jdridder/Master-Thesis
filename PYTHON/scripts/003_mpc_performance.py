@@ -1,6 +1,14 @@
 import os
+
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+
+os.environ["OPENBLAS_NOFORK"] = "1"
+os.environ["OPENBLAS_DISABLE_MAIN_THREAD_AFFINITY"] = "1"
+
 import sys
-from typing import Dict, Optional
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -70,32 +78,62 @@ def run_mpc_performance(
     for surrogate_key in mpc_perf_cfg.get("surrogate_types"):
         state_dict_path = os.path.join(trained_model_dir, mpc_perf_cfg["state_dict_folder"][surrogate_key])
         final_results_dir = os.path.join(results_dir, surrogate_key)
-        # if not os.path.exists(final_results_dir):
-        os.makedirs(final_results_dir, exist_ok=True)
-        run_parallel_mpc_loop(
-            n_workers=mpc_perf_cfg.get("n_workers", 1),
-            t_steps=mpc_perf_cfg.get("t_steps"),
-            data_structurizer=data_structurizer,
-            meta_model=meta_model,
-            mpc_initial_states=narx_initial_states,
-            simulator_initial_states=sim_initial_states,
-            state_dict_dir=state_dict_path,
-            narx_type=surrogate_key,
-            scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
-            physical_params=kinetic_parameters,
-            tvp_signals=tvp_signals,
-            sim_cfg=sim_cfg,
-            mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
-            run_cfg={
-                "save_dir": final_results_dir,
-                "save_as": "json",
-                "result_name": "narx_mpc",
-                "save_variable_types": ["_y", "_u", "_tvp", "_aux", "t_wall_total"],
-            },
-        )
+        if not os.path.exists(final_results_dir):
+            os.makedirs(final_results_dir, exist_ok=True)
+            run_parallel_mpc_loop(
+                n_workers=mpc_perf_cfg.get("n_workers", 1),
+                t_steps=mpc_perf_cfg.get("t_steps"),
+                data_structurizer=data_structurizer,
+                meta_model=meta_model,
+                mpc_initial_states=narx_initial_states,
+                simulator_initial_states=sim_initial_states,
+                state_dict_dir=state_dict_path,
+                narx_type=surrogate_key,
+                scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
+                physical_params=kinetic_parameters,
+                tvp_signals=tvp_signals,
+                sim_cfg=sim_cfg,
+                mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
+                run_cfg={
+                    "save_dir": final_results_dir,
+                    "save_as": "json",
+                    "result_name": "narx_mpc",
+                    "save_variable_types": ["_y", "_u", "_tvp", "_aux", "t_wall_total"],
+                },
+            )
 
     # load json results
     complete_result_dict = load_json_results_for_all(results_dir)
+
+    # plot all state input and tvp trajectories
+
+    def pick_rn_traj(arr: np.ndarray):
+        index = int(np.random.rand() * arr.shape[0])
+        return arr[index]
+
+    def split_spatially(arr: np.ndarray, n_meas: int = 4):
+        if arr.shape[-1] == 24:
+            arr = arr.reshape((arr.shape[0], -1, n_meas))
+            return arr.swapaxes(0, 1)
+        if arr.shape[-1] == 3:
+            arr = arr[..., 1:]
+
+        return np.expand_dims(arr, axis=0)
+
+    one_trajectory_dict = apply_to_double_dict(double_dict=complete_result_dict, fn=pick_rn_traj)
+    one_trajectory_dict = apply_to_double_dict(double_dict=one_trajectory_dict, fn=split_spatially)
+    plot_loop_from_dict(
+        system_dict=one_trajectory_dict["vanilla"],
+        plot_cfg={
+            "ylims": [{"ax_idx": 5, "ylims": (0.95, 1.025)}, {"ax_idx": 8, "ylims": (0.4, 1)}],
+            "hlines": [
+                {"ax_idx": 5, "kwargs": {"y": sim_cfg["states"]["upper_bounds"]["T"] / sim_cfg["scales"]["T"], "label": "max. T", "color": "black", "ls": "dashdot"}},
+                {"ax_idx": 8, "kwargs": {"y": sim_cfg["aux"]["lower_bounds"]["X"], "label": "min. X", "color": "black", "ls": "dashdot"}},
+            ],
+        },
+        save_cfg={"show_fig": True},
+    )
+    exit()
 
     # calculate mean performance -> mean selectivity
     kpi_dict = {}

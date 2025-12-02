@@ -161,13 +161,15 @@ def make_meta_data_annotation(meta_data: Dict, include: List) -> str:
     return annotation
 
 
-def make_axes_for_all_vars(n_plots: int, cbar: bool = True, figsize=(10, 6), cmap_key: Optional[str] = "viridis") -> Tuple[plt.Figure, List[plt.Axes]]:
+def make_axes_for_all_vars(
+    n_rows: int, n_cols: Optional[int] = 1, cbar: Optional[bool] = True, figsize: Optional[Tuple] = (10, 6), cmap_key: Optional[str] = "viridis"
+) -> Tuple[plt.Figure, List[plt.Axes]]:
     """Creates a grid of axes for all unique states, inputs, tvps and auxillary vars."""
-    n_grids = n_plots + 2 if cbar else n_plots
-    height_ratios = [1.5, 1] + [10] * n_plots if cbar else [10] * n_plots
+    n_grids = n_rows + 2 if cbar else n_rows
+    height_ratios = [1.5, 1] + [10] * n_rows if cbar else [10] * n_rows
     plot_idx = 2 if cbar else 0
     fig = plt.figure(figsize=figsize)
-    gs = gridspec.GridSpec(n_grids, 1, height_ratios=height_ratios)
+    gs = gridspec.GridSpec(n_grids, ncols=n_cols, height_ratios=height_ratios)
     # Colorbar on the top
     if cbar:
         cbar_ax = fig.add_subplot(gs[0, 0])
@@ -176,11 +178,12 @@ def make_axes_for_all_vars(n_plots: int, cbar: bool = True, figsize=(10, 6), cma
         cbar = fig.colorbar(mappable, cax=cbar_ax, orientation="horizontal")
         cbar.ax.set_ylabel(r"$\frac{z}{L}$ / -", rotation=0)
     axes = []
-    for i in range(n_plots):
-        ax_i = fig.add_subplot(gs[i + plot_idx, 0], sharex=axes[0] if axes else None)
-        if i < n_plots - 1:
-            ax_i.label_outer()
-        axes.append(ax_i)
+    for i in range(n_rows):
+        for j in range(n_cols):
+            ax_i = fig.add_subplot(gs[i + plot_idx, j], sharex=axes[0] if axes else None)
+            if i < n_rows - 1:
+                ax_i.label_outer()
+            axes.append(ax_i)
     return fig, axes
 
 

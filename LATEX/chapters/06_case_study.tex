@@ -371,19 +371,18 @@ To start the simulation, an initial vector $\bm{\phi}_\text{init}$ must be suppl
 
 \subsection{Data Generation}
 
-To train and test the NARX models, reactor measurement data is generated at mentioned positions. 
+To train and test the NARX frameworks, reactor measurement data is generated at mentioned positions. 
 For this sake, the normal distributions for the radial heat conductivity and the kinetic parameters 
 are sampled in Monte-Carlo (MC) fashion to yield a parameter vector $\vw$ in the uncertainty space.
 For the inputs in the training data ($T_{\text{w,1}}$ to $T_{\text{w,4}}$), excited ramp signals are generated with an
 uniform distribution. The distribution ranges from \SI{535}{\kelvin} to \SI{665}{\kelvin} for each input temperature.
 Once a signal level is sampled, it is held for a random duration between $0.6$ and $1.8$ times of 
-the system's time constant. The ramp duration is set to half of the system's time constant.
+a specified sampling time constant. The ramp duration is set to half of the sampling time constant.
 The same is done for the time-varying inlet flow speed with uniform boundaries of 
 \SI{0.18}{\meter \; \second^{-1}} to \SI{0.42}{\meter \; \second^{-1}}.
-Here, the hold duration is choosen to be longer with $1.75$ to $3.5$ times the system's time constant.
 To capture dynamic and stationary behavior of the reactor model, hold durations below and above the 
 biggest time constant are picked.
-The heat transfer to the reactor wall is determined as the slowest time constant with
+The heat transfer to the reactor wall is determined as the greatest time constant with
 approximately \SI{20}{\second} (eq.~\ref{case:eq: time constant}).
 \begin{equation}
     \label{case:eq: time constant}
@@ -401,4 +400,38 @@ approximately \SI{20}{\second} (eq.~\ref{case:eq: time constant}).
 \end{figure}
 \noindent
 The excited input signals of the wall temperatures are shown (fig.~\ref{case:fig: input trajectories}) for
-\SI{512}{\second} with a sampling frequency of \SI{1}{\second^{-1}}.
+a horizon of \SI{512}{\second} with a sampling frequency of \SI{1}{\second^{-1}}. The wall temperature randomly
+switches its levels between \SI{553}{} and \SI{665}{\kelvin} and remains for a random factor of the specified 
+signal time constant. The exact configuration of the data generation is given (tab.~\ref{case:tab:data-generation-parameters}).
+For the train and calibration data sets, $1000$ independent system trajectories are simulated with 
+$512$ time steps of \SI{1}{\second} which yields \SI{1.024e6}{} data points each. The test set is
+smaller with $100$ trajectories and a shorter horizon of \SI{512}{\second}.
+\begin{table}
+    \caption[Configuration for the data generation.]{
+        Configuration for training, calibration and test data generation.
+    }
+    \centering
+    \begin{tabular}{ccccccccccc}
+        \toprule
+        & & & \multicolumn{3}{c}{\textbf{wall temperature}} & \multicolumn{3}{c}{\textbf{flow speed}} \\
+        purpose & trajects & steps & bounds / \SI{}{\kelvin} & $\tau$ / \SI{}{\second} & vary & bounds / \SI{}{\meter \second^{-1}} & $\tau$ / \SI{}{\second} & vary \\
+        \midrule
+        train & 1000 & 1024 & (535, 665) & 12 & True & (0.18, 0.42) & 35 & True \\
+        \cline{1-9}
+        calibration & 1000 & 1024 & (535, 665) & 12 & True & (0.18, 0.42) & 35 & True \\
+        \cline{1-9}
+        test & 100 & 512 & (550, 650) & 12 & False & (0.2, 0.4) & 35 & False \\
+    \bottomrule
+    \end{tabular}
+    \label{case:tab:data-generation-parameters}
+\end{table}
+\newline
+\noindent
+To avoid extrapolation during the test phase, the training and calibration signals are chosen to cover
+greater domains of \SI{535}{} to \SI{665}{\kelvin} and \SI{0.18}{} to \SI{0.42}{\meter \second^{-1}}
+than the test set. Further, the intrinsic model paramters are sampled for every new simulated trajectory.
+The attribute \emph{vary} (tab.~\ref{case:tab:data-generation-parameters}) indicates, whether 
+new input or time-varying parameter signals are generated for each simulation trajectory or not. \emph{False}
+implies constant signals over all simulation trajectories, that are sampled once at the beginning.
+This is important to assess the open-loop simulation capability of the NARX frameworks
+for multiple MC-sampled parameter combinations under constant signals. 

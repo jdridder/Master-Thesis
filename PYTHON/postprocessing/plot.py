@@ -365,6 +365,37 @@ def plot_loop(
     return fig
 
 
+def plot_loop_from_dict(system_dict: Dict[str, np.ndarray], plot_cfg: Optional[Dict] = None, save_cfg: Optional[Dict] = None):
+    plot_cfg = plot_cfg or {}
+    save_cfg = save_cfg or {}
+    var_keys = plot_cfg.get("var_keys") or ["_y", "_u", "_tvp", "_aux", "t_wall_total"]
+    hline_list = plot_cfg.get("hlines", [])
+    ylim_list = plot_cfg.get("ylims", [])
+    # all data rows in the last dimension .shape[-1] will be plotted in one ax object
+
+    fig, axes = make_axes_for_all_vars(n_rows=5, n_cols=2, figsize=(10, 12))
+    axes_start = 0
+    cycler = make_color_cycler(n_colors=4)
+    for var_key in var_keys:
+        assert var_key in system_dict.keys(), f"The varkey {var_key} is not provided by the system dict."
+        var_arr = system_dict[var_key]
+        axes_stop = axes_start + var_arr.shape[0]
+
+        for axes_index, data_row in zip(range(axes_start, axes_stop), var_arr):
+            axes[axes_index].set_prop_cycle(cycler)
+            axes[axes_index].plot(data_row)
+
+        axes_start = axes_stop
+
+    for hline_dict in hline_list:
+        axes[hline_dict["ax_idx"]].axhline(**hline_dict["kwargs"])
+    for ylim_dict in ylim_list:
+        axes[ylim_dict["ax_idx"]].set_ylim(*ylim_dict["ylims"])
+
+    if save_cfg.get("show_fig", False):
+        plt.show()
+
+
 def plot_test_data_with_simulation(
     test_data: np.ndarray,
     time_step: int,

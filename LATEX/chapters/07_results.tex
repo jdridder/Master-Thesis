@@ -9,7 +9,10 @@ Finally, the suitability of the derived NARX models in an MPC algorithm should b
 \section{Training Efficiency}
 \label{results:training-efficiency}
 
-The \emph{validation losses} during training of several different pc-NARX (solid line) and a vanilla-NARX models (dashed line) are compared
+To assess, how the physics-constrained activation function alters the training progress,
+the \emph{validation loss} is analysed. For simplicity, only one NARX model is trained using the
+MSE. The training data is generated using constant model parameters. Thus, no uncertainty distribution
+is present. pc-NARX (solid line) and vanilla-NARX models (dashed line) are compared
 as an evolvement over $512$ training epochs (fig.~\ref{results:fig:validation_loss}).
 As shallow neural networks, all NARX models posses only \emph{one} hidden layer with either
 $64$ (purple), $16$ (blue) or $4$ (yellow) hidden neurons. For a non-linear reaction system, that includes 24 outputs, the low amount
@@ -63,11 +66,45 @@ Thus, reducing the network size of a physics-constrained NARX may be truly advan
 
 \section{Physics-Consistency}
 
-To analyze the physics-consistency of the different NARX frameworks an open-loop simulation is performed.
+To analyze the physics-consistency of the different NARX frameworks, training is performed using 
+data generated under parametric uncertainty. All NNs are configured equally using the displayed
+hyperparameters in \texttt{pyTorch} (tab.~\ref{results:tab:NARX-configuration}).
+The dimension of the input vector is chosen to equal $16$ to achieve a reasonable balance between
+PCA compression and data representation. All models consist of one hidden layer with $32$ neurons.
+
+\begin{table}
+    \caption[Hyperparameters of the NARX models within the framework.]{
+        Hyperparameters of the NARX models within the framework (fig.~\ref{case:fig: narx framework}).
+    }
+    \centering
+    \begin{tabular}{cccccc}
+        \toprule
+        input size & hidden neurons & learning rate & training ratio & $\sigma_\text{w}$ & $\alpha$ \\
+        \midrule
+        16 & [32] & \SI{5e-5}{} & 0.8 & 0.001 & 0.2 \\
+    \bottomrule
+    \end{tabular}
+    \label{results:tab:NARX-configuration}
+\end{table}
+\noindent
+The training is performed with a constant learning rate of \SI{5e-5}{} and a training to validation ratio of $0.8:0.2$.
+Furthermore, the significance level $\alpha$ of the uncertainty quantification is set to $0.2$ which
+corresponds to an upper quantile model of $0.9$ and a lower quantile model of $0.1$.
+Regarding the weight function for the quantile conditioning (eq.~\ref{sur:def: gaussian weight function}),
+the weight parameter $\sigma_\text{w}$ is set to $0.001$ to emphasize data in close proximity to the
+quantile predictions. During training, early-stopping is employed based on the validation loss to avoid overfitting 
+and exessive training durations. Training is executed once for the vanilla and once for the pc-NARX
+framework.
+\newline
+\newline
+\noindent
+As a next step, an open-loop simulation is performed in \texttt{do-mpc}.
 It propagates the state trajectories for the nominal case, the upper and the lower quantiles forward
-in time independently (def.~\ref{sur:def:general rhs for uncertainty quantification}). This is done for 
-the three framework variations \emph{vanilla}, \emph{naive} and \emph{pc}. The main 
-quality metric is the balance violation of the conservation of atoms due to stoichiometry (th.~\ref{case:cor: conservation of atoms}).
+in time independently (def.~\ref{sur:def: general rhs for uncertainty quantification}). This is done for 
+the three framework variations \emph{vanilla}, \emph{naive} and \emph{pc}. Further, the simulation
+horizon extends to \SI{480}{\second} which presents challenging conditions in contrast to the intended MPC
+predicion horizon of \SI{30}{\second}. The main 
+performance metric is the balance violation of the conservation of atoms due to stoichiometry (th.~\ref{case:cor: conservation of atoms}).
 When it is equal to the zero vector, it is perfectly fulfilled.
 The residual of the linear balance constraint is calculated (eq.~\ref{results:eq:residual of balance equation})
 as the $l_2$-norm
@@ -363,6 +400,7 @@ of quantile calibration with CQR (\ref{theory: CQR}) and a more complex network 
         \multirow[t]{3}{*}{$1.00$}    & naive & $0.983$ & $0.048$ & \SI{2.19e-02}{} & \SI{5.26e-03}{} \\
         & pc & $0.986$ & $\bm{0.042}$ & \SI{2.23e-02}{} & \SI{5.73e-03}{} \\
         & vanilla & $0.983$ & $0.049$ & \SI{2.17e-02}{} & \SI{5.27e-03}{} \\
+    \bottomrule
     \end{tabular}
     \label{results:tab: coverage_intervall_width}
 \end{table}
@@ -425,4 +463,19 @@ smaller deviations in the coverage predictions. It is neither counted as a signi
 deterioration.
 
 \section{MPC Performance \& Robustness}
+
+As the last part of this work, the performance of MPC controllers, that each rely on the mentioned
+NARX frameworks is to be analyzed.
+
 \label{MPC-Performance-and-Robustness}
+
+\begin{tabular}{ccccc}
+\toprule
+ & selectivity & $t_\text{wall}$ & temperature violation / \% & conversion violation / \% \\
+\midrule
+pc & $0.8201$ & $2.3950$ & $0.60$ & $0.4646$ \\
+naive & $0.8201$ & $2.2076$ & $0.40$ & $0.4668$ \\
+vanilla & $0.8201$ & $2.2289$ & $0.40$ & $0.4668$ \\
+\bottomrule
+\end{tabular}
+

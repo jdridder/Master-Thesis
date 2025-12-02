@@ -88,11 +88,6 @@ def run_parallel_mpc_loop(
         physical_params = np.expand_dims(physical_params, axis=0)
         physical_params = physical_params.repeat(axis=0, repeats=mpc_initial_states.shape[0])  # duplicate the parameters for all input trajectories.
 
-    os.environ["OPENBLAS_NUM_THREADS"] = mpc_cfg.get("BLAS_NUM_THREADS")
-    os.environ["MKL_NUM_THREADS"] = mpc_cfg.get("BLAS_NUM_THREADS")
-    os.environ["OMP_NUM_THREADS"] = mpc_cfg.get("BLAS_NUM_THREADS")
-    multiprocessing.set_start_method("spawn")
-
     manager = multiprocessing.Manager()
     results_queue = manager.Queue()
     procss = []

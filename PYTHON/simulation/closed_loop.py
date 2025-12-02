@@ -202,8 +202,14 @@ def configure_mpc(mpc: MPC, mpc_cfg: Dict, surpress_ipopt: Optional[bool] = Fals
     lterm = -((mpc.model.aux["S"]) ** 2)  # objective_function(selectivity)
     mpc.set_objective(lterm=lterm, mterm=mterm)
     # constraints
-    mpc.set_nl_cons("T_max", mpc.model.x["T"], ub=mpc_cfg["ub_T"], soft_constraint=True, penalty_term_cons=mpc_cfg.get("lam_Tmax", 0))
-    mpc.set_nl_cons("conversion", -mpc.model.aux["X"], ub=-mpc_cfg["lb_X"], soft_constraint=True, penalty_term_cons=mpc_cfg.get("lam_X", 0))
+    mpc.set_nl_cons("T_max", mpc.model.x["T"], ub=mpc_cfg["ub_T"], soft_constraint=True, penalty_term_cons=mpc_cfg["lam_Tmax"])
+    mpc.set_nl_cons("conversion", -mpc.model.aux["X"], ub=-mpc_cfg["lb_X"], soft_constraint=True, penalty_term_cons=mpc_cfg["lam_X"])
+
+    input_keys = mpc.model.u.keys()
+    input_keys.remove("default")
+    for pos, input_key in enumerate(input_keys):
+        mpc.set_nl_cons(f"input temp {pos}", mpc.model.u[input_key] / mpc_cfg.get("input_scale") - mpc.model.x["T"], ub=0, soft_constraint=True, penalty_term_cons=mpc_cfg["lam_T_Tcool"])
+
     mpc.set_rterm(**mpc_cfg.get("lam_dudt"))
 
     for input_key in mpc.model.u.keys():
