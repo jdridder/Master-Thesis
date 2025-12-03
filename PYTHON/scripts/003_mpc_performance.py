@@ -53,13 +53,13 @@ def run_mpc_performance(
         n_batches=mpc_perf_cfg.get("n_experiments", 10),
         covariance_gain=mpc_perf_cfg.get("covariance_gain", 1),
         lam_bed_std=mpc_perf_cfg.get("lam_bed_std", 0.01),
-        seed=55,
+        seed=42,
     )
     tvp_signals = generate_random_ramp_signal(
         feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
         num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon"),
         tau=mpc_perf_cfg.get("tvp_tau"),
-        seed=40,
+        seed=1201,
         batch_size=mpc_perf_cfg.get("n_experiments"),
         time_step=sim_cfg["simulation"]["t_step"],
     )
@@ -133,7 +133,6 @@ def run_mpc_performance(
         },
         save_cfg={"show_fig": True},
     )
-    exit()
 
     # calculate mean performance -> mean selectivity
     kpi_dict = {}

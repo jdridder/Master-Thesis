@@ -24,19 +24,19 @@ mpc_perf_cfg = {
     "tvp_tau": 20,
     "surrogate_types": ["naive", "pc"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
-    "t_steps": 128,
+    "t_steps": 384,
     "mpc_cfg": {
         "input_bounds": {"lower": 580, "upper": 625},
-        "n_horizon": 30,
+        "n_horizon": 25,
         "n_robust": 1,
         "uncertainty_values": {"alpha": [[1, 0], [0, 1]]},
         "scenarios": ["nominal", "upper"],
         "t_step": 1,
-        "lam_Tmax": 1e5,
+        "lam_Tmax": 1e3,
         "ub_T": 630 / 625,
-        "lam_dudt": {"T_c0": 5000, "T_c1": 500, "T_c2": 500, "T_c3": 500},
-        "lam_X": 1e3,
-        "lam_T_Tcool": 1000,
+        "lam_dudt": {"T_c0": 500, "T_c1": 10, "T_c2": 10, "T_c3": 10},
+        "lam_X": 2e1,
+        "lam_T_Tcool": 1e3,
         "lb_X": 0.5,
         "input_scale": 625,
         "tvp_scale": 0.4,
@@ -61,7 +61,7 @@ mpc_perf_cfg = {
 
 def main():
 
-    state_dict_path = os.path.abspath("/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/experiments/003_mpc_performance/2025-12-02/trained_models/vanilla")
+    state_dict_path = os.path.abspath("/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/experiments/003_mpc_performance/2025-12-03/trained_models/vanilla")
     path_to_init_data = os.path.abspath("/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/PYTHON/models/EtOxModel/initialization_data.npy")
 
     sim_cfg_name = "etox_control_task.yaml"
@@ -95,10 +95,10 @@ def main():
 
     tvp_signals = generate_random_ramp_signal(
         # feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
-        feature_bounds=[[0.25, 0.35]],
+        feature_bounds=[[0.2, 0.4]],
         num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon") * mpc_perf_cfg["mpc_cfg"].get("t_step"),
         tau=mpc_perf_cfg.get("tvp_tau"),
-        seed=42,
+        seed=20,
         batch_size=mpc_perf_cfg.get("n_experiments"),
         time_step=sim_cfg["simulation"]["t_step"],
     )

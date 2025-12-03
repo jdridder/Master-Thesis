@@ -1,1 +1,78 @@
-\chapter{Conclusions}
+\chapter{Conclusion}
+
+In the challenging field of optimization under uncertainty, it is crucial
+to guarantee robustness as well as retain objective performance.
+\emph{Multi-stage MPC} can handle low-order uncertainty sets but scales
+poorly with growing number of scenarios \cite{lucia2015}. This is especially challenging in 
+chemical reaction networks, with a high amount of uncertain kinetic parameters
+for all appearing reactions. Instead of considering possible parameter combinations online,
+neural networks can be trained to capture statistical quantiles offline.
+Thus, the computational effort for uncertainty quantification is separated from the recursive
+optimization. 
+\newline
+\newline
+\noindent
+Within the course of this work, several methods have been combined
+to derive, implement and assess a NARX framework.
+Relying on conformalized quantile regression, an ensemble of neural network NARX
+models not only predicts the expected value of the measurement propagation but also
+the quantiles of predefined uncertain measurements. Further, a physics-constrained
+activation function is presented as a direct corollary (cor.~\ref{cor: physics constrained solution})
+of the \emph{Karush-Kuhn-Tucker} conditions. It maps an NN output into
+the feasible space during forward and backward passes defined by linear
+equality constraints. The method is demonstrated using a case study
+of a 1D-pseudo-homogenious packed-bed tubular reactor model performing the synthesis of ethylene oxide.
+Its kinetic parameters are subject to Gaussian distributed uncertainty.
+\newline
+\newline
+\noindent
+During NN training, this activation has shown
+to significantly speed up covergence, because it incorporates 
+equations directly into the network, that govern the data.
+pc-NNs with only \SI{25}{\%} of the hidden neurons
+of a basic NN exhibit equal validation losses after $512$ epochs.
+After excessive training with perfect data, the advantage is assumed to be minor.  
+But for small or noisy data sets, pc-NNs portray a real advantage over
+basic NNs \cite{chen2024}.
+In the forward simulation, physics-consistency is achieved up to machine
+precision for both the naive and the the pc-NARX frameworks. The activation
+works successfully in training as well as in recursive surrogate model propagation.
+\newline
+\newline
+\noindent
+The conditioning of models to quantile predictions is revealed as the Achillis heel of the NARX framework. 
+These models exhibit a violation of the conervation quantity of \SI{1.27e-3}{} 
+that is twice the value of the expected value model of \SI{6.39e-4}{}. 
+This is anticipated, because the distance-based weighting (def.~\ref{sur:def: gaussian weight function})
+focuses on data points, that are 
+closest to the quantile prediction. Consequently, the considered data is reduced dramatically.
+Further, the conditioned quantile predictions cross the expected value trajectory. Neither CQR nor
+a pc activation function can provide a remedy. This underlines, that the conditioning of 
+expected value models with according quantile predictions is only a pragmatic implementation
+to allow a recursive simulation. While it captures some correlation
+between measurements, it lacks rigorousitiy. Quantile predictions are only valid when calculated
+in a single-step. The naive forward simulation represents an approximation of the quantiles at best.
+This is prooven by the fact, that the desired coverage of $0.8$ is only achieved at the first
+measurement position. Neither the vanilla, naive nor the physics-constrained ensemble
+yield a significant change in mean coverage nor relative interval width. Solely, the pc framework
+achieves more reproducable coverages with a standard deviation that is \SI{12.9}{\%} lower 
+than the vanilla framework on average. Strikingly, all versions show increasing over-coverage 
+over the reactor length. The heteroscedasticity of the plug-flow behavior
+with uncertain kinetics is not learned apropriately.
+\newline
+\newline
+\noindent
+To counteract these downsides, two improvements should be made. First, multi-step NARX models
+ensure correct quantiles for the complete prediction horizon. This replaces the recursive
+single-step simulation at the cost of a greater network size. Second, the measurement position
+should act as an input to the NN to learn a complete reactor profile and reduce the NN output size.
+During inference, the
+measurement position can be held constant. Additionally, a greater amount of data is available, as 
+all spatial discretization nodes can be considered during training.
+However, the physics-constrained
+activation function is another useful tool for surrogate modelling with cosmetic character, 
+whereas it cannot solve errors introduced by foundational assumptions in the NARX architecture.
+
+
+
+

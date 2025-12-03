@@ -13,7 +13,7 @@ To assess, how the physics-constrained activation function alters the training p
 the \emph{validation loss} is analysed. For simplicity, only one NARX model is trained using the
 MSE. The training data is generated using constant model parameters. Thus, no uncertainty distribution
 is present. pc-NARX (solid line) and vanilla-NARX models (dashed line) are compared
-as an evolvement over $512$ training epochs (fig.~\ref{results:fig:validation_loss}).
+during their evolvement over $512$ training epochs (fig.~\ref{results:fig:validation_loss}).
 As shallow neural networks, all NARX models posses only \emph{one} hidden layer with either
 $64$ (purple), $16$ (blue) or $4$ (yellow) hidden neurons. For a non-linear reaction system, that includes 24 outputs, the low amount
 of $4$ hidden neurons represents a challenge. The training is performed with identical learning rates
@@ -47,7 +47,7 @@ It is questionable however, whether the pc-NARX can maintain its advantage for a
 As the balance constraint implemented into the pc-NARX is present in the data itself, the vanilla-NARX
 will learn it accordingly, if the number of epochs is sufficiently high. The minimum possible 
 validation loss is determined by the network size, amount and \emph{quality} of training data and training epochs.
-So theoretically, the vanilla-NARX should approach the pc-NARX in exessive neural network training,
+So theoretically, the vanilla-NARX should approach the pc-NARX in excessive neural network training,
 if a sufficiently large amount of high-quality data is supplied.
 \newline
 \newline
@@ -71,7 +71,6 @@ data generated under parametric uncertainty. All NNs are configured equally usin
 hyperparameters in \texttt{pyTorch} (tab.~\ref{results:tab:NARX-configuration}).
 The dimension of the input vector is chosen to equal $16$ to achieve a reasonable balance between
 PCA compression and data representation. All models consist of one hidden layer with $32$ neurons.
-
 \begin{table}
     \caption[Hyperparameters of the NARX models within the framework.]{
         Hyperparameters of the NARX models within the framework (fig.~\ref{case:fig: narx framework}).
@@ -86,6 +85,8 @@ PCA compression and data representation. All models consist of one hidden layer 
     \end{tabular}
     \label{results:tab:NARX-configuration}
 \end{table}
+\newline
+\newline
 \noindent
 The training is performed with a constant learning rate of \SI{5e-5}{} and a training to validation ratio of $0.8:0.2$.
 Furthermore, the significance level $\alpha$ of the uncertainty quantification is set to $0.2$ which
@@ -93,17 +94,17 @@ corresponds to an upper quantile model of $0.9$ and a lower quantile model of $0
 Regarding the weight function for the quantile conditioning (eq.~\ref{sur:def: gaussian weight function}),
 the weight parameter $\sigma_\text{w}$ is set to $0.001$ to emphasize data in close proximity to the
 quantile predictions. During training, early-stopping is employed based on the validation loss to avoid overfitting 
-and exessive training durations. Training is executed once for the vanilla and once for the pc-NARX
+and redundant training durations. Training is executed once for the vanilla and once for the pc-NARX
 framework.
 \newline
 \newline
 \noindent
 As a next step, an open-loop simulation is performed in \texttt{do-mpc}.
-It propagates the state trajectories for the nominal case, the upper and the lower quantiles forward
+It propagates the measurement trajectories for the nominal case, the upper and the lower quantiles forward
 in time independently (def.~\ref{sur:def: general rhs for uncertainty quantification}). This is done for 
 the three framework variations \emph{vanilla}, \emph{naive} and \emph{pc}. Further, the simulation
-horizon extends to \SI{480}{\second} which presents challenging conditions in contrast to the intended MPC
-predicion horizon of \SI{30}{\second}. The main 
+horizon extends to \SI{480}{\second} which portrays challenging conditions in contrast to the intended MPC
+prediction horizon of \SI{30}{\second}. The main 
 performance metric is the balance violation of the conservation of atoms due to stoichiometry (th.~\ref{case:cor: conservation of atoms}).
 When it is equal to the zero vector, it is perfectly fulfilled.
 The residual of the linear balance constraint is calculated (eq.~\ref{results:eq:residual of balance equation})
@@ -128,7 +129,7 @@ To indicate maximum machine precision, horizontal dashed lines are drawn for \SI
 and \SI{32}{\bit} (black). The balance residual norm $||\vb||_2$ is shown for the nominal NARX (green), trained
 with a standard MSE, and the conditioned NARX models, that are trained with a weighted MSE.
 Here, yellow colors the NARX conditioned by the $0.9$-quantile and purple the NARX conditioned by the $0.1$-quantile.
-After beeing initialized with an initial state, that obeys the balance up to an error of \SI{1e-14}{}, 
+After beeing initialized with an initial measurement, that obeys the balance up to an error of \SI{1e-14}{}, 
 all NARX models abruptly increase the error to \SI{1e-3}{}. They fluctuate in this region until the simulation
 horizon is reached. When the residual is averaged over the simulation horizon using the $\langle(\cdot)\rangle_t$-
 notation, the nominal NARX model produces a slightly smaller error of \SI{6.39e-4}{}.
@@ -151,7 +152,7 @@ The same is done with the naive-NARX models that are not trained with the physic
 activation, but simply apply it to their output (fig.~\ref{results:fig:pc_violation_naive}). The 
 balance error during the simulation shows a completely different picture. All models achieve
 vanishing balance errors at \SI{64}{bit} precision of \SI{3.4e-16}{}. These appear consistent over the complete
-simulation horizon. The naively physics-constrained models exhibit even smaller balance errors than the initial state itself, which stems
+simulation horizon. The naively physics-constrained models exhibit even smaller balance errors than the initial measurement itself, which stems
 from a first principle simulation, due to fewer rounding errors. There is no noticable difference
 between the nominal predictions $\mathbb{E}$ (green) and the conditioned quantile predictions $Q_{0.9}$ (yellow) and $Q_{0.1}$ (purple)
 in contrast to their vanilla versions. Additionally, this can be interpreted as a proof of concept
@@ -170,24 +171,24 @@ if it is not used during training.
 Finally, the balance error is plotted for the pc-NARX, that uses the physics-constrained
 activation during training and simulation (fig.~\ref{results:fig:pc_violation_pc}). While it significantly improves
 training efficiency, it also enforces linear equality constraints in an open-loop simulation up to \SI{32}{\bit} precision.
-Similarly to the naive-NARX, all three NARX models achieve the same contraint residual error
-of \SI{1.7e-7}{}. The difference between the physics-constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
-trajectories is non-existent. It is worth noticing, that the minimum possible contraint residual differs 
+Similarly to the naive application, all three NARX models achieve the same contraint residual error
+of \SI{1.7e-7}{}. A difference between the physics-constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
+trajectories is not existent. It is worth noticing, that the minimum possible contraint residual differs 
 between the naive- and the pc-NARX. The naive version is not trained with the 
 physics-constrained activation $g_\text{pc}$. It is applied \emph{a posteriori} and implemented using
 a \texttt{casadi}-function object. The pc version owns a direct implementation of $g_\text{pc}$
-as a \texttt{torch.nn.Module}. Eventhough it is converted into a \texttt{casadi} expression to be
-simulated in \texttt{do\_mpc}, it still keeps the \SI{32}{\bit} precision of the \texttt{torch.float32}-object.
+into a \texttt{torch.nn.Module}. Eventhough it is converted into a \texttt{casadi} expression to be
+simulated in \texttt{do-mpc}, it still keeps the \SI{32}{\bit} precision of the \texttt{torch.float32}-object.
 Because the \texttt{casadi}-function computes in the \SI{64}{\bit} decimal space, naive- and pc-NARX
 differ in maximum machine precision. Since the residual norm shrinks to insignificance
 with values at \SI{1e-7} or \SI{1e-16} in both cases, \SI{32}{\bit} precision is not considered
-disadvantageous.
+disadvantageous. If truly needed, \SI{64}{\bit} tensor objects can be adapted easily.
 
 
 \section{Simulation Capability}
 \label{simulation-capability}
 
-To investigate, whether the NARX framework is able to track the distribution of state trajectories, 
+To investigate, whether the NARX framework is able to track the distribution of measurement trajectories, 
 the simulation results for the expected value and quantile NARX models are illustrated (fig.~\ref{results:fig:vanilla_temperature_sim}).
 \begin{figure}
     \centering
@@ -195,34 +196,34 @@ the simulation results for the expected value and quantile NARX models are illus
     \caption[Forward simulation of the vanilla-NARX framework for the temperature.]
     {Forward simulation of the vanilla-NARX framework without physics-constrained activation for 
     \SI{480}{\second}. The scaled temperature $T'$ is shown for two measurement positions $z=0.25L$ and
-    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
+    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters.}
     \label{results:fig:vanilla_temperature_sim}
 \end{figure}
 \newline
 \newline
-First, a look at the temperature is taken, which undergoes quantile regression and state propagation via
+First, a look at the temperature is taken, which undergoes quantile regression and measurement propagation via
 the vanilla framework (dashed line). The measurement positions for display are choosen to be the reactor outlet $z=L$ and 
 the first quarter $z=0.25L$, where a hotspot is likely to form. While yellow, green and purple
 indicate the $0.9$-temperature quantile, expected value and $0.1$-temperature-quantile, the ground truth
 test trajectories are marked in light blue. These originate from first principle model simulations
-with MC sampled parameter combinations along the normal distributions. By their transparent blue
+with MC-sampled parameter combinations along the normal distributions. By their transparent blue
 color, a trajectory density distribution becomes visible with darker blue at the trajectory mean 
-and light blue towards the outer quantiles. It is obvious, that the state at the front of the PFTR
-exhibits a more narrow distribition of trajectories than the state at the reactor outlet, because the
+and light blue towards the outer quantiles. It is obvious, that the measurement at the front of the PFTR
+exhibits a more narrow distribition of trajectories than the measurement at the reactor outlet, because the
 residence time of its fluid elements is smaller. Consequently, trajectories differing in parameters have less time to drift apart.
 \newline
 \newline
 The vanilla expected value for the temperature (green) tracks the mean of the system reasonably well
 at both positions, since its distance to the darkest part of the density distribition is mostly small.
 The lower quantile bound (purple) is located below the mean prediction at all times and positions.
-It also portrays a lower boundary for the state distribution as intended. The accuracy of its quantile coverage,
+It also portrays a lower boundary for the measurement distribution as intended. The accuracy of its quantile coverage,
 which is supposed to be equal to $0.1$ cannot be assessed. The same yields for the
 upper quantile (yellow), which should cover a fraction of $0.9$ of temperature trajectories. 
 However, the quantile models successfully quantify the uncertainty difference between reactor positions
 with narrow intervals at $z=0.25L$ and wider intervals at $z=L$. Smaller intervals seem to be more
 challenging to predict, as the $0.9$-quantile NARX excludes the mean prediction at \SI{120}{\second} and
 $z=0.25L$. Crucially, the plotted quantile trajectories are simulated not only via recursive quantile temperature predicitions 
-but also via the conditioned NARX for the dimensionless concentration measure (fig.~\ref{case:fig:narx framework}).
+but also via the conditioned NARX for the dimensionless concentration measure (fig.~\ref{case:fig: narx framework}).
 This may deteriorate the quantile prediction in contrast to the expected value NARX, which relies
 completely on least square regression. The according trajectories of $\bm{\chi}$ 
 for the concentration measure for ethylene oxide at the same reactor
@@ -234,7 +235,7 @@ coordinates are presented (fig.~\ref{results:fig:vanilla_temperature_sim}).
     {Forward simulation of the vanilla-NARX framework without physics-constrained activation for 
     \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
     for two measurement positions $z=0.25L$ and
-    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
+    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters.}
     \label{results:fig:vanilla_concentration_sim}
 \end{figure}
 \newline
@@ -249,7 +250,7 @@ a rather pragmatic approach to allow for independent propagation of temperature 
 Still, they retain some correlational information about the $T$-$\chi$-relationship. 
 An increased temperature leads to a faster reaction, thus a higher product and 
 lower educt concentration and vice versa. This information is conveyed by the quantile-conditioned
-NARX models. For ethylene oxide the quantile-conditioned
+NARX models. For ethylene oxide, the quantile-conditioned
 NARX for the lower temperature quantile, forecasts also lower values at the reactor outlet.
 The opposite is achieved by the quantile-conditioned NARX for the upper temperature quantile.
 While this correlation is captured to a degree, it is not suited for confidence
@@ -269,7 +270,7 @@ noticably to their vanilla version (fig.~\ref{results:fig:vanilla_concentration_
     {Forward simulation of the naive\_pc NARX framework with physics-constrained activation for 
     \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
     for two measurement positions $z=0.25L$ and
-    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC sampled parameters.}
+    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters.}
     \label{results:fig:naive_concentration_sim}
 \end{figure}
 \newline
@@ -306,7 +307,7 @@ The quality of the uncertainty quantification is evaluated with two key measures
 \emph{relative interval width}. Coverage resembels the key idea behind quantiles, where
 each quantile \emph{covers} a fraction of $\tau$ of the values within a distribution. The real 0.9-quantile
 covers \SI{90}{\%} of values, the real 0.1-quantile covers \SI{10}{\%} of values, whereas the interval
-between these two covers \SI{80}{\%} of the values. So to calculate the coverage of a given predicted interval
+between covers \SI{80}{\%} of the values. So to calculate the coverage of a given predicted interval
 for an output $j$, the fraction of ground truth points must be determined that lie within (eq.~\ref{results:eq: coverage}) \cite{kemmerling2025}.
 \begin{equation}
     \label{results:eq: coverage}
@@ -410,11 +411,11 @@ of quantile calibration with CQR (\ref{theory: CQR}) and a more complex network 
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/naive_pc_coverage_width.pdf}
     \caption[Coverage and relative interval width of the naive-pc framework.]
     {Coverage (purple) and relative interval width (green) for the temperature quantiles of the NARX models
-    in the naive physics-consistent framework. The ideal intended coverage (dashed line) lies at $0.8$.}
+    in the naive physics-constrained framework. The ideal intended coverage (dashed line) lies at $0.8$.}
     \label{results:fig:naive-coverage-width}
 \end{figure}
 \noindent
-In essence, the same behavior is exhibted by the naively physics-consistent NARX framework (fig.~\ref{results:fig:naive-coverage-width}).
+In essence, the same behavior is exhibted by the naively physics-constrained NARX framework (fig.~\ref{results:fig:naive-coverage-width}).
 The mean coverage growths from \SI{0.783}{} to \SI{0.983}{} over the reactor length yielding the same
 over-coverage pattern as the vanilla version. The distribution of calculated coverages itself 
 is asymmetrical towards higher values. In terms of the empirical standard deviation $s$, no
@@ -428,36 +429,41 @@ no significant change.
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/pc_coverage_width.pdf}
     \caption[Coverage and relative interval width of the pc framework.]
     {Coverage (purple) and relative interval width (green) for the temperature quantiles of the NARX models
-    in the fully physics-consistent framework. The ideal intended coverage (dashed line) lies at $0.8$.}
+    in the fully physics-constrained framework. The ideal intended coverage (dashed line) lies at $0.8$.}
     \label{results:fig:pc-coverage-width}
 \end{figure}
 \noindent
-Due to the altered training approach, the physics-consistent framework demonstrates a slight change
+Due to the altered training approach, the physics-constrained framework demonstrates a slight change
 in coverage and relative interval width (fig.~\ref{results:fig:pc-coverage-width}) remaining
-in the same foundational pattern. Its coverage rises from \SI{0.814}{} to \SI{0.986}{}.
+in the same spatial pattern. Its coverage rises from \SI{0.814}{} to \SI{0.986}{} over the $z$-coordinate.
 W.r.t the desired coverage of $0.8$ there is no improvement visible. At the first measurement,
 the vanilla framework displays a better median (fig.~\ref{results:fig:vanilla-coverage-width}),
-while the physics-consistent framework has a better average value (tab.~\ref{results:tab: coverage_intervall_width}).
+while the physics-constrained framework has a better average value (tab.~\ref{results:tab: coverage_intervall_width}).
 Nevertheless, the pc-framework shows a decrease in coverage deviation at all positions
 in comparison to the other two approaches. The uncertainty in the coverage is reduced by 
 \SI{13.3}{\%}, \SI{12.6}{\%}, \SI{11.2}{\%} and \SI{14.3}{\%} for the coordinates $z/L \in \{0.25, 0.5, 0.75, 1\}$
 which implies a more reproducable coverage prediction.
 However, its efficiency is worsened, because the relative interval width enlarges
 slightly but measurably by \SI{11.6}{\%}, \SI{3.5}{\%}, \SI{2.9}{\%} and \SI{2.8}{\%}
-in comparison to the vanilla framework.
+in comparison to the vanilla framework. It is assumed that the physics-constrained framework reduces the accumulation
+of prediction errors and thus provides slightly better reproducabiliy.
 \newline
 \newline
-In total, the vanilla, naive and physics-consistent NARX frameworks perform equally.
+In total, the vanilla, naive and physics-constrained NARX frameworks perform equally.
 All have in common, that the desired coverage is achieved at the first measurement position
 followed by an over-coverage in spatially increasing manner. Especially the rising uncertainty
 along the axial reactor coordinate due to succeeding residence time represents a challenge
-for recursive quantile estimation. Even enhancements such as CQR and a physics-consistent
-activation function cannot provide a remedy. The tendency towards over-coverage is welcomed,
+for recursive quantile estimation. Even enhancements such as CQR and a physics-constrained
+activation function cannot provide a remedy. The models struggle to capture the heteroscedasticity in 
+the distribution caused by the spatial coordinate. It may be beneficial to introduce
+the measurement position as an NN input. This could help learning the spatial dependence better as well as
+reducing the output size.
+Nonetheless, the tendency towards over-coverage is welcomed compared to under-coverage,
 as it enforces contraint satisfaction and thus safety over objective performance.  
 The introduction of an \emph{a posteriori}-only or naive
 pc-activation function does not lead to recognizable differences to the basic NARX framework. 
-In contrast, a physics-consistent activation function applied rigorously during training and inference
-achieves a change. It truly improves the learning of equation governed data as shown (\ref{results:training-efficiency}). 
+In contrast, a physics-constrained activation function applied rigorously during training and inference
+achieves a change. It improves the learning of equation governed data as shown (\ref{results:training-efficiency}). 
 In the recursive forward simulation though, it causes minimally wider confidence intervals and
 smaller deviations in the coverage predictions. It is neither counted as a significant improvement, nor a
 deterioration.
