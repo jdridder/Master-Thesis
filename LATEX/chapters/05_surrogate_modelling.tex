@@ -220,7 +220,7 @@ forced by following quadratic programm (QP) (def.~\ref{def: physics constrained 
 \end{definition}
 This means, the output of the network $\bm{\tilde{y}}$, the optimal solution $\bm{y}^*$ and $\bm{z}_0$ are matrices of
 dimension $n_\mathcal{B}~\times~n_\text{out}$. Computing frameworks that support broadcasting such as \texttt{numpy} or
-\texttt{pytorch} allow the implementation of $\bm{z}_0$ in the shape of $1 \times n_\text{out}$ to reduce memory usage as long as it remains constant \cite{empty000}.
+\texttt{pytorch} allow the implementation of $\bm{z}_0$ in the shape of $1 \times n_\text{out}$ to reduce memory usage as long as it remains constant.
 The transposed constraint matrix $\bm{A}^\top$ must be of shape
 $n_\text{c}~\times~n_\mathcal{B}$. The vector $\bm{b}$ represents the offset of the linear equality constraints. This optimization
 task can be solved analytically by setting up the \emph{Karush-Kuhn-Tucker} (KKT) conditions (th.~\ref{th: physics constrained KKT}).

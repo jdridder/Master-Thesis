@@ -61,9 +61,10 @@ plotting:
     "chi_EO": "$\\chi_\\mathrm{EO}$ / -",
     "chi_H2O": "$\\chi_\\mathrm{H2O}$ / -",
     "T": "$T'$ / -",
-    "T_c": "$T_w$ / $\\mathrm{K}$",
+    "T_c": "$T_\\mathrm{w}$ / K",
     "u": "$u$ / $\\mathrm{m\\,s^{-1}}$",
     "S": "$S, X$ / -",
+    "t_wall": "$\\Delta t_\\mathrm{wall}$ / s"
   }
   x_coordinate_label: "t / s"
   zlabels: 

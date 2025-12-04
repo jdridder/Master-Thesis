@@ -469,19 +469,144 @@ smaller deviations in the coverage predictions. It is neither counted as a signi
 deterioration.
 
 \section{MPC Performance \& Robustness}
-
-As the last part of this work, the performance of MPC controllers, that each rely on the mentioned
-NARX frameworks is to be analyzed.
-
 \label{MPC-Performance-and-Robustness}
 
-\begin{tabular}{ccccc}
-\toprule
- & selectivity & $t_\text{wall}$ & temperature violation / \% & conversion violation / \% \\
-\midrule
-pc & $0.8201$ & $2.3950$ & $0.60$ & $0.4646$ \\
-naive & $0.8201$ & $2.2076$ & $0.40$ & $0.4668$ \\
-vanilla & $0.8201$ & $2.2289$ & $0.40$ & $0.4668$ \\
-\bottomrule
-\end{tabular}
+As the last part of this work, the control performance of an MPC, that relies on the mentioned
+NARX frameworks is to be analyzed. On one hand, an apropriate MPC controller is to be postulated and tuned.
+On the other hand, a series of closed-loop simulations is to be completed to calculate the
+performance indicators selectivity, constraint violation and runtime.
+
+\subsection{Optimization Formulation}
+Following optimization formulation is proposed (eq.~\ref{results:eq:MPC-formulation-TR}).
+
+\begin{equation}
+    \label{results:eq:MPC-formulation-TR}
+    \begin{gathered}
+        \minimize{\vsy{t:t+N},\bm{T}_{\text{w},[t:t+N-1]}}\quad \quad \bigg ( \sum^{t+N-1}_{i=k}  -(S_{\text{EO},i})^2
+        + \Delta \bm{T}_{\text{w},i}^\top \bm{R} \Delta \bm{T}_{\text{w},i} \bigg )
+        - (S_{\text{EO},t+N})^2
+        \\
+        \begin{aligned}
+            \text{s.t.} \quad  \bm{y}_{k+1} &= f_{\text{NARX}}(\bm{\phi}_k) \\
+            \bm{T}_k &\leq T_\text{max} \\
+            X &\geq X_\text{min} \\
+            \bm{T}_{\text{w},k} &\leq \bm{T}_k \\
+            T_{\text{w,lb}} &\leq \bm{T}_{\text{w},k} \leq T_{\text{w,ub}}
+        \end{aligned}
+    \end{gathered}
+\end{equation}
+
+\noindent
+The cost of ethylene takes up roughly \SI{68}{\%} of the total costs \cite{pietschak2018}. Therefore, the
+profitability is mainly determined by the selectivity of towards ethylene oxide $S_\text{EO}$.
+Hence, an economic objective function is chosen to maximize selectivity, while a minimum required
+conversion $X_\text{min}$ is to be achieved. To reduce catalyst degradation, the maximum temperature is required
+to stay below $T_\text{max}$. All specifications for the MPC algorithm are listed (tab.~\ref{results:tab:MPC-configuration}).
+
+\begin{table}
+    \centering
+    \caption[Configuration for the MPC algorithm.]
+    {Configuration for the parameters of the MPC algorithm.}
+    \begin{tabular}{cccccccccccccc}
+        \toprule
+        $N$ & $N_\text{r}$ & $\Delta t$ & $r_{11}$ & $r_{22}$ & $r_{33}$ & $r_{44}$ & $T_\text{max}$ & $X_\text{min}$ & 
+        $T_{\text{w,lb}}$ & $T_{\text{w,ub}}$ & $\lambda_1$ & $\lambda_2$ & $\lambda_3$\\
+        \midrule
+        $25$ & $1$ & \SI{1}{\second} & $500$ & $10$ & $10$ & $10$ & \SI{630}{\kelvin} & $0.5$ & \SI{580}{\kelvin} & \SI{625}{\kelvin} &
+        $1000$ & $1000$ & $20$ \\
+        \bottomrule
+    \end{tabular}
+    \label{results:tab:MPC-configuration}
+\end{table}
+
+\noindent
+\newline
+The prediction horizon $N$ is set to $25$ with a time step of \SI{1}{\second} to exceed the system's greatest
+time constant of \SI{20}{\second}. For the implementation of the NARX-based uncertainty quantification
+with \texttt{do-mpc}, a robust horizon $N_\text{r}$ of one is sufficient. To avoid input oscillation,
+fluctuating wall temperatures are penalized using the diagonal matrix $\bm{R}$ with the coefficients $r_{ll}$ of 
+$500$, $10$, $10$ and $10$. Here, the very first wall temperature has the biggest effect on the thermal behavior
+of the TR. Due to the plug-flow behavior it is most prone to induce oscillation into the system. Thus, its change
+is penalized much higher than the other temperatures. The missing dispersion of the flow makes the system
+especially sensitive to varying inputs. Further, the wall temperatures are subject to a lower bound $T_\text{w,lb}$ of 
+\SI{580}{} and an upper bound $T_\text{w,ub}$ of \SI{625}{\kelvin}. To ensure a negative heat flow, the
+cooling temperatures of the reactor jacket $\bm{T}_{\text{w},k}$ must remain below the reaction temperature 
+at the respective measurements $\bm{T}_k$. Otherwise, the controller would also exploit heating to 
+further improve the selectivity which is not allowed. For better convergence of the interior point optimizer
+\cite{Waechter2006}, the constraints on maximum temperature, minimum conversion and negative heat flow are
+considered as \emph{soft} constraints. Their respective slack variables are given as $\lambda_1$, $\lambda_2$ and
+$\lambda_3$. A violation of the maximum temperature constraint as well as finessing the heat flow direction
+is to be avoided with the highest penalty of $1000$. In contrast, the minimum conversion is a guiding reference
+to limit a recycle stream to a reasonable amount. Thus, a small violation can be allowed to help meeting
+the more critical constraints or avoid temperature oscillation in difficult conditions.
+Most importantly, the system propagation is executed by the respective NARX architecture for uncertainty
+quantification $f_\text{NARX}$ as a function of past measurements and inputs $\bm{\phi}_k$. 
+For notational simplicity, the MPC formulation (eq.~\ref{results:eq:MPC-formulation-TR}).
+All mentioned parameters for the MPC algorithm are found during manual tuning to find a good balance
+between selectivity, conversion, maximum temperature violation, input oscillation and runtime.
+While other black-box approaches such as plain grid search or Bayesian optimization exist,
+the manual procedure allows for a better understanding of the MPC-system relationship.
+
+\subsection{Closed-loop Control}
+To control the system, a time-varying signal is sampled for the input flow speed as well as 
+a constant combination for the first principle model parameters. The resulting trajectories
+for all system measurements, inputs, time-varying parameters, selectivity and conversion are plotted
+over a simulation horizon of \SI{384}{\second} (fig.~\ref{results:fig:MPC-loop-vanilla}). With
+a duration of \SI{19.2}{} times the system's greatest time constant, this horizon length is considered 
+representative for a real application. The MPC controller applies the vanilla NARX framework with uncertainty quantification 
+to gain a general sense for the control behavior with the surrogate models.
+\newline
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop.pdf}
+    \caption[MPC closed-loop with vanilla NARX framework.]
+    {Closed-loop simulation of the first principle system with an MPC controller based
+    on the vanilla NARX framework. The wall temperature $T_\mathrm{w}$ gets risen for high input flow rates $u$
+    to achieve the minimum conversion $X_\mathrm{min}$ (black, dash-dotted). The color gradient denotes the 
+    measurement position from inlet (purple) to outlet (yellow) of the reactor.}
+    \label{results:fig:MPC-loop-vanilla}
+\end{figure}
+
+\noindent
+The color gradient denotes the measurement position along the $z$-coordinate which turns from 
+purple to yellow. While the inlet temperature of \SI{625}{\kelvin} and mole fractions are constant, the inlet
+flow speed $u$ can fluctuate in steep ramps between \SI{0.2}{} and \SI{0.4}{\meter \; \second^{-1}}.
+Using \SI{0.4}{\meter \; \second^{-1}} as the reference, the reactor is confronted with a load 
+range between \SI{100}{\%} and \SI{50}{\%}. This is assumed to be challenging and realistic at the same time like in
+carbon dioxide methanation \cite{fischer2021}.
+It is clearly visible that the controller increases the cooling temperature for rising flow speeds.
+To meet the specified minimum conversion $X_\text{min}$ (black, dash-dotted),
+the reaction rate must be accelerated by lesser cooling.
+Higher flow speeds decrease the residence time in such a way that the minimum conversion constraint
+is violated at some instances.
+Additionally, the controller prefers to cool the reaction mixture at the beginning of the reactor (purple)
+more strongly to counteract a hotspot formation $T_\text{w,1}$. To correct for unreacted educts, the wall temperatures
+along the remaining reactor are set to higher levels (blue, green, yellow). The fact, that
+the latter three cooling compartments show mostly equal cooling temperatures indicate that they do not 
+influence the reaction as much as the first cooling temperature. For a real construction, it is more
+suitable to introduce smaller cooling compartments where a hotspot is likely to form.
+The controller is able to avoid the violation of the maximum temperature constraint (black, dash-dotted)
+of \SI{630}{\kelvin} for all temperature measurements $T$. This is achieved eventhough the kinetic
+parameters of the first principle model are not only unknown but generated randomly.
+Oscillations in the system inputs do not occur which would be the case for a stronger penalty for the 
+minimum conversion. In this case, the controller would shift back and forth due to the opposing dynamic
+of conversion, which increases with temperature, maximum temperature and the lack of damping in the system.
+\newline
+\newline
+\noindent
+The runtimes of each recursive optimization in \texttt{ipopt} \cite{Waechter2006} is presented (bottom, right).
+These vary between \SI{5}{} and \SI{50}{\second}.
+
+% \begin{table}[!h]
+%     \begin{tabular}{ccccc}
+%         \toprule
+%         & selectivity & $t_\text{wall}$ & temperature violation / \% & conversion violation / \% \\
+%         \midrule
+%         pc & $0.8201$ & $2.3950$ & $0.60$ & $0.4646$ \\
+%         naive & $0.8201$ & $2.2076$ & $0.40$ & $0.4668$ \\
+%         vanilla & $0.8201$ & $2.2289$ & $0.40$ & $0.4668$ \\
+%         \bottomrule
+%     \end{tabular}
+% \end{table}
 

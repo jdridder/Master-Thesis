@@ -365,14 +365,16 @@ def plot_loop(
     return fig
 
 
-def plot_loop_from_dict(system_dict: Dict[str, np.ndarray], plot_cfg: Optional[Dict] = None, save_cfg: Optional[Dict] = None):
+def plot_loop_from_dict(system_dict: Dict[str, np.ndarray], plot_cfg: Optional[Dict] = None, save_path: Optional[str] = None, save_cfg: Optional[Dict] = None):
     plot_cfg = plot_cfg or {}
     save_cfg = save_cfg or {}
     var_keys = plot_cfg.get("var_keys") or ["_y", "_u", "_tvp", "_aux", "t_wall_total"]
     hline_list = plot_cfg.get("hlines", [])
     ylim_list = plot_cfg.get("ylims", [])
+    ylabel_list = plot_cfg.get("ylabels", [])
+    legend_list = plot_cfg.get("legends", [])
+    label_dict = plot_cfg.get("labels", {})
     # all data rows in the last dimension .shape[-1] will be plotted in one ax object
-
     fig, axes = make_axes_for_all_vars(n_rows=5, n_cols=2, figsize=(10, 12))
     axes_start = 0
     cycler = make_color_cycler(n_colors=4)
@@ -383,7 +385,7 @@ def plot_loop_from_dict(system_dict: Dict[str, np.ndarray], plot_cfg: Optional[D
 
         for axes_index, data_row in zip(range(axes_start, axes_stop), var_arr):
             axes[axes_index].set_prop_cycle(cycler)
-            axes[axes_index].plot(data_row)
+            axes[axes_index].plot(data_row, label=label_dict.get(var_key))
 
         axes_start = axes_stop
 
@@ -391,9 +393,25 @@ def plot_loop_from_dict(system_dict: Dict[str, np.ndarray], plot_cfg: Optional[D
         axes[hline_dict["ax_idx"]].axhline(**hline_dict["kwargs"])
     for ylim_dict in ylim_list:
         axes[ylim_dict["ax_idx"]].set_ylim(*ylim_dict["ylims"])
+    for legend_dict in legend_list:
+        axes[legend_dict["ax_idx"]].legend(ncols=legend_dict.get("ncols", 1), loc=legend_dict.get("loc"))
+    for ylabel, ax in zip(ylabel_list, axes):
+        ax.set_ylabel(ylabel=ylabel)
+        ax.set_yticks(np.linspace(*ax.get_ylim(), 3))
+        ax.tick_params(axis="y", which="both", left=True, right=True, labelleft=True, labelright=False)
+
+    axes[4].set_xlabel("$t$ / s")
+    axes[-1].set_xlabel("$t$ / s")
+
+    plt.tight_layout()
 
     if save_cfg.get("show_fig", False):
         plt.show()
+
+    if save_path:
+        os.makedirs(save_path, exist_ok=True)
+        file_name = f"{save_cfg.get("export_name", "system_evolvement")}.pdf"
+        plt.savefig(f"{save_path}/{file_name}", bbox_inches="tight", pad_inches=0.25)
 
 
 def plot_test_data_with_simulation(
@@ -793,7 +811,7 @@ def plot_intervall_widths(
     fig.text(0.02, 0.5, "rel. intervall width / -", va="center", rotation="vertical")
 
     plt.subplots_adjust(right=0.95, left=0.15, top=0.88, bottom=0.15)
-    # plt.tight_layout()
+
     print("---- Saving intervall widths plot. ----")
     plt.savefig(final_save_path)
     if save_cfg.get("show_fig", False):

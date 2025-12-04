@@ -305,7 +305,7 @@ mpc_perf_cfg = {
     "covariance_gain": 3,
     "lam_bed_std": 0.08,
     "tvp_tau": 20,
-    "surrogate_types": ["vanilla", "pc", "naive"],
+    "surrogate_types": ["pc"],
     # "surrogate_types": ["pc", "naive"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
     "t_steps": 384,

@@ -165,21 +165,21 @@ def make_axes_for_all_vars(
     n_rows: int, n_cols: Optional[int] = 1, cbar: Optional[bool] = True, figsize: Optional[Tuple] = (10, 6), cmap_key: Optional[str] = "viridis"
 ) -> Tuple[plt.Figure, List[plt.Axes]]:
     """Creates a grid of axes for all unique states, inputs, tvps and auxillary vars."""
-    n_grids = n_rows + 2 if cbar else n_rows
-    height_ratios = [1.5, 1] + [10] * n_rows if cbar else [10] * n_rows
-    plot_idx = 2 if cbar else 0
+    n_grids = n_rows + 1 if cbar else n_rows
+    height_ratios = [1.5] + [10] * n_rows if cbar else [10] * n_rows
+    plot_idx = 1 if cbar else 0
     fig = plt.figure(figsize=figsize)
     gs = gridspec.GridSpec(n_grids, ncols=n_cols, height_ratios=height_ratios)
     # Colorbar on the top
     if cbar:
-        cbar_ax = fig.add_subplot(gs[0, 0])
+        cbar_ax = fig.add_subplot(gs[0, :])
         norm = matplotlib.colors.Normalize(0, 1)
         mappable = cm.ScalarMappable(norm=norm, cmap=cm.get_cmap(cmap_key))
         cbar = fig.colorbar(mappable, cax=cbar_ax, orientation="horizontal")
         cbar.ax.set_ylabel(r"$\frac{z}{L}$ / -", rotation=0)
     axes = []
-    for i in range(n_rows):
-        for j in range(n_cols):
+    for j in range(n_cols):
+        for i in range(n_rows):
             ax_i = fig.add_subplot(gs[i + plot_idx, j], sharex=axes[0] if axes else None)
             if i < n_rows - 1:
                 ax_i.label_outer()

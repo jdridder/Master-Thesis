@@ -53,13 +53,13 @@ def run_mpc_performance(
         n_batches=mpc_perf_cfg.get("n_experiments", 10),
         covariance_gain=mpc_perf_cfg.get("covariance_gain", 1),
         lam_bed_std=mpc_perf_cfg.get("lam_bed_std", 0.01),
-        seed=42,
+        seed=99,
     )
     tvp_signals = generate_random_ramp_signal(
         feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
         num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon"),
         tau=mpc_perf_cfg.get("tvp_tau"),
-        seed=1201,
+        seed=11,
         batch_size=mpc_perf_cfg.get("n_experiments"),
         time_step=sim_cfg["simulation"]["t_step"],
     )
@@ -109,6 +109,7 @@ def run_mpc_performance(
 
     def pick_rn_traj(arr: np.ndarray):
         index = int(np.random.rand() * arr.shape[0])
+        print(index)
         return arr[index]
 
     def split_spatially(arr: np.ndarray, n_meas: int = 4):
@@ -124,14 +125,45 @@ def run_mpc_performance(
     one_trajectory_dict = apply_to_double_dict(double_dict=one_trajectory_dict, fn=split_spatially)
     plot_loop_from_dict(
         system_dict=one_trajectory_dict["vanilla"],
+        save_path=plot_dir,
         plot_cfg={
-            "ylims": [{"ax_idx": 5, "ylims": (0.95, 1.025)}, {"ax_idx": 8, "ylims": (0.4, 1)}],
-            "hlines": [
-                {"ax_idx": 5, "kwargs": {"y": sim_cfg["states"]["upper_bounds"]["T"] / sim_cfg["scales"]["T"], "label": "max. T", "color": "black", "ls": "dashdot"}},
-                {"ax_idx": 8, "kwargs": {"y": sim_cfg["aux"]["lower_bounds"]["X"], "label": "min. X", "color": "black", "ls": "dashdot"}},
+            "ylims": [
+                {"ax_idx": 0, "ylims": (0, 1)},
+                {"ax_idx": 1, "ylims": (0, 1)},
+                {"ax_idx": 2, "ylims": (0, 1)},
+                {"ax_idx": 3, "ylims": (0, 1)},
+                {"ax_idx": 4, "ylims": (0, 1)},
+                {"ax_idx": 5, "ylims": (0.97, 1.025)},
+                {"ax_idx": 6, "ylims": (575, 630)},
+                {"ax_idx": 7, "ylims": (0.18, 0.42)},
+                {"ax_idx": 8, "ylims": (0.4, 1)},
+                {"ax_idx": 9, "ylims": (0, 100)},
             ],
+            "labels": {"_aux": ["$S$", "$X$"]},
+            "legends": [{"ax_idx": 8, "ncols": 3, "loc": "upper center"}, {"ax_idx": 5}],
+            "hlines": [
+                {
+                    "ax_idx": 5,
+                    "kwargs": {
+                        "y": sim_cfg["states"]["upper_bounds"]["T"] / sim_cfg["scales"]["T"],
+                        "label": r"$T_\mathrm{max}$",
+                        "color": "black",
+                        "ls": "dashdot",
+                    },
+                },
+                {
+                    "ax_idx": 8,
+                    "kwargs": {
+                        "y": sim_cfg["aux"]["lower_bounds"]["X"],
+                        "label": r"$X_\mathrm{min}$",
+                        "color": "black",
+                        "ls": "dashdot",
+                    },
+                },
+            ],
+            "ylabels": sim_cfg["plotting"]["ylabels"].values(),
         },
-        save_cfg={"show_fig": True},
+        save_cfg={"show_fig": False, "export_name": "control_loop"},
     )
 
     # calculate mean performance -> mean selectivity
