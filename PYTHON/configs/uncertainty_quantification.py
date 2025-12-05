@@ -300,15 +300,14 @@ uq_test_cfg = {
 }
 
 mpc_perf_cfg = {
-    "n_experiments": 7,
-    "n_workers": 7,
+    "n_experiments": 8,
+    "n_workers": 8,
     "covariance_gain": 3,
     "lam_bed_std": 0.08,
     "tvp_tau": 20,
-    "surrogate_types": ["pc"],
-    # "surrogate_types": ["pc", "naive"],
+    "surrogate_types": ["vanilla", "naive", "pc", "nominal"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
-    "t_steps": 384,
+    "t_steps": 400,
     "mpc_cfg": {
         "input_bounds": {"lower": 580, "upper": 625},
         "n_horizon": 25,
@@ -318,7 +317,7 @@ mpc_perf_cfg = {
         "t_step": 1,
         "lam_Tmax": 1e3,
         "ub_T": 630 / 625,
-        "lam_dudt": {"T_c0": 500, "T_c1": 10, "T_c2": 10, "T_c3": 10},
+        "lam_dudt": {"T_c0": 250, "T_c1": 20, "T_c2": 15, "T_c3": 10},
         "lam_X": 2e1,
         "lam_T_Tcool": 1e3,
         "lb_X": 0.5,

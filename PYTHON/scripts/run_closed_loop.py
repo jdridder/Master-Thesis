@@ -1,6 +1,13 @@
 import os
 import sys
 
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+
+os.environ["OPENBLAS_NOFORK"] = "1"
+os.environ["OPENBLAS_DISABLE_MAIN_THREAD_AFFINITY"] = "1"
+
 import numpy as np
 import yaml
 
@@ -22,19 +29,22 @@ mpc_perf_cfg = {
     "covariance_gain": 3,
     "lam_bed_std": 0.08,
     "tvp_tau": 20,
-    "surrogate_types": ["naive", "pc"],
+    # "surrogate_types": ["naive", "pc"],
+    "surrogate_types": ["vanilla"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
-    "t_steps": 384,
+    "t_steps": 128,
     "mpc_cfg": {
         "input_bounds": {"lower": 580, "upper": 625},
         "n_horizon": 25,
         "n_robust": 1,
+        # "uncertainty_values": {"alpha": [[1, 0]]},
         "uncertainty_values": {"alpha": [[1, 0], [0, 1]]},
         "scenarios": ["nominal", "upper"],
+        # "scenarios": ["nominal"],
         "t_step": 1,
         "lam_Tmax": 1e3,
         "ub_T": 630 / 625,
-        "lam_dudt": {"T_c0": 500, "T_c1": 10, "T_c2": 10, "T_c3": 10},
+        "lam_dudt": {"T_c0": 250, "T_c1": 20, "T_c2": 15, "T_c3": 10},
         "lam_X": 2e1,
         "lam_T_Tcool": 1e3,
         "lb_X": 0.5,
@@ -42,7 +52,7 @@ mpc_perf_cfg = {
         "tvp_scale": 0.4,
         "store_full_solution": False,
         "surpress_ipopt_output": False,
-        # "BLAS_NUM_THREADS": "1",
+        "BLAS_NUM_THREADS": "1",
         "solver_opts": {
             "ipopt": {
                 "max_iter": 1000,
@@ -98,8 +108,8 @@ def main():
         feature_bounds=[[0.2, 0.4]],
         num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon") * mpc_perf_cfg["mpc_cfg"].get("t_step"),
         tau=mpc_perf_cfg.get("tvp_tau"),
-        seed=20,
-        batch_size=mpc_perf_cfg.get("n_experiments"),
+        seed=4,
+        batch_size=1,
         time_step=sim_cfg["simulation"]["t_step"],
     )
 

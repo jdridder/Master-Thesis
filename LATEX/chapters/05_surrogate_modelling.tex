@@ -323,4 +323,4 @@ of physics consistent NNs with parametric uncertainty for MPC, the focus remains
 The forward pass through the physics constrained activation involves the setup of a temporary vector $\vh$ (alg.~\ref{theory:algo: pc forward pass})
 and the truncation of the dual variables in the solution. The matrix inversion to yield $\bm{K}$ should be done 
 offline and then saved as untrainable model parameter. In \texttt{pytorch} this is can be done using the
-\texttt{register\_buffer()} method. An implementation example of the physics consistent activation can be found in the appendix (XX).
+\texttt{register\_buffer()} method. An implementation example of the physics consistent activation can be found in the appendix (\ref{app:code:forward-pass}).

@@ -3,11 +3,12 @@
 The goal of this work is to derive a physics-consistent surrogate modelling technique to be applied within a robust MPC algorithm.
 Physics-consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
 This reactor type is common in the chemical industry in many processes such as ethylene oxidation, carbon dioxide methanization or steam reforming.
-Especially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}. For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
-biological resources.
+Especially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}.
+For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
+biological resources \cite{dittmer2022}.
 \newline
 \newline
-For exothermal reactions, \emph{transient behavior} is a mayor safety concern of packed-bed tubular reactors \cite{guttel2021}.
+For exothermal reactions, \emph{transient behavior} is a major safety concern of packed-bed tubular reactors \cite{guttel2021}.
 In a dynamic operating environment, the thermal inertia of the catalytic packed bed can abruptly heat up unreacted feed mixture.
 This can cause a self-accelerating temperature runaway leading to thermal damage or even explosion.
 Furthermore, high temperatures can cause several catalyst deactivation effects such as sintering. Therefore, the temperature
@@ -17,7 +18,7 @@ a tuned upper and lower bound for $\tilde{\varphi}_i(\vu)$ independent from the 
 Apart from safety, the maximization of the selectivity towards the value product is a reasonable control objective, as the selectivity
 is most correlated to process profitability in many cases. To achieve a reasonable turnover from educts to products, a minimum 
 conversion is set to be required via a constraint. The actual control formulation is presented during the
-MPC performance evaluation (\ref{MPC-Performance-and-Robustness}). 
+MPC performance evaluation (sec.~\ref{MPC-Performance-and-Robustness}). 
 
 \section{Reaction Kinetics}
 To focus on the surrogate modelling methology, the example system is kept rather simplistic. 
@@ -65,7 +66,7 @@ of the rate determining species ethene, oxygen and carbon dioxide must be known.
 The kinetic parameters are listed below (tab.~\ref{case:tab: true kinetic parameters}) and will further underly probabilistic uncertainty. 
 
 \section{Packed-bed Tubular Reactor Model}
-The reactor as a packed-bed tubular reactor (TR) is assumed to be already existend with a fixed design to clearly separate the model derivation
+The reactor as a packed-bed tubular reactor (TR) is assumed to be already existent with a fixed design to clearly separate the model derivation
 from an optimal design task (fig.~\ref{case:fig: complete reactor}).
 For the first principle model, the mass and energy balances are set up.
 
@@ -74,7 +75,7 @@ For the first principle model, the mass and energy balances are set up.
     \includegraphics[width=1\textwidth]{Figures/Reaction-Modelling/reactor-complete.pdf}
     \caption[Catalytic packed-bed flow reactor]
     {The packed-bed reactor is assumed to exhibit plug flow behavior (green). Catalyst and gaseous phase are lumped into
-    one pseudo-homogenious reaction phase. The inlet conditions remain constant for the temperature $T$ and the 
+    one pseudo-homogenous reaction phase. The inlet conditions remain constant for the temperature $T$ and the 
     molar fractions of each component $x_{(\cdot)}$, while the inlet flow speed $u$ can fluctuate due to flexible feed availability.
     Four cooling sections (blue) are integrated.}
     \label{case:fig: complete reactor}
@@ -89,27 +90,31 @@ where the throughput heavily relies on the hydrogen supply \cite{fischer2021}. B
 the simulated states narrow down to the molar fractions of the rate-determining species $x_\alpha$ and the temperature $T$.
 These are considered to be constant at the inlet, which is important for the later application of 
 linear equality constraints in an NN. 
-Using the component balace in local form (eq.~\ref{case:eq: component balance in local form}), a PDE can be derived that
+Using the component balance in local form (eq.~\ref{case:eq: component balance in local form}), a PDE can be derived that
 describes the dynamic concentration gradients of the components $\alpha$.
 Furthermore, the enthalpy balance shall be covered to calculate the temperature field regarding the exothermic
 reactions.
 
 \begin{equation}
     \label{case:eq: component balance in local form}
-    \frac{\partial \rho_\alpha}{\partial t} = - \frac{\partial}{\partial z_k} (\rho_\alpha u_k + j_{\alpha, k}) + \sigma_\alpha
+    \frac{\partial c_\alpha}{\partial t} = - \frac{\partial}{\partial z_k} (c_\alpha u_k + j_{\alpha, k}) + R_\alpha
 \end{equation}
-The general component density $\rho_\alpha$ is expressed in mol/m$^3$, while $\partial z_k$ indicates
+The general component density $c_\alpha$ is expressed in mol/m$^3$, while $\partial z_k$ indicates
 the spatial derivative in direction $k$. $u_k$ and $j_{\alpha, k}$ denote the convective velocity and the 
-diffusive mass transport in direction $k$. The source or sink term $\sigma_\alpha$ allows to consider chemical reactions.
+diffusive mass transport in direction $k$. The rate of formation or depletion $R_\alpha$ allows to consider chemical reactions.
 Ideal gas behavior is considered (eq.~\ref{case:eq: ideal gas law}).
 \begin{equation}
     \label{case:eq: ideal gas law}
-    p_\alpha = \rho_\alpha \mathrm{R} T
+    p_\alpha = c_\alpha \mathrm{R} T
 \end{equation}
 Moreover, \emph{plug flow} and constant pressure are assumed. 
 Under the consideration of a 1D-pseudo-homogenious model with gradients only in axial direction and no
 diffusive mass transfer, this equation reduces to an ideal \emph{plug flow tubular reactor} (PFTR) (eq.~\ref{case:eq: dimensionless component PDE}).
 A detailed derivation of the model equations can be found in the appendix (XX). 
+Due to the ideal gas behavior (eq.~\ref{case:eq: ideal gas law}), the concentration $c_\alpha$ varies not only
+with the mole fraction but also with the temperature. Therefore, an artificial state $\chi_\alpha$ is introduced
+to enable an easy and explicit formulation of the PDE via substitution (eq.~\ref{case:eq: dimensionless component PDE}).
+
 \begin{equation}
     \label{case:eq: dimensionless component PDE}
     \begin{gathered}
@@ -120,17 +125,19 @@ A detailed derivation of the model equations can be found in the appendix (XX).
         T' = \frac{T}{T_*}
     \end{gathered}
 \end{equation}
+
+\noindent
 To improve numerical stability, the mole fractions $x_\alpha$ and the temperature occur in a dimensionless
-form indicated by a prime (') symbol. This is done by diving by a reference value, denoted with a star (*) (eq.~\ref{case:eq: dimensionless component PDE}).
+form indicated by a prime (') symbol. This is done by diving by a reference value, denoted with a star
+(*) (eq.~\ref{case:eq: dimensionless component PDE}).
 It not only improves numerical simulation stability. For the later training of surrogate models, it also eliminates the need for
 an \emph{output scaler} which simplifies implementation and training. These reference values are defined as follows (eq.~\ref{case:eq: reference values for scaling}).
 \begin{equation}
     \label{case:eq: reference values for scaling}
     x_* = x_\text{E,in} \quad T_* = T_\text{in}
 \end{equation}
-Due to the ideal gas behavior (eq.~\ref{case:eq: ideal gas law}), the molar density $\rho_\alpha$ varies not only
-with the molar fraction but also with the temperature. Therefore, an artificial state $\chi_\alpha$ is introduced
-to enable an easy and explicit formulation of the PDE via substitution (eq.~\ref{case:eq: dimensionless component PDE}).
+
+\noindent
 The general enthalpy balance in local form (eq.~\ref{case:eq: enthalpy balance local form}) can be significantly reduced under isobaric conditions with neither volume forces,
 nor friction, nor dispersive, nor conductive enthalpy transfer.
 \begin{equation}
@@ -163,6 +170,8 @@ Reynolds and Prandl expressions are part of the appendix to keep the derivation 
 \subsection{Discretization}
 
 The system of non-linear PDEs is discretized in $z$-direction via \emph{backward finite differences}.
+This discretization method is chosen against the flow direction, because it is convection dominated.
+
 \begin{definition} Discretized system of PDEs using backward finite differences to yield an ODE system
     \label{case:def: discretized system of PDEs}
     \[

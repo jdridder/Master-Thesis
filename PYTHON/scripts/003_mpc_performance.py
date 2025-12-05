@@ -53,16 +53,18 @@ def run_mpc_performance(
         n_batches=mpc_perf_cfg.get("n_experiments", 10),
         covariance_gain=mpc_perf_cfg.get("covariance_gain", 1),
         lam_bed_std=mpc_perf_cfg.get("lam_bed_std", 0.01),
-        seed=99,
+        seed=99,  # the seed to go
     )
     tvp_signals = generate_random_ramp_signal(
         feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
         num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon"),
         tau=mpc_perf_cfg.get("tvp_tau"),
-        seed=11,
-        batch_size=mpc_perf_cfg.get("n_experiments"),
+        seed=4,  # the seed to go
+        batch_size=1,
         time_step=sim_cfg["simulation"]["t_step"],
     )
+
+    tvp_signals = np.repeat(tvp_signals, axis=0, repeats=mpc_perf_cfg.get("n_experiments"))
 
     # load initialization data
     init_data = np.load(path_to_init_data)
@@ -74,12 +76,22 @@ def run_mpc_performance(
 
     results_dir = os.path.join(current_experiment_working_dir, "results")
 
+    path_to_cfg = os.path.join(results_dir, "mpc_performance_cfg.json")
+    if not os.path.exists(path_to_cfg):
+        with open(path_to_cfg, "w") as f:
+            f.write(json.dumps(mpc_perf_cfg, indent=4))
+
     # loop over surrogate types
     for surrogate_key in mpc_perf_cfg.get("surrogate_types"):
         state_dict_path = os.path.join(trained_model_dir, mpc_perf_cfg["state_dict_folder"][surrogate_key])
         final_results_dir = os.path.join(results_dir, surrogate_key)
         if not os.path.exists(final_results_dir):
             os.makedirs(final_results_dir, exist_ok=True)
+            mpc_cfg = mpc_perf_cfg.get("mpc_cfg").copy()
+            if surrogate_key in mpc_perf_cfg["uncertainty_values"].keys():
+                mpc_cfg["uncertainty_values"] = mpc_perf_cfg["uncertainty_values"][surrogate_key]
+                mpc_cfg["scenarios"] = mpc_perf_cfg["scenarios"][surrogate_key]
+
             run_parallel_mpc_loop(
                 n_workers=mpc_perf_cfg.get("n_workers", 1),
                 t_steps=mpc_perf_cfg.get("t_steps"),
@@ -93,7 +105,7 @@ def run_mpc_performance(
                 physical_params=kinetic_parameters,
                 tvp_signals=tvp_signals,
                 sim_cfg=sim_cfg,
-                mpc_cfg=mpc_perf_cfg.get("mpc_cfg"),
+                mpc_cfg=mpc_cfg,
                 run_cfg={
                     "save_dir": final_results_dir,
                     "save_as": "json",
@@ -108,33 +120,36 @@ def run_mpc_performance(
     # plot all state input and tvp trajectories
 
     def pick_rn_traj(arr: np.ndarray):
-        index = int(np.random.rand() * arr.shape[0])
-        print(index)
+        # index = int(np.random.rand() * arr.shape[0])
+        index = 0
         return arr[index]
 
-    def split_spatially(arr: np.ndarray, n_meas: int = 4):
+    def split_spatially_revert_scale(arr: np.ndarray, n_meas: int = 4):
         if arr.shape[-1] == 24:
             arr = arr.reshape((arr.shape[0], -1, n_meas))
+            arr[:, -1, :] = arr[:, -1, :] * mpc_perf_cfg["mpc_cfg"]["input_scale"]
             return arr.swapaxes(0, 1)
         if arr.shape[-1] == 3:
             arr = arr[..., 1:]
-
         return np.expand_dims(arr, axis=0)
 
-    one_trajectory_dict = apply_to_double_dict(double_dict=complete_result_dict, fn=pick_rn_traj)
-    one_trajectory_dict = apply_to_double_dict(double_dict=one_trajectory_dict, fn=split_spatially)
-    plot_loop_from_dict(
-        system_dict=one_trajectory_dict["vanilla"],
-        save_path=plot_dir,
-        plot_cfg={
+    loop_plot_cfgs = {
+        "default": {
+            "nrows": 5,
+            "exclude_mole_fracs": True,
+            "measurement_indices": [-1],
+        },
+        "vanilla": {
+            "nrows": 5,
+            "exclude_mole_fracs": False,
             "ylims": [
                 {"ax_idx": 0, "ylims": (0, 1)},
                 {"ax_idx": 1, "ylims": (0, 1)},
                 {"ax_idx": 2, "ylims": (0, 1)},
                 {"ax_idx": 3, "ylims": (0, 1)},
                 {"ax_idx": 4, "ylims": (0, 1)},
-                {"ax_idx": 5, "ylims": (0.97, 1.025)},
-                {"ax_idx": 6, "ylims": (575, 630)},
+                {"ax_idx": 5, "ylims": (575, 635)},
+                {"ax_idx": 6, "ylims": (575, 635)},
                 {"ax_idx": 7, "ylims": (0.18, 0.42)},
                 {"ax_idx": 8, "ylims": (0.4, 1)},
                 {"ax_idx": 9, "ylims": (0, 100)},
@@ -145,7 +160,7 @@ def run_mpc_performance(
                 {
                     "ax_idx": 5,
                     "kwargs": {
-                        "y": sim_cfg["states"]["upper_bounds"]["T"] / sim_cfg["scales"]["T"],
+                        "y": sim_cfg["states"]["upper_bounds"]["T"],
                         "label": r"$T_\mathrm{max}$",
                         "color": "black",
                         "ls": "dashdot",
@@ -163,8 +178,20 @@ def run_mpc_performance(
             ],
             "ylabels": sim_cfg["plotting"]["ylabels"].values(),
         },
-        save_cfg={"show_fig": False, "export_name": "control_loop"},
-    )
+    }
+
+    one_trajectory_dict = apply_to_double_dict(double_dict=complete_result_dict, fn=pick_rn_traj)
+    one_trajectory_dict = apply_to_double_dict(double_dict=one_trajectory_dict, fn=split_spatially_revert_scale)
+
+    # for surrogate_key in mpc_perf_cfg["surrogate_types"]:
+    for surrogate_key in ["nominal"]:
+        plot_cfg = loop_plot_cfgs[surrogate_key] if surrogate_key in loop_plot_cfgs.keys() else loop_plot_cfgs["default"]
+        plot_loop_from_dict(
+            system_dict=one_trajectory_dict[surrogate_key],
+            # save_path=plot_dir,
+            plot_cfg=plot_cfg,
+            save_cfg={"show_fig": True, "export_name": f"control_loop_{surrogate_key}"},
+        )
 
     # calculate mean performance -> mean selectivity
     kpi_dict = {}

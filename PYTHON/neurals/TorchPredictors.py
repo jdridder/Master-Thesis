@@ -175,8 +175,19 @@ class PCStatePredictor(StatePredictor):
         self.register_buffer("ru_vec", torch.empty((1, n_constraints)))
 
     def set_linear_equality_constraint(self, A: torch.Tensor, b: torch.Tensor = None):
+        """
+        Sets up the projection mechanism for the linear equality constraint Ax = b.
+
+        It calculates and registers the inverse of the augmented projection matrix
+        (based on the KKT system) and related vectors as buffers, which are
+        then used in the forward pass to enforce the constraint.
+
+        Args:
+            A: Constraint matrix (m x n) where m is the number of constraints
+               and n is the number of output variables.
+            b: Right-hand side vector (m x 1). Defaults to a zero vector.
+        """
         b = b or torch.zeros(A.shape[0], dtype=A.dtype)
-        # A, b = self.out_scaler.scale_linear_equality_constraint(A=A)
         U = torch.cat([2 * torch.eye(A.shape[1], dtype=A.dtype, device=A.device), A.T], dim=1)
         L = torch.cat([A, torch.zeros((A.shape[0], A.shape[0]), dtype=A.dtype, device=A.device)], dim=1)
         projection_inverse = torch.linalg.inv(torch.cat([U, L], dim=0))
@@ -188,13 +199,24 @@ class PCStatePredictor(StatePredictor):
         self.register_buffer("ru_vec", ru_vec)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Performs the forward pass and projects the output onto the constraint manifold.
+        The initial output `x` (primal variables) is augmented with the
+        pre-calculated constraint vector `ru_vec` and multiplied by the
+        pre-computed projection inverse matrix. The resulting dual variables
+        are then truncated, returning only the projected primal variables
+        that satisfy Ax = b.
+        Args:
+            x: Input tensor to the module.
+        Returns:
+            The constrained output tensor (projected primal variables).
+        """
         x = super().forward(x)
-        # x = self.out_scaler.reverse(x)
-        ru = torch.repeat_interleave(self.ru_vec, repeats=x.shape[0], dim=0)
+        ru = torch.repeat_interleave(self.ru_vec, repeats=x.shape[0], dim=0)  # repeat to allow batching
         intermediate_vector = torch.cat([2 * x, ru], dim=-1)
         x = intermediate_vector @ self.projection_inverse
         x = x[..., : self.n_output]  # cutting dual variables
-        # x = self.out_scaler(x)
+        # no output scaler
         return x
 
 

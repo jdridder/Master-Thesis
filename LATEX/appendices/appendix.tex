@@ -47,8 +47,32 @@
 \end{figure}
 
 \chapter{Proofs and Code}
-\section{Forward pass through the physics constrained activation}
+\section{Code}
+
+\subsection{Inverse calculation and forward method to apply the pc activation}
 \label{app:code:forward-pass}
+\begin{lstlisting}[frame=single]
+def set_linear_equality_constraint(self, A: torch.Tensor, b: torch.Tensor = None):
+    b = b or torch.zeros(A.shape[0], dtype=A.dtype)
+    U = torch.cat([2 * torch.eye(A.shape[1], dtype=A.dtype, device=A.device), A.T], dim=1)
+    L = torch.cat([A, torch.zeros((A.shape[0], A.shape[0]), dtype=A.dtype, device=A.device)], dim=1)
+    projection_inverse = torch.linalg.inv(torch.cat([U, L], dim=0))
+    ru_vec = self.boundary_cond @ A.T + b
+
+    self.register_buffer("projection_inverse", projection_inverse)
+    self.register_buffer("constraint_matrix", A)
+    self.register_buffer("constraint_rhs", b)
+    self.register_buffer("ru_vec", ru_vec)
+
+def forward(self, x: torch.Tensor) -> torch.Tensor:
+    x = super().forward(x)
+    ru = torch.repeat_interleave(self.ru_vec, repeats=x.shape[0], dim=0)  # repeat to allow batching
+    intermediate_vector = torch.cat([2 * x, ru], dim=-1)
+    x = intermediate_vector @ self.projection_inverse
+    x = x[..., : self.n_output]  # cutting dual variables
+    # no output scaler
+    return x
+\end{lstlisting}
 
 
 \section{Change in molar amount}

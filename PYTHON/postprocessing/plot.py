@@ -365,7 +365,13 @@ def plot_loop(
     return fig
 
 
-def plot_loop_from_dict(system_dict: Dict[str, np.ndarray], plot_cfg: Optional[Dict] = None, save_path: Optional[str] = None, save_cfg: Optional[Dict] = None):
+def plot_loop_from_dict(
+    system_dict: Dict[str, np.ndarray],
+    measurement_indices: Optional[List[int]] = None,
+    plot_cfg: Optional[Dict] = None,
+    save_path: Optional[str] = None,
+    save_cfg: Optional[Dict] = None,
+):
     plot_cfg = plot_cfg or {}
     save_cfg = save_cfg or {}
     var_keys = plot_cfg.get("var_keys") or ["_y", "_u", "_tvp", "_aux", "t_wall_total"]
@@ -374,13 +380,18 @@ def plot_loop_from_dict(system_dict: Dict[str, np.ndarray], plot_cfg: Optional[D
     ylabel_list = plot_cfg.get("ylabels", [])
     legend_list = plot_cfg.get("legends", [])
     label_dict = plot_cfg.get("labels", {})
+
+    measurement_indices = plot_cfg.get("measurement_indices", slice(None, None))
     # all data rows in the last dimension .shape[-1] will be plotted in one ax object
-    fig, axes = make_axes_for_all_vars(n_rows=5, n_cols=2, figsize=(10, 12))
+
+    fig, axes = make_axes_for_all_vars(n_rows=plot_cfg["nrows"], n_cols=2, figsize=(10, 12))
+
     axes_start = 0
     cycler = make_color_cycler(n_colors=4)
     for var_key in var_keys:
         assert var_key in system_dict.keys(), f"The varkey {var_key} is not provided by the system dict."
-        var_arr = system_dict[var_key]
+        var_arr = system_dict[var_key][measurement_indices] if var_key == "_y" else system_dict[var_key]
+        print(var_arr.shape)
         axes_stop = axes_start + var_arr.shape[0]
 
         for axes_index, data_row in zip(range(axes_start, axes_stop), var_arr):

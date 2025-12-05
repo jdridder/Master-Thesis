@@ -64,7 +64,7 @@ plotting:
     "T_c": "$T_\\mathrm{w}$ / K",
     "u": "$u$ / $\\mathrm{m\\,s^{-1}}$",
     "S": "$S, X$ / -",
-    "t_wall": "$\\Delta t_\\mathrm{wall}$ / s"
+    "t_wall": "$\\Delta t_\\mathrm{ipopt}$ / s"
   }
   x_coordinate_label: "t / s"
   zlabels: 

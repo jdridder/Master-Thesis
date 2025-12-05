@@ -79,7 +79,9 @@ def load_json_results(result_dir: str, n_trajectories: int = -1) -> Dict[str, An
 
     file_paths = [os.path.join(result_dir, f) for f in files_to_load]
 
-    json_list = Parallel(n_jobs=-1)(delayed(_load_single_json)(path) for path in file_paths)
+    json_list = Parallel(
+        n_jobs=-1,
+    )(delayed(_load_single_json)(path) for path in file_paths)
 
     if not json_list:
         return {}
