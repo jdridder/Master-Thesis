@@ -306,7 +306,9 @@ mpc_perf_cfg = {
     "lam_bed_std": 0.08,
     "tvp_tau": 20,
     "surrogate_types": ["vanilla", "naive", "pc", "nominal"],
-    "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
+    "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc", "nominal": "vanilla"},
+    "uncertainty_values": {"nominal": {"alpha": [[1, 0]]}},
+    "scenarios": {"nominal": ["nominal"]},
     "t_steps": 400,
     "mpc_cfg": {
         "input_bounds": {"lower": 580, "upper": 625},

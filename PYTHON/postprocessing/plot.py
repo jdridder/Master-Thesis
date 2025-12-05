@@ -1,5 +1,6 @@
 import json
 import os
+import string
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import l4casadi
@@ -384,14 +385,13 @@ def plot_loop_from_dict(
     measurement_indices = plot_cfg.get("measurement_indices", slice(None, None))
     # all data rows in the last dimension .shape[-1] will be plotted in one ax object
 
-    fig, axes = make_axes_for_all_vars(n_rows=plot_cfg["nrows"], n_cols=2, figsize=(10, 12))
+    fig, axes = make_axes_for_all_vars(n_rows=plot_cfg["nrows"], n_cols=2, figsize=plot_cfg.get("figsize", (10, 12)))
 
     axes_start = 0
     cycler = make_color_cycler(n_colors=4)
     for var_key in var_keys:
         assert var_key in system_dict.keys(), f"The varkey {var_key} is not provided by the system dict."
         var_arr = system_dict[var_key][measurement_indices] if var_key == "_y" else system_dict[var_key]
-        print(var_arr.shape)
         axes_stop = axes_start + var_arr.shape[0]
 
         for axes_index, data_row in zip(range(axes_start, axes_stop), var_arr):
@@ -411,7 +411,11 @@ def plot_loop_from_dict(
         ax.set_yticks(np.linspace(*ax.get_ylim(), 3))
         ax.tick_params(axis="y", which="both", left=True, right=True, labelleft=True, labelright=False)
 
-    axes[4].set_xlabel("$t$ / s")
+    ax_ids = [f"({c})" for c in string.ascii_lowercase[: len(axes)]]
+    for ax, ax_id in zip(axes, ax_ids):
+        ax.set_title(ax_id)
+
+    axes[plot_cfg["nrows"] - 1].set_xlabel("$t$ / s")
     axes[-1].set_xlabel("$t$ / s")
 
     plt.tight_layout()
@@ -423,6 +427,8 @@ def plot_loop_from_dict(
         os.makedirs(save_path, exist_ok=True)
         file_name = f"{save_cfg.get("export_name", "system_evolvement")}.pdf"
         plt.savefig(f"{save_path}/{file_name}", bbox_inches="tight", pad_inches=0.25)
+
+    plt.close(fig)
 
 
 def plot_test_data_with_simulation(

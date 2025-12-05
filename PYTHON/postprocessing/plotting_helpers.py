@@ -173,10 +173,10 @@ def make_axes_for_all_vars(
     # Colorbar on the top
     if cbar:
         cbar_ax = fig.add_subplot(gs[0, :])
-        norm = matplotlib.colors.Normalize(0, 1)
+        norm = matplotlib.colors.Normalize(0.25, 1)
         mappable = cm.ScalarMappable(norm=norm, cmap=cm.get_cmap(cmap_key))
         cbar = fig.colorbar(mappable, cax=cbar_ax, orientation="horizontal")
-        cbar.ax.set_ylabel(r"$\frac{z}{L}$ / -", rotation=0)
+        cbar.ax.set_ylabel(r"$\frac{z}{L}$ / -", rotation=90)
     axes = []
     for j in range(n_cols):
         for i in range(n_rows):
