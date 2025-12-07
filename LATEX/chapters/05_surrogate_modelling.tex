@@ -157,7 +157,8 @@ models.
 
  
 \section{Physics-Constrained Neural Networks}
-By definition, neural networks (NNs) are designed to reproduce their training data in a best possible manner, defined by the characteristics of the loss
+By definition, neural networks (NNs) are designed to reproduce their training data in a best possible manner,
+defined by the characteristics of the loss
 function used during the training process. NN predictions minimize the loss towards the training data seen beforehand.
 Circumstances exist, in which the output of a NN should strictly satisfy a certain set of equations. In case of
 physical modeling, the prediction of a surrogate should follow the same conservation laws as a first principle model. Especcialy,
@@ -167,7 +168,8 @@ approximation of the system behavior over the complete prediction horizon, the a
 become an issue.
 \newline
 \newline
-To realize physics consistent NN outputs, several strategies exists. Physics-informed neural networks (\emph{PINN}s) for instance,
+\noindent
+To realize physics-constrained NN outputs, several strategies exists. Physics-informed neural networks (\emph{PINN}s) for instance,
 embed physical balance equations into the loss function similar to a regularization term \cite{raissi2019}. This serves as a 
 soft constraint and comes with two downsides.
 The NN output does not strictly follow the constraint equation, because the physical consistency is fulfilled up to
@@ -198,7 +200,7 @@ Let the output of a NN be defined as well as a set of linear equality contraints
     \]
 \end{definition}
 
-
+\noindent
 $\bm{\tilde{y}}$ denotes the NN output, $\bm{\xi}$ the input and the matrices $\bm{A}$ and $\bm{b}$ portray the feasible space of points.
 The variable $\bm{z}_0$ illustrates an external input into the constraint. This may be a NN input, a constant, or another batched 
 reference point. In a physical sense, $\bm{z}_0$ is often introduced as a boundary or initial condition.
@@ -218,6 +220,7 @@ forced by following quadratic programm (QP) (def.~\ref{def: physics constrained 
         \end{aligned}
     \]
 \end{definition}
+\noindent
 This means, the output of the network $\bm{\tilde{y}}$, the optimal solution $\bm{y}^*$ and $\bm{z}_0$ are matrices of
 dimension $n_\mathcal{B}~\times~n_\text{out}$. Computing frameworks that support broadcasting such as \texttt{numpy} or
 \texttt{pytorch} allow the implementation of $\bm{z}_0$ in the shape of $1 \times n_\text{out}$ to reduce memory usage as long as it remains constant.
@@ -237,7 +240,7 @@ task can be solved analytically by setting up the \emph{Karush-Kuhn-Tucker} (KKT
         \end{aligned}
     \]
 \end{theorem}
-
+\noindent
 The Lagrangian $\mathcal{L}$ arises as the sum of the objective function and all linear equality constraints.
 The vector $\bm{\nu}$ contains the dual variables of the linear equality constraints.
 The optimality conditions lead to a linear system of equations (cor.~\ref{cor: physics constrained solution}).
@@ -262,7 +265,7 @@ The optimality conditions lead to a linear system of equations (cor.~\ref{cor: p
     = \begin{pmatrix} \bm{y}^* & (\bm{\nu}^*)^\top \end{pmatrix}
 \end{gather*}
 \end{corollary}
-
+\noindent
 The optimal solution denoted with "*" is directly yielded by projecting the NN output $\bm{\tilde{y}}$
 using the additional input $\bm{z}_0$ and a projection matrix. This projection matrix only contains the constraint matrix $\bm{A}$ can be computed
 before runtime which drastically speeds up forward and backward passes in contrast to implicit methods \cite{cvxpylayers2019}.
@@ -279,29 +282,33 @@ network type such as recurrent NNs, convolutional NNs or transformer-based archi
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Theory/pc_neural_network.pdf}
-    \caption[Neural network with physics constrained activation function $g_\text{pc}$]
-    {The physics constrained NN turns the input vector $\bm{\xi}$ into the crude output $\bm{\tilde{y}}$ via
-    a feedforward NN, which is the projected by the physics constrained activation function $g_\text{pc}$
+    \caption[Neural network with physics-constrained activation function $g_\text{pc}$]
+    {The physics-constrained NN turns the input vector $\bm{\xi}$ into the crude output $\bm{\tilde{y}}$ via
+    a feedforward NN, which is the projected by the physics-constrained activation function $g_\text{pc}$
     into the feasible output $\bm{y}^*$. It allows to include data points such as boundary conditions as needed in the form of $\bm{z}_0$}
     \label{theory:fig: pc_neural_network}
 \end{figure}
 
+\noindent
 Due to its general applicability, the activation function could be used within a network to correct intermediate values.
-In most use cases howerver, it is applied as a final correction function at the output (fig.~\ref{theory:fig: pc_neural_network}).
-The input $\bm{\xi}$ is propagated through a feedforward NN with the physics constrained activation function behind the last layer (purple).
+In most use cases however, it is applied as a final correction function at the output (fig.~\ref{theory:fig: pc_neural_network}).
+The input $\bm{\xi}$ is propagated through a feedforward NN with the physics-constrained activation function behind the last layer (purple).
 It takes the reference value $\bm{z}_0$ (yellow) without beeing forwarded through the network.
 In recent literature, NNs that utilze such a
 type of activation function can be found as \emph{KKT-hPINN}~\cite{chen2024}, which is short 
 for \emph{Karush-Kuhn-Tucker-hard-physics-informed-neural-network}.
-For later reference, this activation function $g_\text{pc}$ will be referred to as \emph{physics constrained activation} (cor.~\ref{cor: physics constrained solution}) to have
+For later reference, this activation function $g_\text{pc}$ will be referred to as \emph{physics-constrained activation} (cor.~\ref{cor: physics constrained solution}) to have
 a short name in the context of chemical engineering. 
-Furthermore, this procedure could be extended
+To clarify the terminology, the naming physics \emph{constrained} is used, because an an actual hard constraint is applied.
+Physics-consistent NNs however, may implement arbitrary physical knowledge, whereas PINNs include physical equations into the loss function.
+Thus, physics-constrained NNs and PINNs are both physics-consistent NNs.
+Furthermore, the procedure could be extended
 to support arbitrary non-linear equality constraints by splitting the network output in frozen and unfrozen variables~\cite{lastrucci2025}.
 It enables the integration of enthalpy balances that are of non-linear nature. As this work combines the implementation
-of physics consistent NNs with parametric uncertainty for MPC, the focus remains on linear equality constraints.
+of physics-constrained NNs with parametric uncertainty for MPC, the focus remains on linear equality constraints.
 
 \begin{algorithm}
-	\caption{Forward pass of the physics constrained activation function.}
+	\caption{Forward pass of the physics-constrained activation function.}
 	\label{theory:algo: pc forward pass}
 	\begin{algorithmic}
 		\REQUIRE $\bm{K} = 
@@ -320,7 +327,8 @@ of physics consistent NNs with parametric uncertainty for MPC, the focus remains
 	\end{algorithmic}
 \end{algorithm}
 
-The forward pass through the physics constrained activation involves the setup of a temporary vector $\vh$ (alg.~\ref{theory:algo: pc forward pass})
+\noindent
+The forward pass through the physics-constrained activation involves the setup of a temporary vector $\vh$ (alg.~\ref{theory:algo: pc forward pass})
 and the truncation of the dual variables in the solution. The matrix inversion to yield $\bm{K}$ should be done 
-offline and then saved as untrainable model parameter. In \texttt{pytorch} this is can be done using the
-\texttt{register\_buffer()} method. An implementation example of the physics consistent activation can be found in the appendix (\ref{app:code:forward-pass}).
+offline and then saved as untrainable model parameter. In \texttt{pyTorch} this is can be done using the
+\texttt{register\_buffer()} method. An implementation example of the physics-constrained activation can be found in the appendix (\ref{app:code:forward-pass}).

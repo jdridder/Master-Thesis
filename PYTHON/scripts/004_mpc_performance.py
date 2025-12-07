@@ -49,15 +49,16 @@ def run_mpc_performance(
     plot_dir = os.path.join(current_experiment_working_dir, "plots")
     assert os.path.exists(trained_model_dir), "The folder of the trained models does not exist."
 
+    mpc_cfg = mpc_perf_cfg["mpc_cfg"]
     kinetic_parameters = meta_model.sample_parameters(
         n_batches=mpc_perf_cfg.get("n_experiments", 10),
         covariance_gain=mpc_perf_cfg.get("covariance_gain", 1),
         lam_bed_std=mpc_perf_cfg.get("lam_bed_std", 0.01),
-        seed=42,  # the seed to go 99 second seed 42
+        seed=99,  # the seed to go 99 second seed 42
     )
     tvp_signals = generate_random_ramp_signal(
         feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
-        num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon"),
+        num_steps=(mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon")) * mpc_cfg["control_t_step"],
         tau=mpc_perf_cfg.get("tvp_tau"),
         seed=4,  # the seed to go
         batch_size=1,
@@ -67,7 +68,7 @@ def run_mpc_performance(
     tvp_signals = np.repeat(tvp_signals, axis=0, repeats=mpc_perf_cfg.get("n_experiments"))
 
     # load initialization data
-    init_data = np.load(path_to_init_data)
+    init_data = data_structurizer.load_data(data_dir=path_to_init_data, time_step=mpc_cfg["mpc_t_step"])
     init_data = np.expand_dims(init_data, axis=0)
     init_data = np.repeat(init_data, repeats=mpc_perf_cfg.get("n_experiments"), axis=0)
     sim_initial_states = data_structurizer.get_states_from_data(init_data[:, -1], n_measurements=sim_cfg["simulation"]["N_finite_diff"])
@@ -94,7 +95,7 @@ def run_mpc_performance(
                 mpc_cfg["uncertainty_values"] = mpc_perf_cfg["uncertainty_values"][surrogate_key]
                 mpc_cfg["scenarios"] = mpc_perf_cfg["scenarios"][surrogate_key]
 
-            print(f"---- Running MPC for {surrogate_key}")
+            print(f"---- Running MPC for {surrogate_key} ----")
             run_parallel_mpc_loop(
                 n_workers=mpc_perf_cfg.get("n_workers", 1),
                 t_steps=mpc_perf_cfg.get("t_steps"),
@@ -145,7 +146,7 @@ def run_mpc_performance(
             "nrows": 2,
             "exclude_mole_fracs": True,
             "measurement_indices": [-1],
-            "var_keys": ["_y", "_u", "_√tvp", "_aux"],
+            "var_keys": ["_y", "_u", "_tvp", "_aux"],
             "figsize": (10, 8),
             "ylabels": ["$T$ / K", "$T_\\mathrm{w}$ / K", "$u$ / $\\mathrm{m\\,s^{-1}}$", "$S, X$ / -"],
             "ylims": [
@@ -191,7 +192,7 @@ def run_mpc_performance(
                 {"ax_idx": 6, "ylims": (575, 635)},
                 {"ax_idx": 7, "ylims": (0.18, 0.42)},
                 {"ax_idx": 8, "ylims": (0.4, 1)},
-                {"ax_idx": 9, "ylims": (0, 50)},
+                {"ax_idx": 9, "ylims": (0, 20)},
             ],
             "labels": {"_aux": ["$S$", "$X$"]},
             "legends": [{"ax_idx": 8, "ncols": 3, "loc": "upper center"}, {"ax_idx": 5}],
@@ -216,6 +217,7 @@ def run_mpc_performance(
                 },
             ],
             "ylabels": sim_cfg["plotting"]["ylabels"].values(),
+            "time": {"t_wall_total": np.arange(0, mpc_perf_cfg["t_steps"] * mpc_cfg["control_t_step"], mpc_cfg["control_t_step"])},
         },
     }
 
@@ -223,8 +225,9 @@ def run_mpc_performance(
     one_trajectory_dict = apply_to_double_dict(double_dict=complete_result_dict, fn=pick_rn_traj)
     one_trajectory_dict = apply_to_double_dict(double_dict=one_trajectory_dict, fn=split_spatially)
 
-    # print(one_trajectory_dict)
+    # print(one_trajectory_dict["vanilla"]["t_wall_total"])
 
+    os.makedirs(plot_dir, exist_ok=True)
     light_colors = make_colors(4, alpha=0.25)
     plot_control_comparison(
         surrogate_dict=complete_result_dict,
@@ -232,6 +235,7 @@ def run_mpc_performance(
             "surrogate_order": ["nominal", "vanilla", "naive", "pc"],
             "xlabel": r"$t$ / s",
             "ylabels": [r"$T_\mathrm{w}, T$ / K", r"$X, S$ / -"],
+            # "file_name": "control_comparison_with_lower_q",
             "ylims": [(575, 635), (0.4, 1)],
             "plot": {
                 "col0": [
@@ -278,9 +282,8 @@ def run_mpc_performance(
         save_path=plot_dir,
     )
 
-    exit()
-
     for surrogate_key in one_trajectory_dict.keys():
+        # for surrogate_key in ["vanilla"]:
         plot_cfg = loop_plot_cfgs[surrogate_key] if surrogate_key in loop_plot_cfgs.keys() else loop_plot_cfgs["default"]
         plot_loop_from_dict(
             system_dict=one_trajectory_dict[surrogate_key],
@@ -299,7 +302,7 @@ def run_mpc_performance(
         control_effort = control_effort_arr * np.array([250, 20, 15, 10])
         control_effort = control_effort.sum(axis=-1).mean()
 
-        temp_violated = 0 < temp_arr - sim_cfg["states"]["upper_bounds"]["T"] / sim_cfg["scales"]["T"]
+        temp_violated = 0 < temp_arr - sim_cfg["states"]["upper_bounds"]["T"]
         conv_violated = 0 > conv_arr - sim_cfg["aux"]["lower_bounds"]["X"]
         temp_violated = temp_violated.mean()
         conv_violated = conv_violated.mean()
@@ -312,13 +315,19 @@ def run_mpc_performance(
                 r"$T_\text{vio}$ / -": temp_violated,
                 r"$X_\text{vio}$ / -": conv_violated,
                 r"$C_\text{vio}$ / -": total_vio,
-                r"$J_{\Delta T_\text{w}}$ / -": control_effort,
+                r"$J_{\Delta T_\text{w}}$ / K$^2$": control_effort,
                 r"$\Delta t_\text{ipopt}$ / s": t_mean,
             }
 
     kpi_df = pd.DataFrame(kpi_dict).T
 
-    print(kpi_df.to_latex(column_format="c" * (len(kpi_df.columns) + 1), float_format=lambda x: "${:.3g}$".format(x)))
+    def format_sig(x):
+        s = "{:#.3g}".format(x)
+        if s.endswith("."):
+            s = s[:-1]
+        return f"${s}$"
+
+    print(kpi_df.to_latex(column_format="c" * (len(kpi_df.columns) + 1), float_format=format_sig))
 
 
 if __name__ == "__main__":

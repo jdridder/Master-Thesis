@@ -400,9 +400,14 @@ def plot_loop_from_dict(
             var_arr = system_dict[var_key][measurement_indices] if var_key == "_y" else system_dict[var_key]
             axes_stop = axes_start + var_arr.shape[0]
 
+            if "time" in plot_cfg.keys():
+                time_for_var = plot_cfg["time"].get(var_key, np.arange(0, var_arr.shape[1], 1))
+            else:
+                time_for_var = np.arange(0, var_arr.shape[1], 1)
+
             for axes_index, data_row in zip(range(axes_start, axes_stop), var_arr):
                 axes[axes_index].set_prop_cycle(cycler)
-                axes[axes_index].plot(data_row, label=label_dict.get(var_key))
+                axes[axes_index].plot(time_for_var, data_row, label=label_dict.get(var_key))
 
             axes_start = axes_stop
 
@@ -457,7 +462,8 @@ def plot_control_comparison(surrogate_dict: Dict[str, Dict[str, np.ndarray]], pl
                 ax[i].set_ylim(plot_cfg["ylims"][i])
             ax[i].set_ylabel(ylabels[i])
             for plot_dict in list_to_plot:
-                var_arr = var_dict[plot_dict["var_key"]][..., plot_dict.get("feature_slice", slice(None, None))]
+                var_key = plot_dict["var_key"]
+                var_arr = var_dict[var_key][..., plot_dict.get("feature_slice", slice(None, None))]
                 var_arr = np.swapaxes(var_arr, 0, -1)
                 for j, feature_arr in enumerate(var_arr):
                     ax[i].plot(feature_arr, color=plot_dict.get("colors")[j], label=plot_dict.get("labels")[j])
@@ -473,7 +479,8 @@ def plot_control_comparison(surrogate_dict: Dict[str, Dict[str, np.ndarray]], pl
     plt.tight_layout()
 
     if save_path is not None:
-        final_path = os.path.join(save_path, "control_comparison.pdf")
+        file_name = f"{plot_cfg.get("file_name", "control_comparison")}.pdf"
+        final_path = os.path.join(save_path, file_name)
         plt.savefig(final_path)
 
     if plot_cfg.get("show_fig", False):

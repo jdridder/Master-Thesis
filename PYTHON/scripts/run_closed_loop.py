@@ -41,7 +41,7 @@ mpc_perf_cfg = {
         "control_t_step": 2,  # multiple of the fp systems time step when a new input is applied
         # "uncertainty_values": {"alpha": [1]},
         "uncertainty_values": {"alpha": [[1, 0], [0, 1]]},
-        "scenario_weights": np.array([0.9, 0.1]),
+        "scenario_weights": [0.9, 0.1],
         "scenarios": ["nominal", "upper"],
         # "scenarios": ["nominal"],
         "lam_Tmax": 1e3,

@@ -395,8 +395,22 @@ The heat transfer to the reactor wall is determined as the greatest time constan
 approximately \SI{20}{\second} (eq.~\ref{case:eq: time constant}).
 \begin{equation}
     \label{case:eq: time constant}
-    \tau = \frac{\rho c_\text{p} d_\text{t}}{4 \alpha} \approx \SI{20}{\second}
+    \tau_\text{h} = \frac{\rho c_\text{p} d_\text{t}}{4 \alpha} \approx \SI{20}{\second}
 \end{equation}
+\newline
+\noindent
+It is important to note that the maximum hydrodynamic residence time for the flow speed is greater than the time
+scale of the wall heat transfer (eq.~\ref{case:eq:residence-time}).
+\begin{equation}
+    \label{case:eq:residence-time}
+    \tau_u = \frac{L}{u} = \frac{\SI{10}{\meter}}{\SI{0.18}{\meter \; \second^{-1}}}
+    = \SI{55.56}{\second}
+\end{equation}
+But the change induced by the flow speed is instantly applied to the system due to 
+mass continuity. In this case of incompressibility, this translates even to continuity
+in volume. Thus, the wall heat transfer acts as the slowest process
+that, governs the dynamic behavior of the system. 
+\newline
 
 \begin{figure}
     \centering

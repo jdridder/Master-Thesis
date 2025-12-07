@@ -311,25 +311,27 @@ uq_test_cfg = {
 }
 
 mpc_perf_cfg = {
-    "n_experiments": 8,
-    "n_workers": 8,
+    "n_experiments": 4,
+    "n_workers": 4,
     "covariance_gain": 3,
     "lam_bed_std": 0.08,
     "tvp_tau": 20,
-    "surrogate_types": ["vanilla", "naive", "pc", "nominal"],
+    "surrogate_types": ["pc"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc", "nominal": "vanilla"},
-    "uncertainty_values": {"nominal": {"alpha": [[1, 0]]}},
+    "uncertainty_values": {"nominal": {"alpha": [1]}},
     "scenarios": {"nominal": ["nominal"]},
-    "t_steps": 400,
+    "t_steps": 200,
     "mpc_cfg": {
         "input_bounds": {"lower": 580, "upper": 625},
-        "n_horizon": 25,
+        "n_horizon": 13,
+        "n_robust": 1,
         "mpc_t_step": 2,  # multiple of the fp systems time step
         "control_t_step": 2,  # multiple of the fp systems time step when a new input is applied
-        "n_robust": 1,
+        # "uncertainty_values": {"alpha": [1]},
         "uncertainty_values": {"alpha": [[1, 0], [0, 1]]},
+        "scenario_weights": [0.9, 0.1],
+        # "scenario_weights": [1],
         "scenarios": ["nominal", "upper"],
-        "t_step": 1,
         "lam_Tmax": 1e3,
         "ub_T": 630 / 625,
         "lam_dudt": {"T_c0": 250, "T_c1": 20, "T_c2": 15, "T_c3": 10},

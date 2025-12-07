@@ -106,7 +106,7 @@ def set_labels(axes: List, latex_notation_map: Dict[str, str], sim_cfg: Dict) ->
 
 def make_colors(n_colors: int, alpha: float = 1, cmap: str = "viridis") -> List:
     cmap = cm.get_cmap(cmap)
-    return cmap(np.linspace(0, 1, n_colors), alpha=alpha)
+    return cmap(np.linspace(0, 0.93, n_colors), alpha=alpha)
 
 
 def make_color_cycler(n_colors: int) -> cycler:
@@ -173,7 +173,7 @@ def make_axes_for_all_vars(
     # Colorbar on the top
     if cbar:
         cbar_ax = fig.add_subplot(gs[0, :])
-        norm = matplotlib.colors.Normalize(0.25, 1)
+        norm = matplotlib.colors.Normalize(0.25, 1.05)
         mappable = cm.ScalarMappable(norm=norm, cmap=cm.get_cmap(cmap_key))
         cbar = fig.colorbar(mappable, cax=cbar_ax, orientation="horizontal")
         cbar.ax.set_ylabel(r"$\frac{z}{L}$ / -", rotation=90)
