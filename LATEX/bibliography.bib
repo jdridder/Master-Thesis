@@ -74,12 +74,6 @@
   abstract = {We show that standard multilayer feedforward networks with as few as a single hidden layer and arbitrary bounded and nonconstant activation function are universal approximators with respect to Lp(μ) performance criteria, for arbitrary finite input environment measures μ, provided only that sufficiently many hidden units are available. If the activation function is continuous, bounded and nonconstant, then continuous mappings can be learned uniformly over compact input sets. We also give very general conditions ensuring that networks with sufficiently smooth activation functions are capable of arbitrarily accurate approximation to a function and its derivatives.}
 }
 
-@misc{empty000,
-  title  = {Placeholder citation},
-  author = {JD},
-  year   = {0000}
-}
-
 
 % Physics constrained Neural networks
 @article{chen2024,
@@ -422,6 +416,37 @@
   relevance = {hoch}
 }
 
+@misc{stark2025,
+      title={Benchmarking Different QP Formulations and Solvers for Dynamic Quadrupedal Walking}, 
+      author={Franek Stark and Jakob Middelberg and Dennis Mronga and Shubham Vyas and Frank Kirchner},
+      year={2025},
+      eprint={2502.01329},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2502.01329}, 
+}
+
+% MA57
+@manual{duff2023,
+  title        = {{MA57}: A Fortran Package for Solving Sparse Symmetric Systems of Linear Equations},
+  author       = {I. S. Duff},
+  organization = {Rutherford Appleton Laboratory},
+  year         = {2023},
+  month        = {November},
+  note         = {Version 3.11.3. Original date: September 2000. See also Duff and Reid, ACM Trans. Math. Software 9 (1983), 302--325; Duff, ACM Trans. Math. Software 30 (2004), 118--144; Duff and Pralet, SIAM J. Matrix Anal. Appl. 27 (2005), 313--340. Technical report: RAL-TR-2005-007. Website: \url{http://www.numerical.rl.ac.uk/reports/reports.html}},
+  type         = {Fortran software package},
+  keywords     = {Sparse linear systems, symmetric matrices, multifrontal method, MA57, direct solver}
+}
+
+% SUNDIALS
+@article{gardner2022sundials,
+  title     = {Enabling new flexibility in the {SUNDIALS} suite of nonlinear and differential/algebraic equation solvers},
+  author    = {Gardner, David J and Reynolds, Daniel R and Woodward, Carol S and Balos, Cody J},
+  journal   = {ACM Transactions on Mathematical Software (TOMS)},
+  publisher = {ACM},
+  year      = {2022},
+  doi       = {10.1145/3539801}
+}
 
 % Incremental PCA
 @misc{incrementalpca2025,
@@ -513,6 +538,24 @@
   keywords = {Model-based reactor optimization, Wall-cooled tubular reactor, Dynamic operation, Catalyst dilution profile, Feed distribution, Carbon dioxide methanation},
   abstract = {The dynamic and load flexible operation of fixed bed reactors has recently gained considerable interest for processes where large fluctuations of the feed flow rate are expected. Load flexibility poses new challenges regarding the reactor design and operation in comparison to the conventional steady state operating mode. These challenges can be managed by a more conservative reactor design, but it creates a performance gap between conventional and load flexible reactors. The intensification of load flexible wall-cooled fixed bed reactors is approached using the methanation of carbon dioxide as case study. An optimization problem is formulated which bases on the simultaneous optimization of the reactor design and several steady state operating points within a desired load range. The identified staged reactor setup with a catalyst dilution profile tolerates large variations of the flow rate up to 80\% and shows a significant improvement of the load flexible reactor performance. A considerable potential of a split and bypass of the feed stream to other stages is identified, which enables an adaption of the axial flow field according to the current load level. The feasibility of the identified setup for the dynamic operation is successfully verified by dynamic simulation of different operating scenarios.}
 }
+
+@Article{dittmer2022,
+  AUTHOR = {Dittmer, Celina and Ohnmacht, Benjamin and Krümpel, Johannes and Lemmer, Andreas},
+  TITLE = {{Model Predictive Control}: Demand-Orientated, Load-Flexible, Full-Scale {Biogas} Production},
+  JOURNAL = {Microorganisms},
+  VOLUME = {10},
+  YEAR = {2022},
+  NUMBER = {4},
+  ARTICLE-NUMBER = {804},
+  URL = {https://www.mdpi.com/2076-2607/10/4/804},
+  PubMedID = {35456854},
+  ISSN = {2076-2607},
+  ABSTRACT = {Biogas plants have the great advantage that they produce electricity according to demand and can thus compensate for fluctuating production from weather-dependent sources such as wind power and photovoltaics. A prerequisite for flexible biogas plant operation is a suitable feeding strategy for an adjusted conversion of biomass into biogas. This research work is the first to demonstrate a practical, integrated model predictive control (MPC) for load-flexible, demand-orientated biogas production and the results show promising options for practical application on almost all full-scale biogas plants with no or only minor adjustments to the standardly existing measurement technology. Over an experimental period of 36 days, the biogas production of a full-scale plant was adjusted to the predicted electricity demand of a “real-world laboratory”. Results with a mean absolute percentage error (MAPE) of less than 20\% when comparing biogas demand and production were consistently obtained.},
+  DOI = {10.3390/microorganisms10040804}
+}
+
+
+
 
 
 % Heat capacity and enthalpy of formulation correlations

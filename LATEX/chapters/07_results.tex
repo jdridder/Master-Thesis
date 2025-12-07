@@ -472,9 +472,12 @@ deterioration.
 \label{MPC-Performance-and-Robustness}
 
 As the last part of this work, the control performance of an MPC, that relies on the mentioned
-NARX frameworks is to be analyzed. On one hand, an apropriate MPC controller is to be postulated and tuned.
+NARX frameworks vanilla, naive and pc is to be analyzed.
+On one hand, an apropriate MPC controller is to be postulated and tuned.
 On the other hand, a series of closed-loop simulations is to be completed to calculate the
 performance indicators selectivity, constraint violation and runtime.
+To investigate the effect of the uncertainty quantification, the MPC is run including a
+nominal NARX architecture with expected value models only.
 
 \subsection{Optimization Formulation}
 Following optimization formulation is proposed (eq.~\ref{results:eq:MPC-formulation-TR}).
@@ -564,10 +567,11 @@ between selectivity, conversion, maximum temperature violation, input oscillatio
 While other black-box approaches such as plain grid search or Bayesian optimization exist,
 the manual procedure allows for a better understanding of the MPC-system relationship.
 
-\subsection{Control Loop}
+\subsection{MPC – vanilla NARX}
 To control the system, one time-varying signal is sampled for the input flow speed as well as 
 a constant combination for the first principle model parameters. 
-Using an MPC algorithm based on the vanilla NARX architecture a control loop is executed over $400$ time 
+Using an MPC algorithm based on the vanilla NARX architecture with uncertainty quantification via CQR
+a control loop is executed over $400$ time 
 steps of a length of \SI{1}{\second}.
 With a duration of \SI{20}{} times the system's greatest time constant, this horizon length is considered 
 representative for a real application.
@@ -578,8 +582,11 @@ selectivity and conversion are plotted (fig.~\ref{results:fig:MPC-loop-vanilla})
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_vanilla.pdf}
-    \caption[MPC closed-loop with vanilla NARX framework.]
-    {}
+    \caption[Control loop - vanilla NARX framework.]
+    {Control loop with the vanilla NARX framework. (a-e) dimensionless concentration measures for
+    all components. (f) reactor temperatures. (g) wall cooling temperatures. (h) inlet flow speed.
+    (i) selectivity and conversion. (j) optimization duration per step. Axial coordinate as color gradient
+    from purple to yellow.}
     \label{results:fig:MPC-loop-vanilla}
 \end{figure}
 
@@ -631,13 +638,16 @@ punishment factors for jittering of $r_{33} = 15$ and $r_{44} = 10$.
 Second, the reactor is confronted with transient behavior due to the reduced flow rate
 under reduced cooling. This is the case, because the prior high flow rate needed lesser cooling
 to meet the minimum conversion constraint.
-These oscillations are undesired. Because the lack of 
-axial dispersion does not allow for a natural damping in the system, the controller
+These oscillations, that follow an overshoot, are undesired (fig.~\ref{results:fig:MPC-loop-vanilla}~g~(green))
+and indicate how badly the convection dominated system damps disturbances.
+Because the lack of axial dispersion does not allow for natural damping, the controller
 must be able to reliably predict the system dynamics to avoid oscillation.
-Here, numerical dispersion due to spatial discretization is not considered
-to significantly add to damping (source).
-Besides a high prediction accuracy, a long-enough predicition horizon and a greater penalty
-could reduce input jittering. Further, it is interesting, whether a physics-constrained NARX
+Here, numerical diffusion due to spatial discretization is not considered
+to significantly add to damping, as it only acts on the level of the truncation error of $\mathcal{O}(\Delta z)$.
+In case of the PFTR, numerical diffusion contributes to axial dispersion eventhough 
+dispersion and diffusion are seperate phenomena in a physical sense.
+Besides a high prediction accuracy, a long-enough predicition horizon and a greater regularization term
+could reduce chattering in the input. Further, it is interesting, whether a physics-constrained NARX
 framework is able to yield an improvement or not.
 \newline
 \newline
@@ -667,44 +677,130 @@ simultaneously.
 \noindent
 Lastly, the runtimes of each recursive optimization in \texttt{ipopt} \cite{Waechter2006} is presented
 (fig.~\ref{results:fig:MPC-loop-vanilla}~j).,
-These vary between \SI{10}{} and \SI{30}{\second} after the inital optimization run, which takes
-\SI{160}{\second}.
+These mainly vary between \SI{5}{} and \SI{30}{\second} after the inital optimization run, which takes
+\SI{172}{\second}. It is ususal in recursive optimization for the initial step to take more 
+time, because the initial guess of the decision variables is not close to the optimal solution
+even if it set accordingly in \texttt{do-mpc}. The solution time shows a slight correlation
+with the temperature in the first cooling section (fig.~\ref{results:fig:MPC-loop-vanilla}~g~(purple)).
+Everytime the MPC suggests a higher value than its lower bound of \SI{580}{\kelvin}, the
+solution duration climbs to approximately \SI{25}{\second}. This happens at the time instances of
+\SI{75}{}, \SI{250}{} and \SI{320}{\second} and is likely a result of a more complex
+optimization landscape. Here, the system is endangered to hit the minimum conversion constraint
+due to a higher input flow. Thus, the penalty of the slack variable $\lambda_2$ induces
+a gradient, that pushes the interior point away from the strict inequality constraint of the 
+input variable. With regard to real applicability, the control frequency of \SI{1}{\second^{-1}}
+becomes an obstacle for the current \texttt{ipopt} solution time. 
+To realize feasibility, the time step length of the predicition horizon may be doubled to \SI{2}{\second}
+which would effectively reduce the amount of optimization variables to one half.
+At best, the computational effort for quadratic problems (QP) with a sparse matrix structure such as 
+this MPC formulation escalate linearly with the predicition horizon $\mathcal{O}(N)$ \cite{stark2025}.
+Therefore, the solution time would shrink at least by \SI{50}{\%}.
+Further, the data pipeline and the training of the NARX models must be adjusted accordingly
+to account for a \SI{2}{\second} time step. To keep the MPC comparable
+to the simulation capability and uncertainty quantification of the NARX models
+discussed earlier, the controller remains at a time step of \SI{1}{\second} with a horizon
+of $25$.
 
 
-\begin{figure}
+\subsection{MPC – nominal NARX}
+
+The nominal NARX architecture employs expected value NNs only and does not account for
+uncertainty quantification. An MPC is run with this specific surrogate ensemble with the
+exact same parameter combination and inlet flow speed trajectory as the vanilla one (fig.~\ref{results:fig:MPC-loop-nominal}).
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_nominal.pdf}
-    \caption[MPC closed-loop with nominal NARX only.]
-    {}
+    \caption[Control loop - NARX without uncertainty quantification.]
+    {Control loop with the nominal NARX framework without uncertainty quantification.
+    (a) reactor temperatures. (b) input wall temperatures. (c) fluctuating inlet flow speed.
+    (d) selectivity and conversion. The color gradient indicates the axial position.}
     \label{results:fig:MPC-loop-nominal}
 \end{figure}
+Similarly, it forecasts violations of the minimum conversion constraint and increases the first wall temperature
+at \SI{60}{}, \SI{160}{}, \SI{240}{} and \SI{320}{\second} (fig.~\ref{results:fig:MPC-loop-nominal}~b).
+This increase occurs much more drastically
+up to \SI{605}{\kelvin} than in the vanilla UQ case with a maximum of \SI{598}{\kelvin}.
+Consequently, the inputs suffer a lot more from overshoots and oscillation in all cooling compartments.
+\newline
+\newline
+\noindent
+Due to the uncaptured plant-model mismatch, the nominal MPC repeatedly exceeds the critical maximum 
+reactor temperature of \SI{630}{\kelvin} (fig.~\ref{results:fig:MPC-loop-nominal} a).
+The MPC is trapped in a bounce-back between minimum conversion, maximimum temperature and confronted
+with an undamped system which causes the increase in oscillation.
+The fact, that the third (green) and fourth (yellow) reactor temperatures fluctuate right at the maximimum
+temperature constraint, underlines how poorly the surrogates describe the parametric uncertainty.
+In contrast, the vanilla UQ framework can maneuver the reactor very closely at the maximum temperature
+(fig.~\ref{results:fig:MPC-loop-vanilla} f) in robust manner. While overshoots and oscillations appear,
+they become reduced a lot compared to the nominal MPC. This comes at the cost of a slightly lower
+conversion (fig.~\ref{results:fig:MPC-loop-vanilla} i) which is preferred over the risk of
+thermal safety.
+
+
+
+
+\subsection{MPC – naive NARX}
+
+With the naively physics-constrained NARX framework, the MPC reveives predicitions that align 
+with the conservation of elements. Most strikingly, its inputs for the wall temperature
+exhibit significant lower jittering (fig.~\ref{results:fig:MPC-loop-naive} b). 
 
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_naive.pdf}
-    \caption[MPC closed-loop with nominal NARX only.]
-    {}
+    \caption[Control loop - naive NARX framework.]
+    {
+        MPC loop based on the naively physics-constrained NARX framework for UQ.
+        (a) reactor temperatures. (b) input wall temperatures. (c) fluctuating inlet flow speed.
+        (d) selectivity and conversion. The color gradient indicates the axial position.
+    }
     \label{results:fig:MPC-loop-naive}
 \end{figure}
+
+\noindent
+The vanilla architecture and especially the nominal one struggle with oscillations in the 
+last two wall temperatures (green and yellow). 
+This is because, they operate more closely to the maximum temperature than the naive version
+(fig.~\ref{results:fig:MPC-loop-naive} a). This makes rapid adjustments of the inputs necessary
+to avoid constraint violation. The MPC based on the naive NARX framework is able to keep a greater
+distance to the maximum constraint. Since lower temperatures favor a higher selectivity
+and make a temperature runaway less probable, this behavior is welcomed.
+This is to the expense of unsufficiently low conversions for low residence times 
+at \SI{30}{}, \SI{100}{}, \SI{290}{} and \SI{350}{\second} respectively.
+\newline
+\newline
+\noindent
+It is assumed that the physics-consistency
+reduces the error propagation through the predicition horizon and therefore allows
+for more accurate forecasting of the temperature uncertainty.
+Thus, the chattering of inputs decreases.
+
 
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_pc.pdf}
-    \caption[MPC closed-loop with nominal NARX only.]
+    \caption[Control loop - physics-constrained NARX framework.]
     {}
     \label{results:fig:MPC-loop-pc}
 \end{figure}
 
 
-% \begin{table}[!h]
-%     \begin{tabular}{ccccc}
-%         \toprule
-%         & selectivity & $t_\text{wall}$ & temperature violation / \% & conversion violation / \% \\
-%         \midrule
-%         pc & $0.8201$ & $2.3950$ & $0.60$ & $0.4646$ \\
-%         naive & $0.8201$ & $2.2076$ & $0.40$ & $0.4668$ \\
-%         vanilla & $0.8201$ & $2.2289$ & $0.40$ & $0.4668$ \\
-%         \bottomrule
-%     \end{tabular}
-% \end{table}
+\begin{table}[!h]
+    \centering
+    \caption[MPC performance and robustness indicators.]{
+        Mean performance indicators of the four MPCs for $16$ different parameter combinations
+        and \SI{400}{\second} operation time. 
+    }
+    \begin{tabular}{ccccccc}
+    \toprule
+    & $S_\text{EO}$ / - & $T_\text{vio}$ / - & $X_\text{vio}$ / - & $C_\text{vio}$ / - & $J_{\Delta T_\text{w}} / \; \text{K}^2$ & $\Delta t_\text{ipopt}$ / s \\
+    \midrule
+    pc & $0.819$ & $0.0631$ & $0.435$ & $0.0704$ & $365$ & $10.5$ \\
+    nominal & $0.819$ & $0.135$ & $0.253$ & $0.137$ & $837$ & $4.42$ \\
+    naive & $0.819$ & $0.0625$ & $0.448$ & $0.0701$ & $334$ & $15$ \\
+    vanilla & $0.819$ & $0.0588$ & $0.454$ & $0.0666$ & $334$ & $15.7$ \\
+    \bottomrule
+    \end{tabular}
+    \label{results:tab:MPC-KPIs}
+\end{table}
 

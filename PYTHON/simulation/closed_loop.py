@@ -127,7 +127,7 @@ def control(
             mpc = configure_mpc(mpc=mpc, mpc_cfg=mpc_cfg, surpress_ipopt=True if process_name != "Proc 0" else mpc_cfg.get("surpress_ipopt_output", False))
             if mpc_model.n_tvp > 0:
                 tvp_template = mpc.get_tvp_template()
-                tvp_fun = make_mpc_tvp_fun(simulation_time_step=simulation_cfg["simulation"]["t_step"], tvp_template=tvp_template, tvp_traj=tvp_signal)
+                tvp_fun = make_mpc_tvp_fun(tvp_template=tvp_template, tvp_traj=tvp_signal, mpc_pred_time_step=mpc_cfg["mpc_t_step"])
                 mpc.set_tvp_fun(tvp_fun)
             if mpc_model.n_p > 0:
                 uncertainty_vals = mpc_cfg.get("uncertainty_values")
@@ -145,15 +145,20 @@ def control(
         mpc.x0 = mpc_x0
         mpc.set_initial_guess()
 
+        control_time_step = mpc_cfg["control_t_step"]
         wall_times = np.zeros(n_time_steps)
         try:
             loop_iter = tqdm(range(n_time_steps), desc="Running control loop") if process_name == "Proc 0" else range(n_time_steps)
-            for t in loop_iter:
+            for t_i in loop_iter:
+                t_i_fp = t_i * control_time_step
                 start = perf_counter()
                 u_t = mpc.make_step(mpc_x0)
-                wall_times[t] = perf_counter() - start
-                y_next = simulator.make_step(u_t)
-                tvp_t = tvp_signal[t].reshape((-1, 1))
+                wall_times[t_i] = perf_counter() - start
+
+                for _ in range(control_time_step):
+                    y_next = simulator.make_step(u_t)
+
+                tvp_t = tvp_signal[t_i_fp].reshape((-1, 1))
                 mpc_x0 = data_structurizer.update_dompc_vector(mpc_x0, u_t, tvp_t, y_next)
 
         except Exception as e:
@@ -211,6 +216,7 @@ def configure_mpc(mpc: MPC, mpc_cfg: Dict, surpress_ipopt: Optional[bool] = Fals
         mpc.set_nl_cons(f"input temp {pos}", mpc.model.u[input_key] / mpc_cfg.get("input_scale") - mpc.model.x["T"], ub=0, soft_constraint=True, penalty_term_cons=mpc_cfg["lam_T_Tcool"])
 
     mpc.set_rterm(**mpc_cfg.get("lam_dudt"))
+    mpc.set_scenario_weights(mpc_cfg["scenario_weights"])
 
     for input_key in mpc.model.u.keys():
         mpc.scaling["_u", input_key] = mpc_cfg.get("input_scale")
@@ -224,7 +230,7 @@ def configure_mpc(mpc: MPC, mpc_cfg: Dict, surpress_ipopt: Optional[bool] = Fals
 
     mpc._settings.n_horizon = mpc_cfg["n_horizon"]
     mpc._settings.n_robust = mpc_cfg["n_robust"]
-    mpc._settings.t_step = mpc_cfg["t_step"]
+    mpc._settings.t_step = mpc_cfg["mpc_t_step"]
     mpc._settings.store_full_solution = mpc_cfg["store_full_solution"]
 
     mpc._settings.nlpsol_opts = solver_opts

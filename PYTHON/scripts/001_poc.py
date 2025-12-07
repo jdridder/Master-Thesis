@@ -78,9 +78,10 @@ def run_proof_of_concept(
     # # simulate open loop with uncertainty models
     result_directory = os.path.join(current_experiment_working_dir, "results")
     os.makedirs(result_directory, exist_ok=True)
+    prediction_step = sim_cfg["narx"]["pred_time_step"]
     test_data_dir = os.path.join(experiment_dir, "..", "data", "test")
-    test_data = data_structurizer.load_data(data_dir=test_data_dir, num_trajectories=n_test_trajectories)
-    init_data = data_structurizer.reduce_measurements(test_data).mean(axis=0, keepdims=True)
+    test_data = data_structurizer.load_data(data_dir=test_data_dir, pred_step=sim_cfg["simulation"]["t_step"], num_trajectories=n_test_trajectories)
+    init_data = data_structurizer.reduce_measurements(test_data[:, ::prediction_step]).mean(axis=0, keepdims=True)
 
     for test_cfg in test_cfg_list:
         # run simulation batches
@@ -127,7 +128,8 @@ def run_proof_of_concept(
     # load upper and lower bound
     # target dictionary: {"narx": {"nominal": np.ndarray, "upper": np.ndarray, "lower": np.ndarray}}
     test_data = data_structurizer.reduce_measurements(test_data)
-    t_step = sim_cfg["simulation"].get("t_step")
+    fp_step = sim_cfg["simulation"].get("t_step")
+
     warm_up_steps = test_cfg_list[0].get("warm_up_steps")
     result_dict = {}
     # ----- Load result data -----
@@ -151,7 +153,8 @@ def run_proof_of_concept(
             result_for_surrogate = {surrogate_key: result_dict[surrogate_key]}
             filtered_for_state_and_position = data_structurizer.filter_dict_data_for_state_and_position(result_for_surrogate, positions=positions, state_indices=state_idx, n_positions=4)
             plot_test_data_with_simulation(
-                time_step=t_step,
+                fp_step=fp_step,
+                prediction_step=prediction_step,
                 warm_up=warm_up_steps,
                 test_data=data_structurizer.filter_arr_for_state_and_position(data_structurizer.get_states_from_data(test_data), positions, state_idx, n_positions=4),
                 surrogate_dict=filtered_for_state_and_position,
@@ -170,7 +173,8 @@ def run_proof_of_concept(
     # --- Input Trajectory
     plot_test_data_with_simulation(
         test_data=data_structurizer.get_inputs_from_data(test_data),
-        time_step=t_step,
+        fp_step=fp_step,
+        prediction_step=prediction_step,
         warm_up=warm_up_steps,
         save_path=plot_dir,
         plot_cfg={
@@ -185,7 +189,7 @@ def run_proof_of_concept(
 
     # --------------- Plot Recursive Physics consistency as ||b||_2 = f(t) for all surrogates ---------------
     physics_violations = apply_to_double_dict(double_dict=result_dict, fn=calculate_state_physics_vio, meta_model=meta_model, sim_cfg=sim_cfg, norm_measurements=True)
-    time = np.arange(0, test_cfg_list[0].get("t_steps"))
+    time = np.arange(0, test_cfg_list[0].get("t_steps")) * prediction_step
     for surrogate_key in physics_violations.keys():
         plot_pc_violation_vs_time(
             time=time,

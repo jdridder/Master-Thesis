@@ -41,7 +41,7 @@ def run_mpc_performance(
     of the NARX frame works vanilla, naive and pc for 100 independent parameter combinations."""
 
     # make directory
-    exp_name = "003_mpc_performance"
+    exp_name = "004_mpc_performance"
     experiment_dir = os.path.join(experiments_directory, exp_name)
     current_experiment_working_dir = os.path.join(experiment_dir, get_directory_for_today(experiment_dir))
     os.makedirs(current_experiment_working_dir, exist_ok=True)
@@ -53,7 +53,7 @@ def run_mpc_performance(
         n_batches=mpc_perf_cfg.get("n_experiments", 10),
         covariance_gain=mpc_perf_cfg.get("covariance_gain", 1),
         lam_bed_std=mpc_perf_cfg.get("lam_bed_std", 0.01),
-        seed=99,  # the seed to go
+        seed=42,  # the seed to go 99 second seed 42
     )
     tvp_signals = generate_random_ramp_signal(
         feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
@@ -83,52 +83,58 @@ def run_mpc_performance(
             f.write(json.dumps(mpc_perf_cfg, indent=4))
 
     # loop over surrogate types
-    # for surrogate_key in mpc_perf_cfg.get("surrogate_types"):
-    #     state_dict_path = os.path.join(trained_model_dir, mpc_perf_cfg["state_dict_folder"][surrogate_key])
-    #     final_results_dir = os.path.join(results_dir, surrogate_key)
-    #     if not os.path.exists(final_results_dir):
-    #         os.makedirs(final_results_dir, exist_ok=True)
-    #         mpc_cfg = mpc_perf_cfg.get("mpc_cfg").copy()
-    #         if surrogate_key in mpc_perf_cfg["uncertainty_values"].keys():
-    #             mpc_cfg["uncertainty_values"] = mpc_perf_cfg["uncertainty_values"][surrogate_key]
-    #             mpc_cfg["scenarios"] = mpc_perf_cfg["scenarios"][surrogate_key]
+    for surrogate_key in mpc_perf_cfg.get("surrogate_types"):
 
-    #         run_parallel_mpc_loop(
-    #             n_workers=mpc_perf_cfg.get("n_workers", 1),
-    #             t_steps=mpc_perf_cfg.get("t_steps"),
-    #             data_structurizer=data_structurizer,
-    #             meta_model=meta_model,
-    #             mpc_initial_states=narx_initial_states,
-    #             simulator_initial_states=sim_initial_states,
-    #             state_dict_dir=state_dict_path,
-    #             narx_type=surrogate_key,
-    #             scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
-    #             physical_params=kinetic_parameters,
-    #             tvp_signals=tvp_signals,
-    #             sim_cfg=sim_cfg,
-    #             mpc_cfg=mpc_cfg,
-    #             run_cfg={
-    #                 "save_dir": final_results_dir,
-    #                 "save_as": "json",
-    #                 "result_name": "narx_mpc",
-    #                 "save_variable_types": ["_y", "_u", "_tvp", "_aux", "t_wall_total"],
-    #             },
-    #         )
+        state_dict_path = os.path.join(trained_model_dir, mpc_perf_cfg["state_dict_folder"][surrogate_key])
+        final_results_dir = os.path.join(results_dir, surrogate_key)
+        if not os.path.exists(final_results_dir):
+            os.makedirs(final_results_dir, exist_ok=True)
+            mpc_cfg = mpc_perf_cfg.get("mpc_cfg").copy()
+            if surrogate_key in mpc_perf_cfg["uncertainty_values"].keys():
+                mpc_cfg["uncertainty_values"] = mpc_perf_cfg["uncertainty_values"][surrogate_key]
+                mpc_cfg["scenarios"] = mpc_perf_cfg["scenarios"][surrogate_key]
+
+            print(f"---- Running MPC for {surrogate_key}")
+            run_parallel_mpc_loop(
+                n_workers=mpc_perf_cfg.get("n_workers", 1),
+                t_steps=mpc_perf_cfg.get("t_steps"),
+                data_structurizer=data_structurizer,
+                meta_model=meta_model,
+                mpc_initial_states=narx_initial_states,
+                simulator_initial_states=sim_initial_states,
+                state_dict_dir=state_dict_path,
+                narx_type=surrogate_key,
+                scenarios=mpc_perf_cfg["mpc_cfg"].get("scenarios"),
+                physical_params=kinetic_parameters,
+                tvp_signals=tvp_signals,
+                sim_cfg=sim_cfg,
+                mpc_cfg=mpc_cfg,
+                run_cfg={
+                    "save_dir": final_results_dir,
+                    "save_as": "json",
+                    "result_name": "narx_mpc",
+                    "save_variable_types": ["_y", "_u", "_tvp", "_aux", "t_wall_total"],
+                },
+            )
 
     # load json results
-    complete_result_dict = load_json_results_for_all(results_dir)
+    complete_result_dict = load_json_results_for_all(results_dir, n_trajectories=-1)
 
     # plot all state input and tvp trajectories
 
     def pick_rn_traj(arr: np.ndarray):
         # index = int(np.random.rand() * arr.shape[0])
-        index = 0
+        index = 2  # index = 2
         return arr[index][:400]
 
-    def split_spatially_revert_scale(arr: np.ndarray, n_meas: int = 4):
+    def revert_temp_scale(arr: np.ndarray):
+        if arr.shape[-1] == 24:
+            arr[..., 20:] = arr[..., 20:] * mpc_perf_cfg["mpc_cfg"]["input_scale"]
+        return arr
+
+    def split_spatially(arr: np.ndarray, n_meas: int = 4):
         if arr.shape[-1] == 24:
             arr = arr.reshape((arr.shape[0], -1, n_meas))
-            arr[:, -1, :] = arr[:, -1, :] * mpc_perf_cfg["mpc_cfg"]["input_scale"]
             return arr.swapaxes(0, 1)
         if arr.shape[-1] == 3:
             arr = arr[..., 1:]
@@ -139,9 +145,9 @@ def run_mpc_performance(
             "nrows": 2,
             "exclude_mole_fracs": True,
             "measurement_indices": [-1],
-            "var_keys": ["_y", "_u", "_tvp", "_aux"],
+            "var_keys": ["_y", "_u", "_√tvp", "_aux"],
             "figsize": (10, 8),
-            "ylabels": ["$T'$ / -", "$T_\\mathrm{w}$ / K", "$u$ / $\\mathrm{m\\,s^{-1}}$", "$S, X$ / -"],
+            "ylabels": ["$T$ / K", "$T_\\mathrm{w}$ / K", "$u$ / $\\mathrm{m\\,s^{-1}}$", "$S, X$ / -"],
             "ylims": [
                 {"ax_idx": 0, "ylims": (575, 635)},
                 {"ax_idx": 1, "ylims": (575, 635)},
@@ -185,7 +191,7 @@ def run_mpc_performance(
                 {"ax_idx": 6, "ylims": (575, 635)},
                 {"ax_idx": 7, "ylims": (0.18, 0.42)},
                 {"ax_idx": 8, "ylims": (0.4, 1)},
-                {"ax_idx": 9, "ylims": (0, 220)},
+                {"ax_idx": 9, "ylims": (0, 50)},
             ],
             "labels": {"_aux": ["$S$", "$X$"]},
             "legends": [{"ax_idx": 8, "ncols": 3, "loc": "upper center"}, {"ax_idx": 5}],
@@ -213,8 +219,66 @@ def run_mpc_performance(
         },
     }
 
+    complete_result_dict = apply_to_double_dict(complete_result_dict, fn=revert_temp_scale)
     one_trajectory_dict = apply_to_double_dict(double_dict=complete_result_dict, fn=pick_rn_traj)
-    one_trajectory_dict = apply_to_double_dict(double_dict=one_trajectory_dict, fn=split_spatially_revert_scale)
+    one_trajectory_dict = apply_to_double_dict(double_dict=one_trajectory_dict, fn=split_spatially)
+
+    # print(one_trajectory_dict)
+
+    light_colors = make_colors(4, alpha=0.25)
+    plot_control_comparison(
+        surrogate_dict=complete_result_dict,
+        plot_cfg={
+            "surrogate_order": ["nominal", "vanilla", "naive", "pc"],
+            "xlabel": r"$t$ / s",
+            "ylabels": [r"$T_\mathrm{w}, T$ / K", r"$X, S$ / -"],
+            "ylims": [(575, 635), (0.4, 1)],
+            "plot": {
+                "col0": [
+                    {
+                        "var_key": "_y",
+                        "feature_slice": [-1],
+                        "colors": [light_colors[-1]],
+                        "labels": [r"$T (\frac{z}{L} = 1.0)$"],
+                    },
+                    {
+                        "var_key": "_u",
+                        "feature_slice": [0],
+                        "colors": [light_colors[0]],
+                        "labels": [r"$T_\mathrm{w} (\frac{z}{L} = 0.25)$"],
+                    },
+                ],
+                "col1": [
+                    {
+                        "var_key": "_aux",
+                        "feature_slice": [1, 2],
+                        "colors": light_colors[-3:],
+                        "labels": ["$S$", "$X$"],
+                        "linestyles": ["dotted", "dashed"],
+                    },
+                ],
+            },
+            "legend_y_pos": -0.25,
+            "legend_cols": 2,
+            "hlines": [
+                {
+                    "y": sim_cfg["states"]["upper_bounds"]["T"],
+                    "label": r"$T_\mathrm{max}$",
+                    "color": "black",
+                    "ls": "dashdot",
+                },
+                {
+                    "y": sim_cfg["aux"]["lower_bounds"]["X"],
+                    "label": r"$X_\mathrm{min}$",
+                    "color": "black",
+                    "ls": "dashdot",
+                },
+            ],
+        },
+        save_path=plot_dir,
+    )
+
+    exit()
 
     for surrogate_key in one_trajectory_dict.keys():
         plot_cfg = loop_plot_cfgs[surrogate_key] if surrogate_key in loop_plot_cfgs.keys() else loop_plot_cfgs["default"]
@@ -225,27 +289,36 @@ def run_mpc_performance(
             save_cfg={"show_fig": False, "export_name": f"control_loop_{surrogate_key}"},
         )
 
-    exit()
-
     # calculate mean performance -> mean selectivity
     kpi_dict = {}
     for surrogate_key, surrogate_dict in complete_result_dict.items():
         mean_sel = surrogate_dict["_aux"][..., 1].mean()  # selectivity has index 1
         temp_arr = data_structurizer.get_states_from_data(surrogate_dict["_y"], state="T")
         conv_arr = surrogate_dict["_aux"][..., 2]  # conversion has index 2
+        control_effort_arr = (surrogate_dict["_u"][:, 1:] - surrogate_dict["_u"][:, :-1]) ** 2
+        control_effort = control_effort_arr * np.array([250, 20, 15, 10])
+        control_effort = control_effort.sum(axis=-1).mean()
 
         temp_violated = 0 < temp_arr - sim_cfg["states"]["upper_bounds"]["T"] / sim_cfg["scales"]["T"]
         conv_violated = 0 > conv_arr - sim_cfg["aux"]["lower_bounds"]["X"]
         temp_violated = temp_violated.mean()
         conv_violated = conv_violated.mean()
+        total_vio = (1000 * temp_violated + 20 * conv_violated) / 1020
         t_mean = surrogate_dict["t_wall_total"].mean()
 
         if surrogate_key not in kpi_dict.keys():
-            kpi_dict[surrogate_key] = {"selectivity": mean_sel, "wall_time": t_mean, "temp_vio": temp_violated, "conv_vio": conv_violated}
+            kpi_dict[surrogate_key] = {
+                r"$S_\text{EO}$ / -": mean_sel,
+                r"$T_\text{vio}$ / -": temp_violated,
+                r"$X_\text{vio}$ / -": conv_violated,
+                r"$C_\text{vio}$ / -": total_vio,
+                r"$J_{\Delta T_\text{w}}$ / -": control_effort,
+                r"$\Delta t_\text{ipopt}$ / s": t_mean,
+            }
 
     kpi_df = pd.DataFrame(kpi_dict).T
 
-    print(kpi_df.to_latex(column_format="ccccc", float_format="${:.4f}$".format))
+    print(kpi_df.to_latex(column_format="c" * (len(kpi_df.columns) + 1), float_format=lambda x: "${:.3g}$".format(x)))
 
 
 if __name__ == "__main__":

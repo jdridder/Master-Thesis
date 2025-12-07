@@ -16,7 +16,7 @@ simulation:
 # MPC settings
 mpc:
   n_horizon: 20  # prediction horizon
-  mpc_t_step: 1
+  control_t_step: 1  # calculate MPC at every first time step 
   n_robust: 0
   open_loop: 0
   state_discretization: 'collocation'
@@ -26,6 +26,7 @@ mpc:
   store_full_solution: True
 
 narx:
+  pred_time_step: 2 # time step of the prediction horizon as a multiple of the systems time step
   time_horizon: 6
   n_measurements: 4
   
@@ -60,7 +61,7 @@ plotting:
     "chi_CO2": "$\\chi_\\mathrm{CO2}$ / -",
     "chi_EO": "$\\chi_\\mathrm{EO}$ / -",
     "chi_H2O": "$\\chi_\\mathrm{H2O}$ / -",
-    "T": "$T'$ / -",
+    "T": "$T$ / K",
     "T_c": "$T_\\mathrm{w}$ / K",
     "u": "$u$ / $\\mathrm{m\\,s^{-1}}$",
     "S": "$S, X$ / -",

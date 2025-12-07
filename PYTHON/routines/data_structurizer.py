@@ -428,18 +428,22 @@ class DataStructurizer:
         vector_unscaled = vector * self.rom_parameters["std"] + self.rom_parameters["mean"]
         return vector_unscaled
 
-    def load_data(self, data_dir: str, num_trajectories: int = -1, num_time_steps: int = -1) -> np.ndarray:
+    def load_data(self, data_dir: str, time_step: Optional[int] = 1, num_trajectories: int = -1, num_time_steps: int = -1) -> np.ndarray:
         """Loads the newest data as one concatenated np array."""
-        all_batches = []
-        for i, file in enumerate(os.listdir(data_dir)):
-            if file.endswith(".npy"):
-                path_to_file = os.path.join(data_dir, file)
-                loaded = np.load(path_to_file, allow_pickle=True, mmap_mode="r")
-                all_batches.append(loaded)
-            if num_trajectories != -1 and (i + 1) >= num_trajectories:
-                break
-        all_batches = np.array(all_batches)
-        return all_batches[:num_trajectories, :num_time_steps]
+        if data_dir.endswith(".npy"):
+            loaded = np.load(data_dir, allow_pickle=True, mmap_mode="r")
+            return loaded[:num_time_steps:time_step]  # from start until num_time_steps with time_step size
+        else:
+            all_batches = []
+            for i, file in enumerate(os.listdir(data_dir)):
+                if file.endswith(".npy"):
+                    path_to_file = os.path.join(data_dir, file)
+                    loaded = np.load(path_to_file, allow_pickle=True, mmap_mode="r")
+                    all_batches.append(loaded[:num_time_steps:time_step])  # from start until num_time_steps with time_step size
+                if num_trajectories != -1 and (i + 1) >= num_trajectories:
+                    break
+            all_batches = np.array(all_batches)
+            return all_batches[:num_trajectories]
 
 
 def get_latest_folder(data_dir: str) -> str:

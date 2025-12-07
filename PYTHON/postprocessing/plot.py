@@ -375,65 +375,117 @@ def plot_loop_from_dict(
 ):
     plot_cfg = plot_cfg or {}
     save_cfg = save_cfg or {}
-    var_keys = plot_cfg.get("var_keys") or ["_y", "_u", "_tvp", "_aux", "t_wall_total"]
-    hline_list = plot_cfg.get("hlines", [])
-    ylim_list = plot_cfg.get("ylims", [])
-    ylabel_list = plot_cfg.get("ylabels", [])
-    legend_list = plot_cfg.get("legends", [])
-    label_dict = plot_cfg.get("labels", {})
 
-    measurement_indices = plot_cfg.get("measurement_indices", slice(None, None))
-    # all data rows in the last dimension .shape[-1] will be plotted in one ax object
+    file_name = f"{save_cfg.get("export_name", "system_evolvement")}.pdf"
+    final_path = f"{save_path}/{file_name}"
 
-    fig, axes = make_axes_for_all_vars(n_rows=plot_cfg["nrows"], n_cols=2, figsize=plot_cfg.get("figsize", (10, 12)))
+    if not os.path.exists(final_path):
 
-    axes_start = 0
-    cycler = make_color_cycler(n_colors=4)
-    for var_key in var_keys:
-        assert var_key in system_dict.keys(), f"The varkey {var_key} is not provided by the system dict."
-        var_arr = system_dict[var_key][measurement_indices] if var_key == "_y" else system_dict[var_key]
-        axes_stop = axes_start + var_arr.shape[0]
+        var_keys = plot_cfg.get("var_keys") or ["_y", "_u", "_tvp", "_aux", "t_wall_total"]
+        hline_list = plot_cfg.get("hlines", [])
+        ylim_list = plot_cfg.get("ylims", [])
+        ylabel_list = plot_cfg.get("ylabels", [])
+        legend_list = plot_cfg.get("legends", [])
+        label_dict = plot_cfg.get("labels", {})
 
-        for axes_index, data_row in zip(range(axes_start, axes_stop), var_arr):
-            axes[axes_index].set_prop_cycle(cycler)
-            axes[axes_index].plot(data_row, label=label_dict.get(var_key))
+        measurement_indices = plot_cfg.get("measurement_indices", slice(None, None))
+        # all data rows in the last dimension .shape[-1] will be plotted in one ax object
 
-        axes_start = axes_stop
+        fig, axes = make_axes_for_all_vars(n_rows=plot_cfg["nrows"], n_cols=2, figsize=plot_cfg.get("figsize", (10, 12)))
 
-    for hline_dict in hline_list:
-        axes[hline_dict["ax_idx"]].axhline(**hline_dict["kwargs"])
-    for ylim_dict in ylim_list:
-        axes[ylim_dict["ax_idx"]].set_ylim(*ylim_dict["ylims"])
-    for legend_dict in legend_list:
-        axes[legend_dict["ax_idx"]].legend(ncols=legend_dict.get("ncols", 1), loc=legend_dict.get("loc"))
-    for ylabel, ax in zip(ylabel_list, axes):
-        ax.set_ylabel(ylabel=ylabel)
-        ax.set_yticks(np.linspace(*ax.get_ylim(), 3))
-        ax.tick_params(axis="y", which="both", left=True, right=True, labelleft=True, labelright=False)
+        axes_start = 0
+        cycler = make_color_cycler(n_colors=4)
+        for var_key in var_keys:
+            assert var_key in system_dict.keys(), f"The varkey {var_key} is not provided by the system dict."
+            var_arr = system_dict[var_key][measurement_indices] if var_key == "_y" else system_dict[var_key]
+            axes_stop = axes_start + var_arr.shape[0]
 
-    ax_ids = [f"({c})" for c in string.ascii_lowercase[: len(axes)]]
-    for ax, ax_id in zip(axes, ax_ids):
-        ax.set_title(ax_id)
+            for axes_index, data_row in zip(range(axes_start, axes_stop), var_arr):
+                axes[axes_index].set_prop_cycle(cycler)
+                axes[axes_index].plot(data_row, label=label_dict.get(var_key))
 
-    axes[plot_cfg["nrows"] - 1].set_xlabel("$t$ / s")
-    axes[-1].set_xlabel("$t$ / s")
+            axes_start = axes_stop
+
+        for hline_dict in hline_list:
+            axes[hline_dict["ax_idx"]].axhline(**hline_dict["kwargs"])
+        for ylim_dict in ylim_list:
+            axes[ylim_dict["ax_idx"]].set_ylim(*ylim_dict["ylims"])
+        for legend_dict in legend_list:
+            axes[legend_dict["ax_idx"]].legend(ncols=legend_dict.get("ncols", 1), loc=legend_dict.get("loc"))
+        for ylabel, ax in zip(ylabel_list, axes):
+            ax.set_ylabel(ylabel=ylabel)
+            ax.set_yticks(np.linspace(*ax.get_ylim(), 3))
+            ax.tick_params(axis="y", which="both", left=True, right=True, labelleft=True, labelright=False)
+
+        ax_ids = [f"({c})" for c in string.ascii_lowercase[: len(axes)]]
+        for ax, ax_id in zip(axes, ax_ids):
+            ax.set_title(ax_id)
+
+        axes[plot_cfg["nrows"] - 1].set_xlabel("$t$ / s")
+        axes[-1].set_xlabel("$t$ / s")
+
+        plt.tight_layout()
+
+        if save_cfg.get("show_fig", False):
+            plt.show()
+
+        if save_path:
+            os.makedirs(save_path, exist_ok=True)
+
+            plt.savefig(final_path, bbox_inches="tight", pad_inches=0.25)
+
+        plt.close(fig)
+
+
+def plot_control_comparison(surrogate_dict: Dict[str, Dict[str, np.ndarray]], plot_cfg: Optional[Dict] = None, save_path: Optional[str] = None):
+    plot_cfg = plot_cfg or {}
+
+    n_surrogates = len(surrogate_dict)
+    n_cols = plot_cfg.get("n_cols", 2)
+    ylabels = plot_cfg.get("ylabels", ["y1, y2"])
+    lower_case_letters = [f"({c})" for c in string.ascii_lowercase[:n_cols]]
+    hline_kwargs = plot_cfg.get("hlines")
+    surrogate_order = plot_cfg.get("surrogate_order", surrogate_dict.keys())
+    fig, axes = plt.subplots(nrows=n_surrogates, ncols=n_cols, figsize=plot_cfg.get("figsize", (10, 12)), sharex=True)
+
+    for surrogate_key, ax in zip(surrogate_order, axes):
+        var_dict = surrogate_dict[surrogate_key]
+        for i, list_to_plot in zip(range(n_cols), plot_cfg.get("plot", {}).values()):
+            if hline_kwargs:
+                ax[i].axhline(**hline_kwargs[i])
+            if "ylims" in plot_cfg.keys():
+                ax[i].set_ylim(plot_cfg["ylims"][i])
+            ax[i].set_ylabel(ylabels[i])
+            for plot_dict in list_to_plot:
+                var_arr = var_dict[plot_dict["var_key"]][..., plot_dict.get("feature_slice", slice(None, None))]
+                var_arr = np.swapaxes(var_arr, 0, -1)
+                for j, feature_arr in enumerate(var_arr):
+                    ax[i].plot(feature_arr, color=plot_dict.get("colors")[j], label=plot_dict.get("labels")[j])
+
+        ax[0].text(-0.25, 0.5, surrogate_key, transform=ax[0].transAxes, rotation=90, va="center", fontsize=20)
+
+    for i in range(n_cols):
+        axes[0, i].set_title(lower_case_letters[i])
+        axes[-1, i].set_xlabel(plot_cfg.get("xlabel", "x"))
+        axes[-1, i].legend()
+        format_legend(ax=axes[-1, i], plot_cfg=plot_cfg)
 
     plt.tight_layout()
 
-    if save_cfg.get("show_fig", False):
-        plt.show()
+    if save_path is not None:
+        final_path = os.path.join(save_path, "control_comparison.pdf")
+        plt.savefig(final_path)
 
-    if save_path:
-        os.makedirs(save_path, exist_ok=True)
-        file_name = f"{save_cfg.get("export_name", "system_evolvement")}.pdf"
-        plt.savefig(f"{save_path}/{file_name}", bbox_inches="tight", pad_inches=0.25)
+    if plot_cfg.get("show_fig", False):
+        plt.show()
 
     plt.close(fig)
 
 
 def plot_test_data_with_simulation(
     test_data: np.ndarray,
-    time_step: int,
+    fp_step: int,
+    prediction_step: int,
     warm_up: int,
     save_path: str,
     surrogate_dict: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
@@ -484,7 +536,7 @@ def plot_test_data_with_simulation(
         ylabel_list = plot_cfg.get("ylabels", [None] * n_subplots)
         assert len(ylabel_list) == n_subplots, f"The number of y labels {len(ylabel_list)} must match the number of features {n_subplots}."
 
-        test_data_time = np.arange(test_data.shape[0] * time_step, step=time_step)
+        test_data_time = np.arange(test_data.shape[0] * fp_step, step=fp_step)
         for i, ax in enumerate(axes):
             ax.plot(test_data_time, test_data[..., i], color=color_dict.get("test", "blue"), label=label_dict.get("test", "test data"))
             ax.set_ylabel(ylabel_list[i])
@@ -495,7 +547,7 @@ def plot_test_data_with_simulation(
                 for case_key, arr in case_dict.items():
                     color = color_dict.get(case_key, "orange")
                     arr = np.swapaxes(arr, 0, 1)
-                    surrogate_time = np.arange(warm_up, (arr.shape[0] + warm_up) * time_step, time_step)
+                    surrogate_time = np.arange(warm_up, (arr.shape[0] + warm_up)) * prediction_step
                     for i, ax in enumerate(axes):
                         ax.plot(surrogate_time, arr[..., i], linestyle=linestyle, color=color, label=label_dict[case_key])
 

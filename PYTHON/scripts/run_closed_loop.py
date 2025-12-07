@@ -32,16 +32,18 @@ mpc_perf_cfg = {
     # "surrogate_types": ["naive", "pc"],
     "surrogate_types": ["vanilla"],
     "state_dict_folder": {"vanilla": "vanilla", "naive": "vanilla", "pc": "pc"},
-    "t_steps": 128,
+    "t_steps": 64,
     "mpc_cfg": {
         "input_bounds": {"lower": 580, "upper": 625},
-        "n_horizon": 25,
+        "n_horizon": 13,
         "n_robust": 1,
-        # "uncertainty_values": {"alpha": [[1, 0]]},
+        "mpc_t_step": 2,  # multiple of the fp systems time step
+        "control_t_step": 2,  # multiple of the fp systems time step when a new input is applied
+        # "uncertainty_values": {"alpha": [1]},
         "uncertainty_values": {"alpha": [[1, 0], [0, 1]]},
+        "scenario_weights": np.array([0.9, 0.1]),
         "scenarios": ["nominal", "upper"],
         # "scenarios": ["nominal"],
-        "t_step": 1,
         "lam_Tmax": 1e3,
         "ub_T": 630 / 625,
         "lam_dudt": {"T_c0": 250, "T_c1": 20, "T_c2": 15, "T_c3": 10},
@@ -71,7 +73,7 @@ mpc_perf_cfg = {
 
 def main():
 
-    state_dict_path = os.path.abspath("/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/experiments/003_mpc_performance/2025-12-03/trained_models/vanilla")
+    state_dict_path = os.path.abspath("/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/experiments/001_poc/2025-12-07/trained_models/vanilla")
     path_to_init_data = os.path.abspath("/Users/jandavidridder/Desktop/Masterarbeit/Master-Thesis/PYTHON/models/EtOxModel/initialization_data.npy")
 
     sim_cfg_name = "etox_control_task.yaml"
@@ -102,11 +104,11 @@ def main():
     #     covariance_gain=mpc_perf_cfg.get("covariance_gain"),
     #     lam_bed_std=mpc_perf_cfg.get("lam_bed_std"),
     # )
-
+    mpc_cfg = mpc_perf_cfg["mpc_cfg"]
     tvp_signals = generate_random_ramp_signal(
         # feature_bounds=[sim_cfg["tvps"]["level_bounds"]],
         feature_bounds=[[0.2, 0.4]],
-        num_steps=mpc_perf_cfg.get("t_steps") + mpc_perf_cfg["mpc_cfg"].get("n_horizon") * mpc_perf_cfg["mpc_cfg"].get("t_step"),
+        num_steps=(mpc_perf_cfg.get("t_steps") + mpc_cfg.get("n_horizon")) * mpc_cfg.get("control_t_step"),
         tau=mpc_perf_cfg.get("tvp_tau"),
         seed=4,
         batch_size=1,
@@ -114,7 +116,8 @@ def main():
     )
 
     # load initialization data
-    init_data = np.load(path_to_init_data)
+    init_data = structurizer.load_data(path_to_init_data, time_step=mpc_cfg["mpc_t_step"])
+
     init_data = np.expand_dims(init_data, axis=0)
     init_data = np.repeat(init_data, repeats=mpc_perf_cfg.get("n_experiments"), axis=0)
     sim_initial_states = structurizer.get_states_from_data(init_data[:, -1], n_measurements=sim_cfg["simulation"]["N_finite_diff"])

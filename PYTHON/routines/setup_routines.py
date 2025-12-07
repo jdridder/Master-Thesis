@@ -5,7 +5,7 @@ from typing import Callable, Dict, List, Optional, Type, Union
 
 import l4casadi
 import numpy as np
-from casadi import DM, vertcat
+from casadi import DM, vertcat, vertsplit
 from do_mpc.controller import MPC
 from do_mpc.model import Model
 from do_mpc.model._pod_model import ProperOrthogonalDecomposition
@@ -213,29 +213,25 @@ def make_simulator_tvp_fun(
     """
 
     def tvp_fun(t_now: float) -> Dict:
-        idx = int(t_now // simulation_time_step)
-        tvp_template[tvp_key] = tvp_traj[idx]
+        tvp_template[tvp_key] = DM(tvp_traj[t_now].squeeze())
         return tvp_template
 
     return tvp_fun
 
 
 def make_mpc_tvp_fun(
-    simulation_time_step: float,
     tvp_template: Dict,
     tvp_traj: np.ndarray,
+    mpc_pred_time_step: int,
 ) -> Callable:
     n_horizon = len(tvp_template["_tvp"])
 
-    # TODO: This might be not necessary and introduces a bug
     def mpc_tvp_fun(t_now: float) -> Dict:
-        idx = int(t_now // simulation_time_step)
-        window = tvp_traj[idx : idx + n_horizon]
-        # TODO: Instead of looping over the horizon of tvps, to vector arithmetics.
-        list_window = []
-        for t in window:
-            list_window.append(DM(t))
-        tvp_template["_tvp"] = list_window
+        # t now is the actual time of the system in s
+        # the mpc_tvp_fun can take the same signal as the simulator
+        t_now = int(t_now)
+        window = tvp_traj[t_now : t_now + n_horizon * mpc_pred_time_step : mpc_pred_time_step].squeeze()
+        tvp_template["_tvp"] = vertsplit(DM(window))
         return tvp_template
 
     return mpc_tvp_fun
