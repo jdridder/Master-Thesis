@@ -546,7 +546,7 @@ All specifications for the MPC algorithm are listed (tab.~\ref{results:tab:MPC-c
         $T_\text{max}$ & $X_\text{min}$ & 
         $T_{\text{w,lb}}$ & $T_{\text{w,ub}}$ & $\lambda_1$ & $\lambda_2$ & $\lambda_3$ \\
         \SI{630}{\kelvin} & $0.5$ & \SI{580}{\kelvin} & \SI{625}{\kelvin} &
-        $1000$ & $1000$ & $20$ \\
+        $1000$ & $20$ & $1000$ \\
         \bottomrule
     \end{tabular}
     \label{results:tab:MPC-configuration}
@@ -580,7 +580,7 @@ between selectivity, conversion, maximum temperature violation, input oscillatio
 While other tuning approaches such as plain grid search or Bayesian optimization exist,
 the manual procedure allows for a better understanding of the MPC-system relationship.
 
-\subsection{MPC – vanilla NARX}
+\subsection{Vanilla NARX}
 To control the system, one time-varying signal is sampled for the input flow speed as well as 
 a constant combination for the first principle model parameters. 
 Using an MPC algorithm based on the vanilla NARX architecture with uncertainty quantification via CQR
@@ -655,7 +655,7 @@ The observed oscillations appear to follow the load increases at
 \SI{0}{}, \SI{80}{}, \SI{160}{}, \SI{250}{} and \SI{320}{\second}
 (fig.~\ref{results:fig:MPC-loop-vanilla} (h)).
 Here, the controller must react to the lower residence time and the threat to cross the conversion
-constraint. These oscillations, that follow an overshoot, are undesired (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~(green) I)
+constraint. These oscillations, that follow an undershoot, are undesired (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~(green) I)
 and indicate how badly the convection dominated system damps disturbances.
 Because the lack of axial dispersion does not allow for natural damping, the controller
 must be able to reliably predict the system dynamics to avoid oscillation.
@@ -664,7 +664,7 @@ to damping.
 As it only acts on the level of the truncation error of
 $\mathcal{O}(\Delta z)$ of the backward finite difference method, its effect on system damping is extremely weak.
 In case of the PFTR, numerical diffusion contributes to axial dispersion eventhough 
-dispersion and diffusion are seperate phenomena in a physical sense.
+dispersion and diffusion are separate phenomena in a physical sense.
 For better stability, it is more suitable and realistic to model axial dispersion of the flow.
 Besides a high prediction accuracy, a long-enough predicition horizon and a greater regularization term
 could reduce chattering in the input. Further, it is interesting, whether a physics-constrained NARX
@@ -719,7 +719,7 @@ to account for a \SI{4}{\second} time step. This would come at the cost of a wor
 representation of the fast system dynamics.
 
 
-\subsection{MPC – nominal NARX}
+\subsection{Nominal NARX}
 
 The nominal NARX architecture employs expected value NNs only and does not account for
 uncertainty quantification. An MPC is run with this specific surrogate ensemble with the
@@ -737,7 +737,7 @@ Similarly, it forecasts violations of the minimum conversion constraint and incr
 at \SI{60}{}, \SI{160}{}, \SI{240}{} and \SI{320}{\second} (fig.~\ref{results:fig:MPC-loop-nominal}~(b)).
 This increase occurs much more drastically
 above \SI{605}{\kelvin} than in the vanilla UQ case with a maximum of \SI{600}{\kelvin}.
-Consequently, the inputs suffer a lot more from overshoots and oscillation in all cooling compartments
+Consequently, the inputs suffer a lot more from undershoots and oscillation in all cooling compartments
 (I).
 \newline
 \newline
@@ -749,7 +749,7 @@ with an undamped system which causes the increase in oscillation.
 The fact, that the third (green) and fourth (yellow) reactor temperatures fluctuate right at the maximimum
 temperature constraint, underlines how poorly the surrogates describe the parametric uncertainty.
 In contrast, the vanilla UQ framework can maneuver the reactor very closely at the maximum temperature
-(fig.~\ref{results:fig:MPC-loop-vanilla} (f)) in robust manner. While overshoots and oscillations appear,
+(fig.~\ref{results:fig:MPC-loop-vanilla} (f)) in robust manner. While undershoots and oscillations appear,
 they become reduced a lot compared to the nominal MPC. Additionally, this comes not at the cost of a 
 lower conversion (fig.~\ref{results:fig:MPC-loop-vanilla} (i) III) as expected. Nominal and vanilla
 MPC controllers achieve comparable violations of the conversion limit. So, the employment 
@@ -759,9 +759,9 @@ the temperature (fig.~\ref{results:fig:MPC-loop-vanilla} (f) II).
 
 
 
-\subsection{MPC – naive NARX}
+\subsection{Naive NARX}
 
-With the naively physics-constrained NARX framework, the MPC reveives predicitions that align 
+With the naively physics-constrained NARX framework, the MPC receives predicitions that align 
 with the conservation of elements. It first sight, the vanilla and
 the naive MPC algorithms do not differ noticably (fig.~\ref{results:fig:MPC-loop-naive}).
 Neither inputs (b), nor conversion (d) show a significant difference. This is suggested
@@ -784,20 +784,24 @@ the outcome remarkably.
 \end{figure}
 
 \noindent
-Especially, the overshoots and oscillations ((b) I) are almost identical to the vanilla based 
+Especially, the undershoots and oscillations ((b) I) are almost identical to the vanilla based 
 controller (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~I).
-However, when precisely inspecting the reactor temperature (fig.~\ref{results:fig:MPC-loop-vanilla}~(a)),
-the MPC based on the naive NARX framework is able to keep a greater
-distance to the maximum constraint. Since lower temperatures favor a higher selectivity
-and make a temperature runaway less probable, this behavior is welcomed.
-This may be to the expense of a lower mean conversion.
-It is assumed that the physics-consistency
-reduces the error propagation through the predicition horizon and therefore allows
-for more accurate forecasting of the temperature uncertainty.
+This translates into reactor temperature profiles, that are almost indistinguishable
+(fig.~\ref{results:fig:MPC-loop-vanilla}~(a)).
+Again, this supports the assumption, that the mere application of the physics-constrained
+activation outside of NN training has a negligible effect. It neither alters the outcome 
+substantially in the forward pass like in the open-loop simulation, nor in the backward
+pass within the MPC.
 
 
-\subsection{MPC – physics-constrained NARX}
+\subsection{Physics-constrained NARX}
 
+Finally, the rigorously physics-constrained NARX based MPC is applied to the system.
+Here, the pc activation function is used not only during MPC predicition but also
+during NN training. Analogously to the other variations, the trajectories 
+of measured reactor temperature (a), wall cooling temperature (b), inlet flow speed (c)
+conversion and selectivity are illustrated (d) (fig.~\ref{results:fig:MPC-loop-pc}).
+\newline
 
 \begin{figure}
     \centering
@@ -811,6 +815,69 @@ for more accurate forecasting of the temperature uncertainty.
     \label{results:fig:MPC-loop-pc}
 \end{figure}
 
+\noindent
+W.r.t the oscillation in the cooling temperature (b, I), there is an improvement visible 
+at \SI{80}{}, \SI{180}{}, \SI{270}{} and \SI{340}{\second} to all other NARX versions.
+The undershoots and their following damped oscillations are reduced in amplitude and settling
+time (green and yellow). The temperature limit is not overstepped (a, II) like in the vanilla
+and naive MPCs, that rely on uncertainty quantification. In contrast to these two versions,
+the pc-based MPC achieves a much better performance in the conversion, as it does not
+fall below the lower limit ((d)~III). The vanilla, nominal and naive NARX surrogates both cause violations
+(fig.~\ref{results:fig:MPC-loop-vanilla}~(i)~III; \ref{results:fig:MPC-loop-nominal}~(d)~III
+and \ref{results:fig:MPC-loop-naive}~(d)~III). For this specific flow speed trajectory (c) and
+model parameter combination, the pc NNs portray a real advantage over the plain NNs,
+as they allow less input undershoot, oscillation and conversion performance. It makes a difference
+if the pc activation is only used during MPC runtime or also while the NNs are trained.
+
+
+\subsection{Overall Comparison}
+\label{sec:overall-comparison}
+
+To have empirical evidence about the differences in the MPC algorithms based on the four
+NARX ensembles, multiple control loops for varying parameter combinations are conducted. 
+The inlet flow speed trajectory remains (fig.~\ref{results:fig:MPC-loop-pc}~(c)). This is 
+done for $16$ distinct parameter combinations that are sampled in MC fashion.
+For measuring the quality of the control, four key performance indicators (KPIs) are 
+considered. These include the mean selectivity, that is described as the mean selectivity
+of ethylene towards ethylene oxide over time and all trajectories (eq.~\ref{results:eq:mean-selectivity}).
+\begin{equation}
+    \label{results:eq:mean-selectivity}
+    \bar{S}_\text{EO} \coloneq \langle S_\text{EO} \rangle_{i, j}
+\end{equation}
+Where $j$ equates to the index of the control run and $i$ to the discrete time instant.
+Further, constraint violation (vio) is measured for the respective variables temperature and conversion
+separately as the fraction of points, which lie in the infeasible region (eq.~\ref{results:eq:temperature-violation}). 
+\begin{equation}
+    \label{results:eq:temperature-violation}
+    T_\text{vio} \coloneq \langle \bm{1}_{T_{j,i,k} > T_\text{max}} \rangle_{k, i, j}
+\end{equation}
+The number of violating points is counted via the indicator function $\bm{1}$ and averaged 
+over the measurement position $k$, time $i$ and trajectory $j$. For the minimum conversion $X_\text{vio}$,
+this is done analogously. To have a combined indicator, that also includes the criticality
+of both constraints, a weighted violation $C_\text{vio}$ is calculated.
+\begin{equation}
+    \label{results:eq:combined-violation}
+    C_\text{vio} \coloneq \lambda_1 T_\text{vio} + \lambda_2 X_\text{vio}
+\end{equation}
+This is achieved by linear combining both violation indicators with their respective
+soft constraint
+regularization variables $\lambda_1$ and $\lambda_2$ (tab.~\ref{results:tab:MPC-configuration}).
+Oscillation or even chattering of the input signals is undesired, as they 
+make reaching a stable operating point more difficult. As well, they increase mechanical wear
+of actuators. 
+Therefore, the control
+effort $J_{\Delta T_\text{w}}$ measures all temporal changes in the control input. It accounts
+for rapid switches as well as gradual input changes that might be unnecessary (eq.~\ref{results:eq:control-effort}).
+\begin{equation}
+    \label{results:eq:control-effort}
+    J_{\Delta T_\text{w}} \coloneq \langle (\bm{T}_{\text{w},i,j} - \bm{T}_{\text{w},i-1,j})^\top
+    \bm{R} (\bm{T}_{\text{w},i,j} - \bm{T}_{\text{w},i-1,j}) \rangle_{i, j}
+\end{equation}
+In contrast to the objective function in the MPC formulation (eq.~\ref{results:eq:MPC-formulation-TR}),
+the wall temperatures appear without scaling. Thus, their unit equates to $\text{K}^2$.
+Lastly, the average solution time of the QP in \texttt{ipopt} is calculated as $\Delta t_\text{ipopt}$.
+All KPIs are listed for the four MPC variations nominal, vanilla, naive and physics-constrained
+(tab.~\ref{results:tab:MPC-KPIs}).
 
 \begin{table}[!h]
     \centering
@@ -820,7 +887,8 @@ for more accurate forecasting of the temperature uncertainty.
     }
     \begin{tabular}{ccccccc}
         \toprule
-        & $S_\text{EO}$ / - & $T_\text{vio}$ / - & $X_\text{vio}$ / - &$C_\text{vio}$ / - & $J_{\Delta T_\text{w}}$ / K$^2$ & $\Delta t_\text{ipopt}$ / s \\
+        & $\bar{S}_\text{EO}$ / - & $T_\text{vio}$ / - & $X_\text{vio}$ / - &
+        $C_\text{vio}$ / - & $J_{\Delta T_\text{w}}$ / K$^2$ & $\Delta t_\text{ipopt}$ / s \\
         \midrule
         pc & $0.818$ & $0.00$ & $0.243$ & $0.00477$ & $461$ & $3.80$ \\
         nominal & $0.818$ & $0.112$ & $0.159$ & $0.113$ & $829$ & $1.51$ \\
@@ -830,4 +898,27 @@ for more accurate forecasting of the temperature uncertainty.
     \end{tabular}
     \label{results:tab:MPC-KPIs}
 \end{table}
+\noindent
+Due to the low temperature sensitivity in this temperature region, the selectivity shows almost
+no difference with values of \SI{0.818}{} and \SI{0.819}{}.
+What is really striking, is that the temperature constraint violation is at zero for all
+NARX ensembles with uncertainty quantification. The quantile NARX models, that are based
+on conformalized quantile regression, are able to guarantee robustness. 
+Eventhough they are calibrated for the \SI{90}{\%}-quantile, they do not allow for \SI{10}{\%}
+of violation. This perfectly aligns with the finding of strict overcoverage during 
+the assessment of uncertainty quantification (sec.~\ref{results:sec:uncertain-quantification}).
+Especially, the last temperature measurement is most prone to exceed the limit, where
+the biggest overcoverage is observed (fig.~\ref{results:fig:naive-coverage-width}).
+Thus, quantile regression represents a tremendous advantage over the nominal NARX architecture, 
+which exhibits a significant amount of temperature constraint violation of \SI{11.2}{\%}.
 
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_comparison.pdf}
+    \caption[Comparison of the most important control trajectories.]
+    {
+    }
+    \label{results:fig:MPC-comparison}
+\end{figure}
