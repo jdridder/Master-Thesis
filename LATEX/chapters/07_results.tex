@@ -304,7 +304,7 @@ within the appendix (figs.~\ref{app:fig:naive-temperature-sim} and \ref{app:fig:
 \section{Uncertainty Quantification}
 \label{results:sec:uncertain-quantification}
 
-The quality of the uncertainty quantification is evaluated with two key measures – \emph{coverage} and 
+The quality of the uncertainty quantification (UQ) is evaluated with two key measures – \emph{coverage} and 
 \emph{relative interval width}. Coverage resembels the key idea behind quantiles, where
 each quantile \emph{covers} a fraction of $\tau$ of the values within a distribution. The real 0.9-quantile
 covers \SI{90}{\%} of values, the real 0.1-quantile covers \SI{10}{\%} of values, whereas the interval
@@ -473,11 +473,11 @@ deterioration.
 \label{MPC-Performance-and-Robustness}
 
 As the last part of this work, the control performance of an MPC, that relies on the mentioned
-NARX frameworks vanilla, naive and pc is to be analyzed.
+NARX frameworks vanilla, naive and physics-constrained (pc) is to be analyzed.
 On one hand, an apropriate MPC controller is to be postulated and tuned.
 On the other hand, a series of closed-loop simulations is to be completed to calculate the
 performance indicators selectivity, constraint violation, control effort and runtime.
-To investigate the effect of the uncertainty quantification, the MPC is run including a
+To investigate the effect of the uncertainty quantification (UQ), the MPC is run including a
 nominal NARX architecture with expected value models only.
 
 \subsection{Optimization Formulation}
@@ -501,7 +501,7 @@ Following optimization formulation is proposed (eq.~\ref{results:eq:MPC-formulat
 \end{equation}
 
 \noindent
-The cost of ethylene takes up roughly \SI{68}{\%} of the total costs \cite{pietschak2018}. Therefore, the
+The cost of ethylene makes up roughly \SI{68}{\%} of the total costs \cite{pietschak2018}. Therefore, the
 profitability is mainly determined by the selectivity of towards ethylene oxide $S_\text{EO}$.
 Hence, an economic objective function is chosen to maximize selectivity, while a minimum required
 conversion $X_\text{min}$ is to be achieved. To reduce catalyst degradation, the maximum temperature is required
@@ -509,7 +509,7 @@ to stay below $T_\text{max}$.
 Temperature and conversion are positively correlated, as high temperatures favor faster chemistry.
 However, selectivity towards ethylene oxide and temperature are negatively correlated due to the 
 ratio of true activation energies (eq.~\ref{results:eq:ratio-activation-energies}).
-The combustion of ethylene accelerates faster with rising temperature.
+The total oxidation of ethylene accelerates faster with rising temperature.
 \newline
 \begin{equation}
     \label{results:eq:ratio-activation-energies}
@@ -554,7 +554,7 @@ All specifications for the MPC algorithm are listed (tab.~\ref{results:tab:MPC-c
 
 \noindent
 \newline
-For the implementation of the NARX-based uncertainty quantification
+For the implementation of the NARX-based UQ MPC algorithm
 with \texttt{do-mpc}, a robust horizon $N_\text{r}$ of one allows for an exact branching into 
 one nominal, one upper and one lower scenario. 
 To avoid input oscillation,
@@ -583,8 +583,8 @@ the manual procedure allows for a better understanding of the MPC-system relatio
 \subsection{Vanilla NARX}
 To control the system, one time-varying signal is sampled for the input flow speed as well as 
 a constant combination for the first principle model parameters. 
-Using an MPC algorithm based on the vanilla NARX architecture with uncertainty quantification via CQR
-a control loop is executed over $400$ steps with given time step lengths and control frequency (tab.~\ref{results:tab:MPC-configuration}).
+Using an MPC algorithm based on the vanilla NARX architecture with UQ via CQR,
+a control loop is executed over\SI{400}{\second} steps with given time step lengths and control frequency (tab.~\ref{results:tab:MPC-configuration}).
 With a duration of \SI{20}{} times the system's greatest time constant, this horizon length is considered 
 representative for a real application.
 The resulting trajectories for all system measurements, inputs, throughput flow rate,
@@ -610,6 +610,8 @@ Using \SI{0.4}{\meter \; \second^{-1}} as the reference, the reactor is confront
 range between \SI{100}{\%} and \SI{50}{\%} (fig.~\ref{results:fig:MPC-loop-vanilla} (h)).
 This is assumed to be challenging and realistic at the same time like in
 carbon dioxide methanation \cite{fischer2021}.
+Other than the uncertain parameters, the flow speed is known in advance by the MPC algorithm and
+implemented as a time-varying parameter (\texttt{tvp}) in \texttt{do-mpc}.
 Regarding the dimensionless concentration measures $\chi_{(\cdot)}$ for the components (fig.~\ref{results:fig:MPC-loop-vanilla} (a–e)), 
 a reasonable consumption of educts and production of products is indicated.
 Ethylene (E) and oxygen (O$_2$) decrease over the reactor length with $z/L = 0.25$ (purple)
@@ -619,9 +621,9 @@ increase.
 \newline
 \newline
 \noindent
-What is of great importance, is how the MPC reacts to fluctuating input flow speeds in terms of
+It is to be analysed how the MPC reacts to fluctuating input flow speeds in terms of
 the wall temperature (fig.~\ref{results:fig:MPC-loop-vanilla} (g-h)).
-It is clearly visible that the controller increases the cooling temperature for rising flow speeds.
+It is visible that the controller increases the cooling temperature for rising flow speeds.
 To meet the specified minimum conversion $X_\text{min}$ ((i), black, dash-dotted),
 the reaction rate must be accelerated by lesser cooling.
 Higher flow speeds decrease the residence time in such a way that the minimum conversion constraint
@@ -644,12 +646,12 @@ suitable to introduce smaller cooling compartments where a hotspot is probable t
 \newline
 \newline
 \noindent
-Especially after the initialization and reductions in the input flow speed,
+Especially after the initialization and jumps in the input flow speed,
 the cooling temperatures at $z/L = 0.75$ (green) and 
 at the outlet (yellow) (fig.~\ref{results:fig:MPC-loop-vanilla} (g-h) I) oscillate.
 This occurs at the time instances \SI{0}{}, \SI{80}{}, \SI{180}{}, \SI{260}{} and \SI{340}{\second}
-and becomes more likely for two reasons. First, the latter two wall temperatures own the smaller
-punishment factors for jittering of $r_{33} = 15$ and $r_{44} = 10$.
+and becomes likely for two reasons. First, the latter two wall temperatures own the smaller
+regularization terms of $r_{33} = 15$ and $r_{44} = 10$.
 Second, the reactor is confronted with a drastic and abrupt change in load.
 The observed oscillations appear to follow the load increases at 
 \SI{0}{}, \SI{80}{}, \SI{160}{}, \SI{250}{} and \SI{320}{\second}
@@ -662,12 +664,12 @@ must be able to reliably predict the system dynamics to avoid oscillation.
 Here, it must be assumed that numerical diffusion due to spatial discretization is the only contribution 
 to damping.
 As it only acts on the level of the truncation error of
-$\mathcal{O}(\Delta z)$ of the backward finite difference method, its effect on system damping is extremely weak.
-In case of the PFTR, numerical diffusion contributes to axial dispersion eventhough 
+$\mathcal{O}(\Delta z)$ of the backward finite difference method, its effect is extremely weak.
+In case of the PFTR, numerical diffusion contributes to axial dispersion, eventhough 
 dispersion and diffusion are separate phenomena in a physical sense.
 For better stability, it is more suitable and realistic to model axial dispersion of the flow.
 Besides a high prediction accuracy, a long-enough predicition horizon and a greater regularization term
-could reduce chattering in the input. Further, it is interesting, whether a physics-constrained NARX
+could reduce switching of the input. Further, it is interesting, whether a physics-constrained NARX
 framework is able to yield an improvement or not.
 \newline
 \newline
@@ -678,7 +680,7 @@ of \SI{630}{\kelvin} for all temperature measurements $T$.
 Especially at the outlet of the reactor (yellow), the controller operates close to the constraint
 without a violation. This is achieved eventhough the kinetic
 parameters of the first principle model are not only unknown but generated randomly.
-The uncertainty quantification via quantile regression works and ensures constraint satisfaction
+The UQ via quantile regression works and ensures constraint satisfaction
 for the uncertain measurement of the temperature for this specific parameter combination.
 \newline
 \newline
@@ -687,22 +689,22 @@ Nonetheless, the controller accepts violation of the minimum conversion at \SI{3
 and \SI{360}{\second}, because a further temperature increase would risk the more critical temperature
 constraint violation (fig.~\ref{results:fig:MPC-loop-vanilla}~(i)~III). Compared to the conversion, the selectivity
 (purple) remains stagnating at $0.81$ and shows very little sensitivity towards the temperature.
-This is simply caused by the low temperature regime. To have a significant lower selectivity, higher
+This is simply caused by the low temperature regime. To have a significant change in selectivity, higher
 temperatures are required. Therefore, the controller mainly focuses on balancing the trade-off between
 conversion and temperature for high flow speeds. For low flow speeds, minimum conversion can be achieved easily.
-That is why, the controller focuses on optimizing the selectivity which requires a lower temperatures 
+That is why, the controller focuses on optimizing the selectivity which requires lower temperatures 
 simultaneously.
 \newline
 \newline
 \noindent
 Lastly, the runtimes of each recursive optimization in \texttt{ipopt} \cite{Waechter2006} is presented
 (fig.~\ref{results:fig:MPC-loop-vanilla}~(j)).,
-These mainly vary between \SI{2}{} and \SI{10}{\second} after the inital optimization run, which takes
+These vary between \SI{2}{} and \SI{10}{\second} after the inital optimization run, which takes
 \SI{90}{\second}. It is ususal in recursive optimization for the initial step to take more 
 time, because the initial guess of the decision variables is not close to the optimal solution
 even if it set accordingly in \texttt{do-mpc}. The solution time shows a slight correlation
 with the temperature in the first cooling section (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~(purple)).
-Everytime the MPC suggests a higher value than its lower bound of \SI{580}{\kelvin}, the
+Every time the MPC suggests a higher value than its lower bound of \SI{580}{\kelvin}, the
 solution duration climbs to approximately \SI{6}{\second}. This is likely a result of a more complex
 optimization landscape. Here, the system is endangered to hit the minimum conversion constraint
 due to a higher input flow. Thus, the penalty of the slack variable $\lambda_2$ induces
@@ -712,8 +714,8 @@ becomes an obstacle for the control frequency of \SI{0.5}{\second^{-1}}.
 To realize feasibility, the time step length of the predicition horizon may be doubled to \SI{4}{\second}
 which would effectively reduce the amount of optimization variables to one half.
 At best, the computational effort for quadratic problems (QP) with a sparse matrix structure such as 
-this MPC formulation escalate linearly with the predicition horizon $\mathcal{O}(N)$ \cite{stark2025}.
-Therefore, the solution time would shrink at least by \SI{50}{\%}.
+this MPC formulation grows linearly with the predicition horizon $\mathcal{O}(N)$ \cite{stark2025}.
+Therefore, the solution time would shrink roughly by \SI{50}{\%}.
 Further, the training of the NARX models must be adjusted accordingly
 to account for a \SI{4}{\second} time step. This would come at the cost of a worse
 representation of the fast system dynamics.
@@ -722,13 +724,13 @@ representation of the fast system dynamics.
 \subsection{Nominal NARX}
 
 The nominal NARX architecture employs expected value NNs only and does not account for
-uncertainty quantification. An MPC is run with this specific surrogate ensemble with the
+UQ. An MPC is run with this specific surrogate ensemble with the
 exact same parameter combination and inlet flow speed trajectory as the vanilla one (fig.~\ref{results:fig:MPC-loop-nominal}).
 \begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_nominal.pdf}
     \caption[Control loop - NARX without uncertainty quantification.]
-    {Control loop with the nominal NARX framework without uncertainty quantification.
+    {Control loop with the nominal NARX framework without UQ.
     (a) reactor temperatures. (b) input wall temperatures. (c) fluctuating inlet flow speed.
     (d) selectivity and conversion. The color gradient indicates the axial position.}
     \label{results:fig:MPC-loop-nominal}
@@ -750,10 +752,10 @@ The fact, that the third (green) and fourth (yellow) reactor temperatures fluctu
 temperature constraint, underlines how poorly the surrogates describe the parametric uncertainty.
 In contrast, the vanilla UQ framework can maneuver the reactor very closely at the maximum temperature
 (fig.~\ref{results:fig:MPC-loop-vanilla} (f)) in robust manner. While undershoots and oscillations appear,
-they become reduced a lot compared to the nominal MPC. Additionally, this comes not at the cost of a 
-lower conversion (fig.~\ref{results:fig:MPC-loop-vanilla} (i) III) as expected. Nominal and vanilla
+they are reduced compared to the nominal MPC. This comes not at the cost of a 
+lower conversion (fig.~\ref{results:fig:MPC-loop-vanilla} (i) III). Nominal and vanilla
 MPC controllers achieve comparable violations of the conversion limit. So, the employment 
-of quantile regression NARX models causes a significant improvement regard robustness in
+of quantile regression NARX models causes a significant improvement regarding robustness in
 the temperature (fig.~\ref{results:fig:MPC-loop-vanilla} (f) II).
 
 
@@ -786,7 +788,7 @@ the outcome remarkably.
 \noindent
 Especially, the undershoots and oscillations ((b) I) are almost identical to the vanilla based 
 controller (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~I).
-This translates into reactor temperature profiles, that are almost indistinguishable
+This translates into the reactor temperature profiles, that are almost indistinguishable
 (fig.~\ref{results:fig:MPC-loop-vanilla}~(a)).
 Again, this supports the assumption, that the mere application of the physics-constrained
 activation outside of NN training has a negligible effect. It neither alters the outcome 
@@ -820,14 +822,13 @@ W.r.t the oscillation in the cooling temperature (b, I), there is an improvement
 at \SI{80}{}, \SI{180}{}, \SI{270}{} and \SI{340}{\second} to all other NARX versions.
 The undershoots and their following damped oscillations are reduced in amplitude and settling
 time (green and yellow). The temperature limit is not overstepped (a, II) like in the vanilla
-and naive MPCs, that rely on uncertainty quantification. In contrast to these two versions,
-the pc-based MPC achieves a much better performance in the conversion, as it does not
+and naive MPCs, that rely on UQ. In contrast to these two versions,
+the pc-based MPC achieves a better performance in the conversion, as it does not
 fall below the lower limit ((d)~III). The vanilla, nominal and naive NARX surrogates both cause violations
 (fig.~\ref{results:fig:MPC-loop-vanilla}~(i)~III; \ref{results:fig:MPC-loop-nominal}~(d)~III
 and \ref{results:fig:MPC-loop-naive}~(d)~III). For this specific flow speed trajectory (c) and
-model parameter combination, the pc NNs portray a real advantage over the plain NNs,
-as they allow less input undershoot, oscillation and conversion performance. It makes a difference
-if the pc activation is only used during MPC runtime or also while the NNs are trained.
+model parameter combination, the pc architecture portrays an advantage over the vanilla one,
+as it allows less input undershoot, oscillation and greater conversion performance. 
 
 
 \subsection{Overall Comparison}
@@ -836,7 +837,7 @@ if the pc activation is only used during MPC runtime or also while the NNs are t
 To have empirical evidence about the differences in the MPC algorithms based on the four
 NARX ensembles, multiple control loops for varying parameter combinations are conducted. 
 The inlet flow speed trajectory remains (fig.~\ref{results:fig:MPC-loop-pc}~(c)). This is 
-done for $16$ distinct parameter combinations that are sampled in MC fashion.
+done for $16$ distinct parameter combinations, that are sampled in MC fashion.
 For measuring the quality of the control, four key performance indicators (KPIs) are 
 considered. These include the mean selectivity, that is described as the mean selectivity
 of ethylene towards ethylene oxide over time and all trajectories (eq.~\ref{results:eq:mean-selectivity}).
@@ -874,10 +875,14 @@ for rapid switches as well as gradual input changes that might be unnecessary (e
     \bm{R} (\bm{T}_{\text{w},i,j} - \bm{T}_{\text{w},i-1,j}) \rangle_{i, j}
 \end{equation}
 In contrast to the objective function in the MPC formulation (eq.~\ref{results:eq:MPC-formulation-TR}),
-the wall temperatures appear without scaling. Thus, their unit equates to $\text{K}^2$.
+the wall temperatures appear without scaling. Thus, the unit of the control effort equates to $\text{K}^2$.
 Lastly, the average solution time of the QP in \texttt{ipopt} is calculated as $\Delta t_\text{ipopt}$.
 All KPIs are listed for the four MPC variations nominal, vanilla, naive and physics-constrained
-(tab.~\ref{results:tab:MPC-KPIs}).
+(tab.~\ref{results:tab:MPC-KPIs}). Additionally, the four most important system variables
+(outlet temperature, first cooling temperature, selectivity and conversion) are plotted for
+all $16$ runs (fig.~\ref{results:fig:MPC-comparison}) to clarify the KPIs with the actual system 
+trajectories.
+\newline
 
 \begin{table}[!h]
     \centering
@@ -898,27 +903,89 @@ All KPIs are listed for the four MPC variations nominal, vanilla, naive and phys
     \end{tabular}
     \label{results:tab:MPC-KPIs}
 \end{table}
-\noindent
-Due to the low temperature sensitivity in this temperature region, the selectivity shows almost
-no difference with values of \SI{0.818}{} and \SI{0.819}{}.
-What is really striking, is that the temperature constraint violation is at zero for all
-NARX ensembles with uncertainty quantification. The quantile NARX models, that are based
-on conformalized quantile regression, are able to guarantee robustness. 
-Eventhough they are calibrated for the \SI{90}{\%}-quantile, they do not allow for \SI{10}{\%}
-of violation. This perfectly aligns with the finding of strict overcoverage during 
-the assessment of uncertainty quantification (sec.~\ref{results:sec:uncertain-quantification}).
-Especially, the last temperature measurement is most prone to exceed the limit, where
-the biggest overcoverage is observed (fig.~\ref{results:fig:naive-coverage-width}).
-Thus, quantile regression represents a tremendous advantage over the nominal NARX architecture, 
-which exhibits a significant amount of temperature constraint violation of \SI{11.2}{\%}.
-
-
 
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_comparison.pdf}
     \caption[Comparison of the most important control trajectories.]
     {
+        Most important system trajectories for the last temperature measurement
+        (a, yellow), the cooling temperature in the first compartment (a, purple),
+        selectivity (b, blue) and conversion (b, green) for all four MPC variations.
     }
     \label{results:fig:MPC-comparison}
 \end{figure}
+
+\noindent
+Due to the low temperature sensitivity in this temperature region, the selectivity shows almost
+no difference with values of \SI{0.818}{} and \SI{0.819}{} (fig.~\ref{results:fig:MPC-comparison}~(b), blue). 
+Apparently, the temperature constraint violation is at zero for all
+NARX ensembles with UQ. The quantile NARX models, that are based
+on conformalized quantile regression, are able to guarantee robustness. 
+Eventhough they are calibrated for the \SI{90}{\%}-quantile, they do not allow for \SI{10}{\%}
+of violation. This aligns with the finding of strict overcoverage during 
+the assessment of uncertainty quantification (sec.~\ref{results:sec:uncertain-quantification}).
+Especially, the last temperature measurement is most prone to exceed the limit, where
+the biggest overcoverage is observed (fig.~\ref{results:fig:naive-coverage-width}).
+This is further illustrated by the outlet temperature trajectories, which 
+remain precisely below the maximimum constraint for all runs 
+(fig.~\ref{results:fig:MPC-comparison}~(a), I, yellow) with UQ. 
+In contrast, the nominal MPC crosses the maximimum boundary repeatedly for a large number of runs.
+Thus, quantile regression represents a tremendous advantage over the nominal NARX architecture, 
+which exhibits a significant amount of temperature constraint violation of \SI{11.2}{\%}.
+W.r.t conversion, which is not treated as a robust constraint, all MPCs with UQ 
+cause greater violations than the nominal one. Because of the trade-off between temperature and 
+conversion, the nominal controller simply performs better with \SI{15.9}{\%} violation than the
+UQ-based controllers by exploiting vorbidden temperatures. The vanilla- and naive-based 
+MPCs show equal violations with \SI{29.0}{\%} which again indicates that the naive application of the 
+pc activation function leaves negligible impact. Here, the pc-based MPC achieves a better
+value of \SI{24.3}{\%}. When considering the combined constraint violation $C_\text{vio}$, 
+the nominal MPC performs worst with a value of \SI{0.113}{} followed by the vanilla and naive
+with identical values of \SI{5.69e-3}{} and the pc version with \SI{4.77e-3}{} of violation.
+In total, the MPCs with uncertainty awareness using CQR perform at least \SI{95.0}{\%} better than 
+the nominal MPC in constraint violation. When physics-constraints are added and used during NARX
+training, the robustness increases by \SI{95.8}{\%} (tab.~\ref{results:tab:MPC-improvement-percentage}).
+\newline
+
+\begin{table}[!h]
+    \centering
+    \caption[Improvement of KPIs as percentage of the nominal MPC.]{
+        Percent improvement of KPIs with the nominal NARX ensemble as the reference.
+    }
+    \begin{tabular}{ccccc}
+        \toprule
+        & $\bar{S}_\text{EO}$ / \% &
+        $C_\text{vio}$ / \% & $J_{\Delta T_\text{w}}$ / \% & $\Delta t_\text{ipopt}$ \%  \\
+        \midrule
+        pc & $0.0$ & $95.8$ & $44.4$ & $-151.7$ \\
+        naive & $0.1$ & $95.0$ & $39.2$ & $-216.6$ \\
+        vanilla & $0.1$ & $95.0$ & $39.2$ & $-217.9$ \\
+        \bottomrule
+    \end{tabular}
+    \label{results:tab:MPC-improvement-percentage}
+\end{table}
+
+\noindent
+The control effort $J_{\Delta T_\text{w}}$ for the MPCs with UQ decreases by \SI{39.2}{\%} from \SI{829}{\kelvin^2}
+to \SI{504}{\kelvin^2} for the vanilla and naive frameworks. The addition of a pc
+activation allows for a \SI{44}{\%} decrease to \SI{461}{\kelvin^2}.
+This is due to the reduced oscillations and more gentle inputs visible in the 
+cooling temperature trajectories (fig.~\ref{results:fig:MPC-comparison}~(a)~purple, II and III).
+On one hand, the UQ is able to capture worst-case temperature scenarios and thus prevent harsh
+inputs that need to be corrected later which leads to oscillatory behavior. On the other hand,
+the pc framework yields lower input oscillations. Here, it is assumed that the application
+of the pc activation reduces the recursive accumulation of predicitions errors within the predicition
+horizon. In turn, the optimization landscape becomes smoother and less noisy. 
+Consequently, the optimizer converges to local minima faster and more precise
+leading to less variation in optimal solutions for the input.
+This assumption is backed by a shorter mean solution duration of the pc-based MPC of \SI{3.80}{\second}
+compared to \SI{4.78}{} and \SI{4.80}{\second} of naive and vanilla, that are almost identical.
+As the naive application does not exhibit this improvement, it must be caused by the training process.
+\newline
+\newline
+\noindent
+The greater network complexity by introducing the pc activation function does not worsen
+optimization time. Here, the frameworks naive and vanilla do not show a significant difference.
+In fact, the reduction of predicition errors outweighs the greater complexity in terms of
+solution time. It is important to mention, that the application of additional quantile NARX models leads 
+to an increase in solution time by \SI{151.7}{\%} when compared to the pc-NARX architecture.
