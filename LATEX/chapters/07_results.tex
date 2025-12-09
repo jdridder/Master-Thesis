@@ -74,13 +74,54 @@ Thus, reducing the network size of a physics-constrained NARX may be truly advan
 \newline
 \noindent
 The facilitated validation convergence implies that not only the direct NN output is correct
-but its gradient as well. In SDC, the gradient exhibits noise, because only the points are
+but its gradient as well. In SGD, the gradient exhibits noise, because only the points are
 considered by the gradient, that are part of the current batch. It is reasonable, that
 the correction by the physics-constraints reduces the stochasticity of the gradient
-in each iteration in SDC an therefore allows faster convergence. Consequently, this shrinks 
-the noisiness of the resulting network parameters and network output. This may become
+in each iteration in SGD an therefore allows faster convergence. 
+The effect on the gradient can be investigated by looking at the first partial derivative.
+The first step of backpropagation may be given with
+the loss function $\mathcal{L}$ and the network parameters $\bm{\theta}_i$ 
+(eq.~\ref{results:eq:backpropagation-first-step}) \cite{deisenroth2019}.
+\begin{equation}
+    \label{results:eq:backpropagation-first-step}
+    \frac{\partial \mathcal{L}(\vy^*)}{\partial \bm{\theta}_i} = 
+    \frac{\partial \mathcal{L}(\vy^*)}{\partial \vy^*} 
+    \frac{\partial g_\text{pc}}{\partial \bm{\tilde{y}}}
+    \frac{\partial \bm{\tilde{y}}}{\partial \bm{\theta}_i} 
+\end{equation}
+
+\noindent
+The partial derivative of $g_\text{pc}$ connects the gradient of the plain NN
+$\partial \bm{\tilde{y}} / \partial \bm{\theta}_i$ 
+to the overall gradient of the loss function. It can be computed directly
+from the definition of the activation function (eq.~\ref{results:eq:pc-effect-on-backpropagation}
+and cor.~\ref{cor: physics constrained solution}).
+
+\begin{equation}
+    \label{results:eq:pc-effect-on-backpropagation}
+    \frac{\partial g_\text{pc}}{\partial \bm{\tilde{y}}} =
+    \frac{\partial}{\partial \bm{\tilde{y}}} \begin{pmatrix} \bm{K}
+        \begin{pmatrix}
+            2 \bm{\tilde{y}} \\
+            \bm{A} \vz_0 + \vb
+        \end{pmatrix}
+    \end{pmatrix} =
+    2 \bm{K}_{:,:n_\text{out}}
+\end{equation}
+\noindent
+Thus, the gradient of the NN is modified using a linear transformation with a submatrix of
+the projection inverse $\bm{K}$. This is the solution inverse of the KKT-conditions of the original
+(QP) (def.~\ref{th: physics constrained KKT}) and acts as a projection of the output into the feasible space,
+that is defined by the program.
+The same is done to the gradient without taking the reference point
+into account enforcing only feasible directions.
+Consequently, this shrinks 
+the noisiness of the resulting network parameters and network output. This may also become
 an advantage for the application in MPC, where network gradients w.r.t the 
-control inputs are calculated.
+control inputs instead of the trainable parameters are calculated.
+The direct modification of the gradient underlines that the conditioning of $\bm{K}$
+is of great importance to ensure numerical stability during NN training.
+Ill-conditioned programs, perhaps with unscaled constraints, will certainly lead to numerical issues.
 
 
 % When performing backpropagation including the PC activation function,
