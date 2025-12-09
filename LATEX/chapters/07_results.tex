@@ -1,5 +1,5 @@
 \chapter{Results on Surrogate Model Performance}
-For the successful application of physics-consistent surrogate models
+For the successful application of physics-constrained (PC) surrogate models
 under uncertainty in MPC, several performance indicators are of major interest.
 These include the computational efficiency during the offline training phase,
 the degree of physical balance violation and the adequacy of the uncertainty quantification.
@@ -7,12 +7,15 @@ Finally, the suitability of the derived NARX models in an MPC algorithm should b
 
 
 \section{Training Efficiency}
-\label{results:training-efficiency}
+\label{results:sec:training-efficiency}
 
 To assess, how the physics-constrained activation function alters the training progress,
-the \emph{validation loss} is analysed. For simplicity, only one NARX model is trained using the
-MSE. The training data is generated using constant model parameters. Thus, no uncertainty distribution
-is present. pc-NARX (solid line) and vanilla-NARX models (dashed line) are compared
+the \emph{validation loss} is analysed. For simplicity, one NARX predictor is trained in two different
+variations and varying number of hidden neurons using the
+MSE. The first one is configured as a basic NN (vanilla). The second one holds the same configuration
+and additionally applies the PC activation function after its last layer (PC).
+The training data is generated using constant model parameters. Thus, no uncertainty distribution
+is present. PC-NARX (solid line) and vanilla-NARX models (dashed line) are compared
 during their evolvement over $512$ training epochs (fig.~\ref{results:fig:validation_loss}).
 As shallow neural networks, all NARX models posses only \emph{one} hidden layer with either
 $64$ (purple), $16$ (blue) or $4$ (yellow) hidden neurons. For a non-linear reaction system, that includes 24 outputs, the low amount
@@ -24,30 +27,33 @@ Here, the training and validation fractions are $0.8$ and $0.2$ respectively.
     \includegraphics[width=1\textwidth]{Figures/Results/001_val_loss.pdf}
     \caption[Validation loss of vanilla NARX vs physics-constrained NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
     during the training of the vanilla NARX (dashed line) and the physics-constrained NARX (solid line). The three data rows indicate
-    \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons each. The physics-constrained NARX converges visibly faster
+    \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons each. The physics-constrained NARX converges faster
     than the vanilla NARX.}
     \label{results:fig:validation_loss}
 \end{figure}
 \newline
 \newline
-Strikingly, all physics-constrained NARX models converge faster to lower validation losses than
-their unconstrained peers. After two consequent drops in validation loss during the first $150$ epochs,
+All physics-constrained NARX models with varying number of hidden neurons
+converge faster to lower validation losses than
+their unconstrained peers. After two consecutive drops in validation loss during the first $150$ epochs,
 all models stagnate which is common in NN training. Close to a local minimum w.r.t to the trainable
 parameters, only slow improvement is made. Changes in the loss function become rather 
-stochastic in \emph{stochastic gradient descent} than systematic, when the gradient gets close to zero.
-Without regard to the training phase, the pc-NARX models always outperform the vanilla-NARX models
-with lower validation losses. The validation loss suggests that at $512$ epochs, a pc-NARX with $16$ hidden 
+stochastic in \emph{stochastic gradient descent} (SGD) than systematic, when the gradient gets close to zero.
+Without regard to the training phase, the PC-NARX models always outperform the vanilla-NARX models
+with lower validation losses. The validation loss suggests that at $512$ epochs, a PC-NARX with $16$ hidden 
 neurons (solid, blue) is equally as accurate as a vanilla-NARX with $64$ hidden neurons (dashed, purple) (fig.~\ref{results:fig:validation_loss}).
-Similarly, the pc-NARX with $4$ hidden neurons presents a validation loss close to the vanilla-NARX with
+Similarly, the PC-NARX with $4$ hidden neurons presents a validation loss close to the vanilla-NARX with
 $16$ hidden neurons. This implies, the network size can be reduced to a quarter while achieving
 the same validation loss.
 \newline
 \newline
-It is questionable however, whether the pc-NARX can maintain its advantage for a growing number of training epochs.
-As the balance constraint implemented into the pc-NARX is present in the data itself, the vanilla-NARX
-will learn it accordingly, if the number of epochs is sufficiently high. The minimum possible 
-validation loss is determined by the network size, amount and \emph{quality} of training data and training epochs.
-So theoretically, the vanilla-NARX should approach the pc-NARX in excessive neural network training,
+It is questionable however, whether the PC-NARX can maintain its advantage for a growing number of training epochs.
+As the balance constraint implemented into the PC-NARX is present in the data itself, the vanilla-NARX
+will approximate it on the domain of the data up to validation accuracy,
+if the number of epochs is sufficiently high.
+The minimum possible 
+validation loss is determined by the network size, amount and quality of training data and training epochs.
+So theoretically, the vanilla-NARX should approach the PC-NARX in excessive neural network training,
 if a sufficiently large amount of high-quality data is supplied.
 \newline
 \newline
@@ -56,13 +62,29 @@ Computing power and memory are expensive in time and investment. The training du
 and network complexity should be kept to a minimum. Hence, the physics-constrained activation
 presents a great opportunity to speed up NN training convergence. It also
 allows to reduce the network size or the amount of training data,
-while the predicition accuracy of an unconstrained NN is retained. It can be shown, that
-physics-constrained NNs perform \SI{15} to \SI{25}{\%} better than basic NNs when the amount training
-data is cut by up to \SI{40}{\%} \cite{chen2024}.
+while the prediction accuracy of an unconstrained NN is retained. It can be shown, that
+physics-constrained NNs perform \SI{18}{\%} better than basic NNs when the amount training
+data is reduced to \SI{60}{\%} in one specific case of modelling an extractive distillation~\cite{chen2024}.
+For a process model in the simulation software \emph{Aspen Plus}, the PC-NN yielded an improvement of \SI{25}{\%} w.r.t validation loss 
+under the same conditions. These findings by Chen et al. \cite{chen2024} correlate with this work.
 Reducing the network size is especially interesting for MPC applications, where it
 significantly influences the online optimization w.r.t the input variables.
 Thus, reducing the network size of a physics-constrained NARX may be truly advantagous.
+\newline
+\newline
+\noindent
+The facilitated validation convergence implies that not only the direct NN output is correct
+but its gradient as well. In SDC, the gradient exhibits noise, because only the points are
+considered by the gradient, that are part of the current batch. It is reasonable, that
+the correction by the physics-constraints reduces the stochasticity of the gradient
+in each iteration in SDC an therefore allows faster convergence. Consequently, this shrinks 
+the noisiness of the resulting network parameters and network output. This may become
+an advantage for the application in MPC, where network gradients w.r.t the 
+control inputs are calculated.
 
+
+% When performing backpropagation including the PC activation function,
+% the gradient w.r.t the network parameters looks as follows.
 
 \section{Physics-Consistency}
 
@@ -71,7 +93,7 @@ data generated under parametric uncertainty. All NNs are configured equally usin
 hyperparameters in \texttt{pyTorch} (tab.~\ref{results:tab:NARX-configuration}).
 The dimension of the input vector is chosen to equal $16$ to achieve a reasonable balance between
 PCA compression and data representation. All models consist of one hidden layer with $32$ neurons.
-\begin{table}
+\begin{table}[!h]
     \caption[Hyperparameters of the NARX models within the framework.]{
         Hyperparameters of the NARX models within the framework (fig.~\ref{case:fig: narx framework}).
     }
@@ -94,7 +116,7 @@ corresponds to an upper quantile model of $0.9$ and a lower quantile model of $0
 Regarding the weight function for the quantile conditioning (eq.~\ref{sur:def: gaussian weight function}),
 the weight parameter $\sigma_\text{w}$ is set to $0.001$ to emphasize data in close proximity to the
 quantile predictions. During training, early-stopping is employed based on the validation loss to avoid overfitting 
-and redundant training durations. Training is executed once for the vanilla and once for the pc-NARX
+and redundant training durations. Training is executed once for the vanilla and once for the PC-NARX
 framework.
 \newline
 \newline
@@ -168,25 +190,25 @@ if it is not used during training.
 \end{figure}
 \newline
 \newline
-Finally, the balance error is plotted for the pc-NARX, that uses the physics-constrained
+Finally, the balance error is plotted for the PC-NARX, that uses the physics-constrained
 activation during training and simulation (fig.~\ref{results:fig:pc_violation_pc}). While it significantly improves
 training efficiency, it also enforces linear equality constraints in an open-loop simulation up to \SI{32}{\bit} precision.
 Similarly to the naive application, all three NARX models achieve the same contraint residual error
 of \SI{1.7e-7}{}. A difference between the physics-constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
 trajectories is not existent. It is worth noticing, that the minimum possible contraint residual differs 
-between the naive- and the pc-NARX. The naive version is not trained with the 
+between the naive- and the PC-NARX. The naive version is not trained with the 
 physics-constrained activation $g_\text{pc}$. It is applied \emph{a posteriori} and implemented using
-a \texttt{casadi}-function object. The pc version owns a direct implementation of $g_\text{pc}$
+a \texttt{casadi}-function object. The PC version owns a direct implementation of $g_\text{pc}$
 into a \texttt{torch.nn.Module}. Eventhough it is converted into a \texttt{casadi} expression to be
 simulated in \texttt{do-mpc}, it still keeps the \SI{32}{\bit} precision of the \texttt{torch.float32}-object.
-Because the \texttt{casadi}-function computes in the \SI{64}{\bit} decimal space, naive- and pc-NARX
+Because the \texttt{casadi}-function computes in the \SI{64}{\bit} decimal space, naive- and PC-NARX
 differ in maximum machine precision. Since the residual norm shrinks to insignificance
 with values at \SI{1e-7} or \SI{1e-16} in both cases, \SI{32}{\bit} precision is not considered
 disadvantageous. If truly needed, \SI{64}{\bit} tensor objects can be adapted easily.
 
 
 \section{Simulation Capability}
-\label{simulation-capability}
+\label{results:sec:simulation-capability}
 
 To investigate, whether the NARX framework is able to track the distribution of measurement trajectories, 
 the simulation results for the expected value and quantile NARX models are illustrated (fig.~\ref{results:fig:vanilla_temperature_sim}).
@@ -196,7 +218,8 @@ the simulation results for the expected value and quantile NARX models are illus
     \caption[Forward simulation of the vanilla-NARX framework for the temperature.]
     {Forward simulation of the vanilla-NARX framework without physics-constrained activation for 
     \SI{480}{\second}. The scaled temperature $T'$ is shown for two measurement positions $z=0.25L$ and
-    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters.}
+    $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters
+    for \SI{512}{\second}.}
     \label{results:fig:vanilla_temperature_sim}
 \end{figure}
 \newline
@@ -216,13 +239,13 @@ residence time of its fluid elements is smaller. Consequently, trajectories diff
 The vanilla expected value for the temperature (green) tracks the mean of the system reasonably well
 at both positions, since its distance to the darkest part of the density distribition is mostly small.
 The lower quantile bound (purple) is located below the mean prediction at all times and positions.
-It also portrays a lower boundary for the measurement distribution as intended. The accuracy of its quantile coverage,
-which is supposed to be equal to $0.1$ cannot be assessed. The same yields for the
+It also portrays a lower boundary for the measurement distribution as intended.
+The same yields for the
 upper quantile (yellow), which should cover a fraction of $0.9$ of temperature trajectories. 
 However, the quantile models successfully quantify the uncertainty difference between reactor positions
 with narrow intervals at $z=0.25L$ and wider intervals at $z=L$. Smaller intervals seem to be more
 challenging to predict, as the $0.9$-quantile NARX excludes the mean prediction at \SI{120}{\second} and
-$z=0.25L$. Crucially, the plotted quantile trajectories are simulated not only via recursive quantile temperature predicitions 
+$z=0.25L$. Crucially, the plotted quantile trajectories are simulated not only via recursive quantile temperature predictions 
 but also via the conditioned NARX for the dimensionless concentration measure (fig.~\ref{case:fig: narx framework}).
 This may deteriorate the quantile prediction in contrast to the expected value NARX, which relies
 completely on least square regression. The according trajectories of $\bm{\chi}$ 
@@ -280,8 +303,8 @@ w.r.t the positioning of the quantile-conditioned boundaries can be noticed (fig
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_2.pdf}
-    \caption[Forward simulation of the pc NARX framework for the dimensionless concentration.]
-    {Forward simulation of the pc NARX framework with physics-constrained activation for 
+    \caption[Forward simulation of the PC NARX framework for the dimensionless concentration.]
+    {Forward simulation of the PC NARX framework with physics-constrained activation for 
     \SI{480}{\second}. The fully physics-constrained framework exhibits a minor improvement to the 
     vanilla NARX framework.}
     \label{results:fig:pc-concentration-sim}
@@ -317,25 +340,25 @@ for an output $j$, the fraction of ground truth points must be determined that l
 \end{equation}
 Here, $\bm{1}$ represents the indicator function, that counts the number of instances, in which the indexed 
 condition is fulfilled. $m$ marks the number of total points, $y_{j,i}$ the true data point and $\tilde{y}_{j,i}^{(\cdot)}$
-the respective interval predictions. The closer the coverage approaches the specified confidence during
+the respective interval predictions. The closer the coverage approaches the specified coverage during
 quantile regression training, the more reliable the model quantifies the uncertainty.
 It can be seen as the accuracy of the quantile models.
 \newline
 \newline
 As the second measure, the relative interval width describes the precision of the uncertainty quantification.
-A model delivering the desired coverage with a tight interval is called precise in its predicition, whereas 
-wide intervals mean less precision.
+A model delivering the desired coverage with a tight interval is called precise in its prediction, whereas 
+wide intervals mean less precision. Coverage can be seen as an absolute measure for the quality of a
+quantile prediction, whereas the relative interval width compares the efficiency
+of models with equal coverages.
 \begin{equation}
     \label{results:eq: relative interval width}
     \mathrm{rel. \; intervall \; width}_j = \frac{1}{m} \sum^m_{i=1} \frac{\tilde{y}^\uparrow_{j,i} - \tilde{y}^\downarrow_{j,i}}{|y_{j,i}|}
 \end{equation}
 \newline
-These two measures are compared between the tree NARX frameworks vanilla, naive and pc in the open-loop
-simulation environment seen previously. To improve the quantile predictions during simulation, that 
-show reasonable but wide intervals during the simulation capability (\ref{simulation-capability}) analysis,
-they are retrained with a greater network size. Hence, two layers with $64$ and $72$ hidden neurons each are
-implemented. To limit the complexity of the framework, all other NARX models remain at one hidden layer with $32$
-neurons. Mentioned frameworks are simulated forward \SI{512} time steps for 100 independent input trajectories.
+These two measures are compared between the three NARX frameworks vanilla, naive and PC in the open-loop
+simulation environment seen previously.
+Mentioned frameworks are simulated forward \SI{512} time steps for 100 independent input trajectories
+with a step size of \SI{1}{\second}.
 For each trajectory, the first principle model is simulated accordingly $200$ times with MC-sampled
 parameter combinations to calculate the interval coverages. The yielded coverages (purple) and relative intervall
 widths (green) are supplied via boxplots for the vanilla framework (fig.~\ref{results:fig:vanilla-coverage-width}).
@@ -350,7 +373,7 @@ Additionally, the results are listed in terms of mean and standard deviation (ta
 \end{figure}
 \newline
 \newline
-The mentioned metrics are determined for all four measurement positions (\ref{case:measurement-positions})
+The mentioned metrics are determined for all four measurement positions (sec.~\ref{case:measurement-positions})
 and shown in a twin plot with the coverage on the left (purple) and the relative interval width (green) on the
 right y-axis. The ideal coverage defined in training is marked at $0.8$ (gray, dashed) line. Perfect 
 quantile regressors would hit this target. Noticably, the vanilla framework
@@ -371,7 +394,7 @@ Further, the increase is expected and mimics the higher uncertainty in the tempe
 due to the longer residence time. This tendency is a direct result of non-dispersive plug-flow behavior.
 However, the magnitude of increase in relative interval width occurs in such a way, that over-coverage
 is achieved. The confidence intervals are wider than necessary leading to higher conservativeness inspite
-of quantile calibration with CQR (\ref{theory: CQR}) and a more complex network structure.
+of quantile calibration with CQR (sec.~\ref{theory: CQR}) and a more complex network structure.
 \newline
 \newline
 
@@ -388,19 +411,19 @@ of quantile calibration with CQR (\ref{theory: CQR}) and a more complex network 
         $z/L$ / - & framework &  &  &  &  \\
         \midrule
         \multirow[t]{3}{*}{$0.25$}    & naive & $0.783$ & $0.179$ & \SI{6.89e-03}{} & \SI{2.41e-03}{} \\
-        & pc & $\bm{0.814}$ & $\bm{0.156}$ & \SI{7.27e-03}{} & \SI{2.62e-03}{} \\
+        & PC & $\bm{0.814}$ & $\bm{0.156}$ & \SI{7.27e-03}{} & \SI{2.62e-03}{} \\
         & vanilla & $0.771$ & $0.181$ & \SI{6.51e-03}{} & \SI{2.36e-03}{} \\
         \cline{1-6}
         \multirow[t]{3}{*}{$0.50$}    & naive & $0.897$ & $0.119$ & \SI{1.14e-02}{} & \SI{3.45e-03}{} \\
-        & pc & $0.911$ & $\bm{0.104}$ & \SI{1.17e-02}{} & \SI{3.69e-03}{} \\
+        & PC & $0.911$ & $\bm{0.104}$ & \SI{1.17e-02}{} & \SI{3.69e-03}{} \\
         & vanilla & $\bm{0.895}$ & $0.119$ & \SI{1.13e-02}{} & \SI{3.48e-03}{} \\
         \cline{1-6}
         \multirow[t]{3}{*}{$0.75$}    & naive & $0.962$ & $0.070$ & \SI{1.74e-02}{} & \SI{4.60e-03}{} \\
-        & pc & $0.966$ & $\bm{0.063}$ & \SI{1.77e-02}{} & \SI{5.05e-03}{} \\
+        & PC & $0.966$ & $\bm{0.063}$ & \SI{1.77e-02}{} & \SI{5.05e-03}{} \\
         & vanilla & $0.961$ & $0.071$ & \SI{1.72e-02}{} & \SI{4.60e-03}{} \\
         \cline{1-6}
         \multirow[t]{3}{*}{$1.00$}    & naive & $0.983$ & $0.048$ & \SI{2.19e-02}{} & \SI{5.26e-03}{} \\
-        & pc & $0.986$ & $\bm{0.042}$ & \SI{2.23e-02}{} & \SI{5.73e-03}{} \\
+        & PC & $0.986$ & $\bm{0.042}$ & \SI{2.23e-02}{} & \SI{5.73e-03}{} \\
         & vanilla & $0.983$ & $0.049$ & \SI{2.17e-02}{} & \SI{5.27e-03}{} \\
     \bottomrule
     \end{tabular}
@@ -428,7 +451,7 @@ no significant change.
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/pc_coverage_width.pdf}
-    \caption[Coverage and relative interval width of the pc framework.]
+    \caption[Coverage and relative interval width of the PC framework.]
     {Coverage (purple) and relative interval width (green) for the temperature quantiles of the NARX models
     in the fully physics-constrained framework. The ideal intended coverage (dashed line) lies at $0.8$.}
     \label{results:fig:pc-coverage-width}
@@ -440,14 +463,14 @@ in the same spatial pattern. Its coverage rises from \SI{0.814}{} to \SI{0.986}{
 W.r.t the desired coverage of $0.8$ there is no improvement visible. At the first measurement,
 the vanilla framework displays a better median (fig.~\ref{results:fig:vanilla-coverage-width}),
 while the physics-constrained framework has a better average value (tab.~\ref{results:tab: coverage_intervall_width}).
-Nevertheless, the pc-framework shows a decrease in coverage deviation at all positions
+Nevertheless, the PC-framework shows a decrease in coverage deviation at all positions
 in comparison to the other two approaches. The uncertainty in the coverage is reduced by 
 \SI{13.3}{\%}, \SI{12.6}{\%}, \SI{11.2}{\%} and \SI{14.3}{\%} for the coordinates $z/L \in \{0.25, 0.5, 0.75, 1\}$
 which implies a more reproducable coverage prediction.
 However, its efficiency is worsened, because the relative interval width enlarges
 slightly but measurably by \SI{11.6}{\%}, \SI{3.5}{\%}, \SI{2.9}{\%} and \SI{2.8}{\%}
 in comparison to the vanilla framework. It is assumed that the physics-constrained framework reduces the accumulation
-of prediction errors and thus provides slightly better reproducabiliy.
+of prediction errors and thus provides slightly better reproducabilitiy.
 \newline
 \newline
 In total, the vanilla, naive and physics-constrained NARX frameworks perform equally.
@@ -459,15 +482,22 @@ activation function cannot provide a remedy. The models struggle to capture the 
 the distribution caused by the spatial coordinate. It may be beneficial to introduce
 the measurement position as an NN input. This could help learning the spatial dependence better as well as
 reducing the output size.
+It is important to note that the desired coverage is only learned for the one-step prediction.
+Its fulfillment during the recursive simulation is not mathematically intended.
+Rather, it represents a pragmatic approach to approximate uncertainty propagation with one-step-ahead 
+predictions.
+To rigorously achieve the desired coverage along the complete horizon, mulit-step prediction models are needed.
+\newline
+\newline
 Nonetheless, the tendency towards over-coverage is welcomed compared to under-coverage,
 as it enforces contraint satisfaction and thus safety over objective performance.  
 The introduction of an \emph{a posteriori}-only or naive
-pc-activation function does not lead to recognizable differences to the basic NARX framework. 
-In contrast, a physics-constrained activation function applied rigorously during training and inference
-achieves a change. It improves the learning of equation governed data as shown (\ref{results:training-efficiency}). 
+PC-activation function does not lead to recognizable differences to the basic NARX framework. 
+In contrast, a physics-constrained activation function applied during training and inference
+achieves a change. It improves the learning of equation governed data as shown (sec.~\ref{results:sec:training-efficiency}). 
 In the recursive forward simulation though, it causes minimally wider confidence intervals and
 smaller deviations in the coverage predictions. It is neither counted as a significant improvement, nor a
-deterioration.
+deterioration in the straight simulation.
 
 \section{MPC Performance \& Robustness}
 \label{MPC-Performance-and-Robustness}
@@ -523,12 +553,12 @@ Thus, a trade-off is introduced. The controller needs to find a compromise betwe
 adequate conversion and maximum temperature. Additionally, the temperature decisive model parameters 
 for reaction rate and heat conduction are subject to uncertainty and the throughput to fluctuation.
 To realize faster optimization time, while considering the system's slowest dynamics at
-the scale of \SI{20}{\second}, an MPC predicition time step of \SI{2}{\second} with a horizon length of 
+the scale of \SI{20}{\second}, an MPC prediction time step of \SI{2}{\second} with a horizon length of 
 $N = 13$ is proposed. This equates to a total prediction horizon of \SI{26}{\second} and
 must be incorporated by the NARX models. Therefore, they are retrained on the same train and calibration
 data sets with an adjusted prediction time step of  $\Delta t_\text{pred} = \SI{2}{\second}$.
 Also, the control frequency
-is set to $f = \SI{0.5}{\second^{-1}}$ which is equivalent to the length of the predicition time step.
+is set to $f = \SI{0.5}{\second^{-1}}$ which is equivalent to the length of the prediction time step.
 The first principles model simulation remains at a time step of $\Delta t_\text{fp} = \SI{1}{\second}$.
 All specifications for the MPC algorithm are listed (tab.~\ref{results:tab:MPC-configuration}).
 
@@ -668,7 +698,7 @@ $\mathcal{O}(\Delta z)$ of the backward finite difference method, its effect is 
 In case of the PFTR, numerical diffusion contributes to axial dispersion, eventhough 
 dispersion and diffusion are separate phenomena in a physical sense.
 For better stability, it is more suitable and realistic to model axial dispersion of the flow.
-Besides a high prediction accuracy, a long-enough predicition horizon and a greater regularization term
+Besides a high prediction accuracy, a long-enough prediction horizon and a greater regularization term
 could reduce switching of the input. Further, it is interesting, whether a physics-constrained NARX
 framework is able to yield an improvement or not.
 \newline
@@ -711,10 +741,10 @@ due to a higher input flow. Thus, the penalty of the slack variable $\lambda_2$ 
 a gradient, that pushes the interior point away from the strict inequality constraint of the 
 input variable. With regard to real applicability, the \texttt{ipopt} solution time
 becomes an obstacle for the control frequency of \SI{0.5}{\second^{-1}}. 
-To realize feasibility, the time step length of the predicition horizon may be doubled to \SI{4}{\second}
+To realize feasibility, the time step length of the prediction horizon may be doubled to \SI{4}{\second}
 which would effectively reduce the amount of optimization variables to one half.
 At best, the computational effort for quadratic problems (QP) with a sparse matrix structure such as 
-this MPC formulation grows linearly with the predicition horizon $\mathcal{O}(N)$ \cite{stark2025}.
+this MPC formulation grows linearly with the prediction horizon $\mathcal{O}(N)$ \cite{stark2025}.
 Therefore, the solution time would shrink roughly by \SI{50}{\%}.
 Further, the training of the NARX models must be adjusted accordingly
 to account for a \SI{4}{\second} time step. This would come at the cost of a worse
@@ -763,11 +793,11 @@ the temperature (fig.~\ref{results:fig:MPC-loop-vanilla} (f) II).
 
 \subsection{Naive NARX}
 
-With the naively physics-constrained NARX framework, the MPC receives predicitions that align 
+With the naively physics-constrained NARX framework, the MPC receives predictions that align 
 with the conservation of elements. It first sight, the vanilla and
 the naive MPC algorithms do not differ noticably (fig.~\ref{results:fig:MPC-loop-naive}).
 Neither inputs (b), nor conversion (d) show a significant difference. This is suggested
-by the previously done simulation capability (sec.~\ref{simulation-capability}) and
+by the previously done simulation capability (sec.~\ref{results:sec:simulation-capability}) and
 uncertainty quantification (sec.~\ref{results:sec:uncertain-quantification}) experiments, 
 where the naive application of the physics-constrained activation did not alter
 the outcome remarkably.
@@ -799,7 +829,7 @@ pass within the MPC.
 \subsection{Physics-constrained NARX}
 
 Finally, the rigorously physics-constrained NARX based MPC is applied to the system.
-Here, the pc activation function is used not only during MPC predicition but also
+Here, the PC activation function is used not only during MPC prediction but also
 during NN training. Analogously to the other variations, the trajectories 
 of measured reactor temperature (a), wall cooling temperature (b), inlet flow speed (c)
 conversion and selectivity are illustrated (d) (fig.~\ref{results:fig:MPC-loop-pc}).
@@ -823,11 +853,11 @@ at \SI{80}{}, \SI{180}{}, \SI{270}{} and \SI{340}{\second} to all other NARX ver
 The undershoots and their following damped oscillations are reduced in amplitude and settling
 time (green and yellow). The temperature limit is not overstepped (a, II) like in the vanilla
 and naive MPCs, that rely on UQ. In contrast to these two versions,
-the pc-based MPC achieves a better performance in the conversion, as it does not
+the PC-based MPC achieves a better performance in the conversion, as it does not
 fall below the lower limit ((d)~III). The vanilla, nominal and naive NARX surrogates both cause violations
 (fig.~\ref{results:fig:MPC-loop-vanilla}~(i)~III; \ref{results:fig:MPC-loop-nominal}~(d)~III
 and \ref{results:fig:MPC-loop-naive}~(d)~III). For this specific flow speed trajectory (c) and
-model parameter combination, the pc architecture portrays an advantage over the vanilla one,
+model parameter combination, the PC architecture portrays an advantage over the vanilla one,
 as it allows less input undershoot, oscillation and greater conversion performance. 
 
 
@@ -895,10 +925,10 @@ trajectories.
         & $\bar{S}_\text{EO}$ / - & $T_\text{vio}$ / - & $X_\text{vio}$ / - &
         $C_\text{vio}$ / - & $J_{\Delta T_\text{w}}$ / K$^2$ & $\Delta t_\text{ipopt}$ / s \\
         \midrule
-        pc & $0.818$ & $0.00$ & $0.243$ & $0.00477$ & $461$ & $3.80$ \\
         nominal & $0.818$ & $0.112$ & $0.159$ & $0.113$ & $829$ & $1.51$ \\
-        naive & $0.819$ & $0.00$ & $0.290$ & $0.00569$ & $504$ & $4.78$ \\
         vanilla & $0.819$ & $0.00$ & $0.290$ & $0.00569$ & $504$ & $4.80$ \\
+        naive & $0.819$ & $0.00$ & $0.290$ & $0.00569$ & $504$ & $4.78$ \\
+        PC & $0.818$ & $0.00$ & $0.243$ & $0.00477$ & $461$ & $3.80$ \\
         \bottomrule
     \end{tabular}
     \label{results:tab:MPC-KPIs}
@@ -923,10 +953,10 @@ Apparently, the temperature constraint violation is at zero for all
 NARX ensembles with UQ. The quantile NARX models, that are based
 on conformalized quantile regression, are able to guarantee robustness. 
 Eventhough they are calibrated for the \SI{90}{\%}-quantile, they do not allow for \SI{10}{\%}
-of violation. This aligns with the finding of strict overcoverage during 
+of violation. This aligns with the finding of strict over-coverage during 
 the assessment of uncertainty quantification (sec.~\ref{results:sec:uncertain-quantification}).
 Especially, the last temperature measurement is most prone to exceed the limit, where
-the biggest overcoverage is observed (fig.~\ref{results:fig:naive-coverage-width}).
+the biggest over-coverage is observed (fig.~\ref{results:fig:naive-coverage-width}).
 This is further illustrated by the outlet temperature trajectories, which 
 remain precisely below the maximimum constraint for all runs 
 (fig.~\ref{results:fig:MPC-comparison}~(a), I, yellow) with UQ. 
@@ -938,28 +968,28 @@ cause greater violations than the nominal one. Because of the trade-off between 
 conversion, the nominal controller simply performs better with \SI{15.9}{\%} violation than the
 UQ-based controllers by exploiting vorbidden temperatures. The vanilla- and naive-based 
 MPCs show equal violations with \SI{29.0}{\%} which again indicates that the naive application of the 
-pc activation function leaves negligible impact. Here, the pc-based MPC achieves a better
+pc activation function leaves negligible impact. Here, the PC-based MPC achieves a better
 value of \SI{24.3}{\%}. When considering the combined constraint violation $C_\text{vio}$, 
 the nominal MPC performs worst with a value of \SI{0.113}{} followed by the vanilla and naive
-with identical values of \SI{5.69e-3}{} and the pc version with \SI{4.77e-3}{} of violation.
-In total, the MPCs with uncertainty awareness using CQR perform at least \SI{95.0}{\%} better than 
+with identical values of \SI{5.69e-3}{} and the PC version with \SI{4.77e-3}{} of violation.
+In this case, the MPCs with uncertainty awareness using CQR perform at least \SI{95.0}{\%} better than 
 the nominal MPC in constraint violation. When physics-constraints are added and used during NARX
 training, the robustness increases by \SI{95.8}{\%} (tab.~\ref{results:tab:MPC-improvement-percentage}).
 \newline
 
 \begin{table}[!h]
     \centering
-    \caption[Improvement of KPIs as percentage of the nominal MPC.]{
-        Percent improvement of KPIs with the nominal NARX ensemble as the reference.
+    \caption[Percent change of KPIs of the nominal MPC.]{
+        Percent change of KPIs with the nominal NARX ensemble as the reference.
     }
     \begin{tabular}{ccccc}
         \toprule
         & $\bar{S}_\text{EO}$ / \% &
         $C_\text{vio}$ / \% & $J_{\Delta T_\text{w}}$ / \% & $\Delta t_\text{ipopt}$ \%  \\
         \midrule
-        pc & $0.0$ & $95.8$ & $44.4$ & $-151.7$ \\
-        naive & $0.1$ & $95.0$ & $39.2$ & $-216.6$ \\
-        vanilla & $0.1$ & $95.0$ & $39.2$ & $-217.9$ \\
+        vanilla & $0.1$ & $-95.0$ & $-39.2$ & $217.9$ \\
+        naive & $0.1$ & $-95.0$ & $-39.2$ & $216.6$ \\
+        PC & $0.0$ & $-95.8$ & $-44.4$ & $151.7$ \\
         \bottomrule
     \end{tabular}
     \label{results:tab:MPC-improvement-percentage}
@@ -968,24 +998,35 @@ training, the robustness increases by \SI{95.8}{\%} (tab.~\ref{results:tab:MPC-i
 \noindent
 The control effort $J_{\Delta T_\text{w}}$ for the MPCs with UQ decreases by \SI{39.2}{\%} from \SI{829}{\kelvin^2}
 to \SI{504}{\kelvin^2} for the vanilla and naive frameworks. The addition of a pc
-activation allows for a \SI{44}{\%} decrease to \SI{461}{\kelvin^2}.
+activation allows for a \SI{44.4}{\%} decrease to \SI{461}{\kelvin^2}.
 This is due to the reduced oscillations and more gentle inputs visible in the 
 cooling temperature trajectories (fig.~\ref{results:fig:MPC-comparison}~(a)~purple, II and III).
 On one hand, the UQ is able to capture worst-case temperature scenarios and thus prevent harsh
 inputs that need to be corrected later which leads to oscillatory behavior. On the other hand,
-the pc framework yields lower input oscillations. Here, it is assumed that the application
-of the pc activation reduces the recursive accumulation of predicitions errors within the predicition
+the PC framework yields lower input oscillations. Here, it can be assumed that the application
+of the PC activation reduces the recursive accumulation of predictions errors within the MPC
 horizon. In turn, the optimization landscape becomes smoother and less noisy. 
 Consequently, the optimizer converges to local minima faster and more precise
 leading to less variation in optimal solutions for the input.
-This assumption is backed by a shorter mean solution duration of the pc-based MPC of \SI{3.80}{\second}
+This assumption is backed by a shorter mean solution duration of the PC-based MPC of \SI{3.80}{\second}
 compared to \SI{4.78}{} and \SI{4.80}{\second} of naive and vanilla, that are almost identical.
 As the naive application does not exhibit this improvement, it must be caused by the training process.
+Here, the correction of NN outputs in forward and backward passes facilitates the learning
+such that the validation loss shrinks faster (fig.~\ref{results:fig:validation_loss}).
+The correcting effect on the data within one batch surpresses noise in the gradient which
+is especially beneficial in stochastic gradient descent. Thus, the parameter updates and the 
+network parameters themselves are less noisy. During the recursive forward simulation
+(sec.~\ref{results:sec:simulation-capability}), this does not lead to a significant change,
+because it does not require a network gradient.
+But for neural MPC, NNs are recursively applied as a function combination through the prediction
+horizon and differentiated thereafter.
+Thus, the improved network gradient enables smoother and faster convergence which is observable 
+in reduced oscillations and faster solution times.
 \newline
 \newline
 \noindent
-The greater network complexity by introducing the pc activation function does not worsen
+The greater network complexity caused by introducing the PC activation function does not worsen
 optimization time. Here, the frameworks naive and vanilla do not show a significant difference.
-In fact, the reduction of predicition errors outweighs the greater complexity in terms of
+In fact, the reduction of prediction errors outweighs the greater complexity in terms of
 solution time. It is important to mention, that the application of additional quantile NARX models leads 
-to an increase in solution time by \SI{151.7}{\%} when compared to the pc-NARX architecture.
+to an increase in solution time by \SI{151.7}{\%} when compared to the PC-NARX architecture.

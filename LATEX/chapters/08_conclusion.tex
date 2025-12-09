@@ -47,14 +47,14 @@ This is anticipated, because the distance-based weighting (def.~\ref{sur:def: ga
 focuses on data points, that are 
 closest to the quantile prediction. Consequently, the considered data is reduced dramatically.
 Further, the conditioned quantile predictions cross the expected value trajectory. Neither CQR nor
-a pc activation function can provide a remedy. This underlines, that the conditioning of 
+a PC activation function can provide a remedy. This underlines, that the conditioning of 
 expected value models with according quantile predictions is only a pragmatic implementation
 to allow a recursive simulation. While it captures some correlation
 between measurements, it lacks rigorousitiy. Quantile predictions are only valid when calculated
 in a single-step. The naive forward simulation represents an approximation of the quantiles at best.
 This is prooven by the fact, that the desired coverage of $0.8$ is only achieved at the first
 measurement position. Neither the vanilla, naive nor the physics-constrained ensemble
-yield a significant change in mean coverage nor relative interval width. Solely, the pc framework
+yield a significant change in mean coverage nor relative interval width. Solely, the PC framework
 achieves more reproducable coverages with a standard deviation that is \SI{12.9}{\%} lower 
 than the vanilla framework on average. Strikingly, all versions show increasing over-coverage 
 over the reactor length. The heteroscedasticity of the plug-flow behavior

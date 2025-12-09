@@ -229,58 +229,59 @@ def run_mpc_performance(
 
     os.makedirs(plot_dir, exist_ok=True)
     light_colors = make_colors(4, alpha=0.25)
-    plot_control_comparison(
-        surrogate_dict=complete_result_dict,
-        plot_cfg={
-            "surrogate_order": ["nominal", "vanilla", "naive", "pc"],
-            "xlabel": r"$t$ / s",
-            "ylabels": [r"$T_\mathrm{w}, T$ / K", r"$X, S$ / -"],
-            # "file_name": "control_comparison_with_lower_q",
-            "ylims": [(575, 635), (0.4, 1)],
-            "plot": {
-                "col0": [
+    if not os.path.exists(plot_dir):
+        plot_control_comparison(
+            surrogate_dict=complete_result_dict,
+            plot_cfg={
+                "surrogate_order": ["nominal", "vanilla", "naive", "pc"],
+                "xlabel": r"$t$ / s",
+                "ylabels": [r"$T_\mathrm{w}, T$ / K", r"$X, S$ / -"],
+                # "file_name": "control_comparison_with_lower_q",
+                "ylims": [(575, 635), (0.4, 1)],
+                "plot": {
+                    "col0": [
+                        {
+                            "var_key": "_y",
+                            "feature_slice": [-1],
+                            "colors": [light_colors[-1]],
+                            "labels": [r"$T (\frac{z}{L} = 1.0)$"],
+                        },
+                        {
+                            "var_key": "_u",
+                            "feature_slice": [0],
+                            "colors": [light_colors[0]],
+                            "labels": [r"$T_\mathrm{w} (\frac{z}{L} = 0.25)$"],
+                        },
+                    ],
+                    "col1": [
+                        {
+                            "var_key": "_aux",
+                            "feature_slice": [1, 2],
+                            "colors": light_colors[-3:],
+                            "labels": ["$S$", "$X$"],
+                            "linestyles": ["dotted", "dashed"],
+                        },
+                    ],
+                },
+                "legend_y_pos": -0.25,
+                "legend_cols": 2,
+                "hlines": [
                     {
-                        "var_key": "_y",
-                        "feature_slice": [-1],
-                        "colors": [light_colors[-1]],
-                        "labels": [r"$T (\frac{z}{L} = 1.0)$"],
+                        "y": sim_cfg["states"]["upper_bounds"]["T"],
+                        "label": r"$T_\mathrm{max}$",
+                        "color": "black",
+                        "ls": "dashdot",
                     },
                     {
-                        "var_key": "_u",
-                        "feature_slice": [0],
-                        "colors": [light_colors[0]],
-                        "labels": [r"$T_\mathrm{w} (\frac{z}{L} = 0.25)$"],
-                    },
-                ],
-                "col1": [
-                    {
-                        "var_key": "_aux",
-                        "feature_slice": [1, 2],
-                        "colors": light_colors[-3:],
-                        "labels": ["$S$", "$X$"],
-                        "linestyles": ["dotted", "dashed"],
+                        "y": sim_cfg["aux"]["lower_bounds"]["X"],
+                        "label": r"$X_\mathrm{min}$",
+                        "color": "black",
+                        "ls": "dashdot",
                     },
                 ],
             },
-            "legend_y_pos": -0.25,
-            "legend_cols": 2,
-            "hlines": [
-                {
-                    "y": sim_cfg["states"]["upper_bounds"]["T"],
-                    "label": r"$T_\mathrm{max}$",
-                    "color": "black",
-                    "ls": "dashdot",
-                },
-                {
-                    "y": sim_cfg["aux"]["lower_bounds"]["X"],
-                    "label": r"$X_\mathrm{min}$",
-                    "color": "black",
-                    "ls": "dashdot",
-                },
-            ],
-        },
-        save_path=plot_dir,
-    )
+            save_path=plot_dir,
+        )
 
     for surrogate_key in one_trajectory_dict.keys():
         # for surrogate_key in ["vanilla"]:
@@ -290,7 +291,7 @@ def run_mpc_performance(
             save_path=plot_dir,
             plot_cfg=plot_cfg,
             save_cfg={"show_fig": False, "export_name": f"control_loop_{surrogate_key}"},
-        )
+        )w
 
     # calculate mean performance -> mean selectivity
     kpi_dict = {}
