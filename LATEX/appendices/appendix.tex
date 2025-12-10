@@ -83,11 +83,10 @@ def forward(self, x: torch.Tensor) -> torch.Tensor:
     \begin{aligned}
         \frac{\partial \rho_{\alpha}}{\partial t} &=
         -\frac{\partial}{\partial z_k} \left( \rho_{\alpha} u_k + j_{k,\alpha} \right)
-        + \sigma_{\alpha} \quad \left[ \frac{\text{kg}}{\text{s} \cdot \text{m}_\text{R}^3} \right]
-        \quad \quad \Bigg | \; (1, 2) \\
+        + \sigma_{\alpha} \quad \left[ \frac{\text{kg}}{\text{s} \cdot \text{m}_\text{R}^3} \right] \\
         \frac{\partial c_{\alpha}}{\partial t} &= 
         -\frac{\partial}{\partial z} \left( c_{\alpha} u \right) +
-        r_j (c_{\alpha}, T) \\
+        R_\alpha (c_{\alpha}, T) \\
         \frac{\partial c_{\alpha}}{\partial t} &=
          - \frac{\partial}{\partial z} \left( c_{\alpha} u \right) +
          (1-\varepsilon) \sum_{j}^{N_\text{r}} \nu_{\alpha j} \cdot r_j \\
@@ -106,11 +105,51 @@ def forward(self, x: torch.Tensor) -> torch.Tensor:
          \sum \nu_{\alpha j} \cdot r_j (\chi_{\alpha}', T') \\
         \frac{\partial \chi_{\alpha}}{\partial t} &= 
         - u \frac{\partial \chi_{\alpha}}{\partial z} +
-        (1-\varepsilon) \frac{\mathrm{R}}{P} \frac{T_*}{x_*} \sum_i \nu_{\alpha j} \cdot r_j (\chi_{\alpha}, T)
+        (1-\varepsilon) \frac{\mathrm{R}}{P} \frac{T_*}{x_*}
+        + \sum_i \nu_{\alpha j} \cdot r_j (\chi_{\alpha}, T)
     \end{aligned}
 \end{equation}
 
 \subsection{Enthalpy Balance in local form}
+\begin{equation}
+    \label{app:eq:enthalpy-balance}
+    \begin{aligned}
+        \frac{\partial (\rho h)}{\partial t} - \frac{\partial p }{\partial t} &= 
+        -\frac{\partial}{\partial z_k} \bigg (\rho h u_k + q_k' \bigg) + 
+        u_k \frac{\partial p}{\partial z_k} + \sum_i j_{k,i} f_{k,i} -
+        \Pi_{j,k} \frac{\partial u_j}{\partial z_k} + \sigma_h \\
+        \rho \frac{\partial h}{\partial t} - \frac{\partial p}{\partial t} &=
+        - \rho u \frac{\partial h}{\partial z} + u \frac{\partial p}{\partial z} + \sigma_h \\
+        \rho \frac{\partial h}{\partial t} &= - \rho u \frac{\partial h}{\partial z} + \sigma_h \\
+        \rho c_p \frac{\partial T}{\partial t} &= - \rho u c_p \frac{\partial T}{\partial z} + \sigma_h \\
+        \frac{\partial T'}{\partial t} &= - u \frac{\partial T'}{\partial z} + \frac{1}{\rho c_p T_*} \sigma_h \\
+    \end{aligned}
+\end{equation}
+\begin{equation}
+    \label{app:eq:enthalpy-soruce-term}
+    \sigma_h = (1-\epsilon) \sum_j^{N_\text{r}} (-\Delta h_{\text{R},j})r_j
+        + \frac{4}{d_\text{t}} \alpha (T_\text{w} - T) 
+        \quad \quad \left[ \frac{\si{\joule}}{\si{\second} \cdot \si{\meter}_\text{R}^3} \right]
+\end{equation}
+\begin{equation}
+    \label{app:eq:differential-of-enthalpy}
+    \begin{aligned}
+        dh &= T ds - v dp \quad \text{with} \quad v = \frac{\text{R}T}{p}
+        \quad \text{and} \quad ds = dq/T \\
+        dh &= dq - \frac{\text{R}T}{p}dp \quad \quad \Big | \quad dq = c_\text{p}dT \quad \text{and} \quad dp = 0 \\
+        dh &= c_\text{p}dT
+    \end{aligned}
+\end{equation}
+
+\subsection{Lumped Properties}
+\begin{equation}
+    \label{app:eq:lumped-properties}
+    \begin{aligned}
+        \rho &= \epsilon \rho_\text{g} + (1-\epsilon) \rho_\text{s} \\
+        \rho_\text{g}(T) &= \frac{M_\text{tot} p}{\text{R}T} \\
+        c_\text{p} &= \epsilon c_\text{p,g} + (1-\epsilon) c_\text{p,s}
+    \end{aligned}
+\end{equation}
 
 \subsection{Heat Transfer Correlations}
 \begin{equation}
@@ -174,6 +213,73 @@ def forward(self, x: torch.Tensor) -> torch.Tensor:
     \end{aligned}
 \end{equation}
 
+\newpage
+\subsection{Modelling Nomenclature}
+\begin{longtable}{@{\extracolsep{\fill}}l l p{7cm}@{}}
+    \hline
+    \textbf{Symbol} & \textbf{Unit} & \textbf{Description} \\
+    \hline
+    \multicolumn{3}{l}{\textbf{Latin Symbols}} \\
+    $A_\mu, B_\mu, C_\mu$ & \si{\pascal\second\per\kelvin\squared}, \si{\pascal\second\per\kelvin}, \si{\pascal\second}
+    & Coefficients for gas viscosity calculation \\
+    $B$ & - & Auxiliary parameter for thermal conductivity \\
+    $c_{\alpha}$ & \si{\mole\per\cubic\meter} & Molar concentration of component $\alpha$ \\
+    $c_p$ & \si{\joule\per\kilogram\per\kelvin} & Specific heat capacity (mixture) \\
+    $c_{p,g}$ & \si{\joule\per\kilogram\per\kelvin} & Specific heat capacity of the gas phase \\
+    $c_{p,s}$ & \si{\joule\per\kilogram\per\kelvin} & Specific heat capacity of the solid phase \\
+    $d_p$ & \si{\meter} & Particle diameter \\
+    $d_t$ & \si{\meter} & Tube (reactor) diameter \\
+    $h$ & \si{\joule\per\kilogram} & Specific enthalpy \\
+    $\Delta h_{\text{R},j}$ & \si{\joule\per\mole} & Enthalpy of reaction $j$ \\
+    $j_{k,\alpha}$ & \si{\kilogram\per\square\meter\per\second} & Diffusive mass flux of component $\alpha$ in direction $k$ \\
+    $k_c$ & - & Core thermal conductivity parameter \\
+    $k_p$ & - & Ratio of particle to gas thermal conductivity \\
+    $M_\text{tot}$ & \si{\kilogram\per\mole} & Molar mass of the mixture \\
+    $N$ & - & Auxiliary parameter for thermal conductivity \\
+    $N_\text{r}$ & - & Number of chemical reactions \\
+    $\mathrm{Nu}_\text{w}$ & - & Nusselt number at the wall \\
+    $n$ & \si{\mole} & Molar amount \\
+    $p$ & \si{\pascal} & Pressure \\
+    $\mathrm{Pr}$ & - & Prandtl number \\
+    $q_k'$ & \si{\joule\per\square\meter\per\second} & Heat flux vector (dispersion and conduction) \\
+    $\mathrm{R}$ & \si{\joule\per\mole\per\kelvin} & Universal gas constant \\
+    $\mathrm{Re}_0$ & - & Reynolds number (based on superficial velocity) \\
+    $R_\alpha$ & \si{\mole\per\cubic\meter\per\second} & Production or consumption rate of component $\alpha$ \\
+    $r_j$ & \si{\mole\per\cubic\meter\per\second} & Reaction rate of reaction $j$ \\
+    $T$ & \si{\kelvin} & Temperature \\
+    $T_\text{w}$ & \si{\kelvin} & Wall temperature \\
+    $t$ & \si{\second} & Time \\
+    $u, u_k$ & \si{\meter\per\second} & Fluid velocity in direction $k$ \\
+    $V$ & \si{\cubic\meter} & Volume \\
+    $x_{\alpha}$ & - & Mole fraction of component $\alpha$ \\
+    $z, z_k$ & \si{\meter} & Spatial coordinate \\
+    & & \\
+    \multicolumn{3}{l}{\textbf{Greek Symbols}} \\
+    $\alpha$ & \si{\watt\per\square\meter\per\kelvin} & Heat transfer coefficient (wall) \\
+    $\epsilon$ & - & Bed porosity (void fraction) \\
+    $\epsilon_0$ & - & Bulk porosity \\
+    $\lambda_\text{bed}$ & \si{\watt\per\meter\per\kelvin} & Effective thermal conductivity of the bed \\
+    $\lambda_\text{g}$ & \si{\watt\per\meter\per\kelvin} & Thermal conductivity of the gas \\
+    $\lambda_\text{p}$ & \si{\watt\per\meter\per\kelvin} & Thermal conductivity of the particle \\
+    $\mu_\text{g}$ & \si{\pascal\second} & Dynamic viscosity of the gas \\
+    $\nu_{\alpha j}$ & - & Stoichiometric coefficient of component $\alpha$ in reaction $j$ \\
+    $\Pi_{j,k}$ & \si{\pascal} & Stress tensor components \\
+    $\rho$ & \si{\kilogram\per\cubic\meter} & Density (effective/lumped) \\
+    $\rho_\alpha$ & \si{\kilogram\per\cubic\meter} & Mass concentration (partial density) of component $\alpha$ \\
+    $\rho_\text{g}$ & \si{\kilogram\per\cubic\meter} & Density of the gas phase \\
+    $\rho_\text{s}$ & \si{\kilogram\per\cubic\meter} & Density of the solid phase \\
+    $\sigma_\alpha$ & \si{\kilogram\per\cubic\meter\per\second} & Mass source term for component $\alpha$ \\
+    $\sigma_h$ & \si{\joule\per\cubic\meter\per\second} & Enthalpy source term (heat generation) \\
+    $\chi_{\alpha}$ & \si{\mole\per\kelvin} & Dimensionless mole fraction measure (related to $x/T$) \\
+    & & \\
+    \newpage
+    \multicolumn{3}{l}{\textbf{Superscripts/Subscripts}} \\
+    $'$ & - & Dimensionless variable \\
+    $*$ & - & Reference value \\
+    $0$ & - & w.r.t superficial velocity \\
+    \hline
+\end{longtable}
+
 \subsection{Reactor Config}
 \begin{lstlisting}[frame=single]
   boundary_conditions: {
@@ -235,8 +341,47 @@ lam_bed: 0.4037066551257339
 L: 10 # [m]
 d: 0.1 # tube diam. [m]
 Nt: 5523 # tube count
+Dax = 0 # no axial dispersion
 
 # ---- Cooling shell ----
 T_c: 600 # [K]
 n_c: 4
+\end{lstlisting}
+
+\subsection{Model Implementation}
+\begin{lstlisting}[frame=single]
+"chi_E": (
+    lambda chi_E_n, chi_E, chi_E_b, chi_O2, chi_CO2, T: -u_flow * (chi_E - chi_E_b) / self.Del_z
+    - p["Dax"] * (chi_E_n - 2 * chi_E + chi_E_b) / self.Del_z**2
+    + (1 - eps) / A * (self.nu_E[0] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1) + self.nu_E[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+),
+"chi_O2": (
+    lambda chi_O2_n, chi_O2, chi_O2_b, chi_E, chi_CO2, T: -u_flow * (chi_O2 - chi_O2_b) / self.Del_z
+    - p["Dax"] * (chi_O2_n - 2 * chi_O2 + chi_O2_b) / self.Del_z**2
+    + (1 - eps) / A * (self.nu_O2[0] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1) + self.nu_O2[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+),
+"chi_EO": (
+    lambda chi_EO_n, chi_EO, chi_EO_b, chi_E, chi_O2, chi_CO2, T: -u_flow * (chi_EO - chi_EO_b) / self.Del_z
+    - p["Dax"] * (chi_EO_n - 2 * chi_EO + chi_EO_b) / self.Del_z**2
+    + (1 - eps) / A * (self.nu_EO[0] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1))
+),
+"chi_H2O": (
+    lambda chi_H2O_n, chi_H2O, chi_H2O_b, chi_E, chi_O2, chi_CO2, T: -u_flow * (chi_H2O - chi_H2O_b) / self.Del_z
+    - p["Dax"] * (chi_H2O_n - 2 * chi_H2O + chi_H2O_b) / self.Del_z**2
+    + (1 - eps) / A * (self.nu_H2O[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+),
+"chi_CO2": (
+    lambda chi_CO2_n, chi_CO2, chi_CO2_b, chi_E, chi_O2, T: -u_flow * (chi_CO2 - chi_CO2_b) / self.Del_z
+    - p["Dax"] * (chi_CO2_n - 2 * chi_CO2 + chi_CO2_b) / self.Del_z**2
+    + (1 - eps) / A * (self.nu_CO2[1] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+),
+"T": lambda T_n, T, T_b, chi_E, chi_O2, chi_CO2, T_c: (
+    -u_flow * (T - T_b) / self.Del_z
+    - p["Dax"] * (T_n - 2 * T + T_b) / self.Del_z**2
+    + (self._rho_tot(T, eps) * cp_tot) ** (-1)
+    * (
+        (1 - eps) / p["T_in"] * (-p["dHR1"] * self._r1(chi_E, chi_O2, chi_CO2, T, k1, EA1) - p["dHR2"] * self._r2(chi_E, chi_O2, chi_CO2, T, k2, EA2))
+        + 4 / p["d"] * self._alpha_w(T, lam_bed, cp_g, u_flow) * (T_c / p["T_in"] - T)
+    )
+),
 \end{lstlisting}

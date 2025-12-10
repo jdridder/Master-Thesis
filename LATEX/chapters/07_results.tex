@@ -9,7 +9,7 @@ Finally, the suitability of the derived NARX models in an MPC algorithm should b
 \section{Training Efficiency}
 \label{results:sec:training-efficiency}
 
-To assess, how the physics-constrained activation function alters the training progress,
+To assess, how the PC activation function alters the training progress,
 the \emph{validation loss} is analysed. For simplicity, one NARX predictor is trained in two different
 variations and varying number of hidden neurons using the
 MSE. The first one is configured as a basic NN (vanilla). The second one holds the same configuration
@@ -25,15 +25,15 @@ Here, the training and validation fractions are $0.8$ and $0.2$ respectively.
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/001_val_loss.pdf}
-    \caption[Validation loss of vanilla NARX vs physics-constrained NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
-    during the training of the vanilla NARX (dashed line) and the physics-constrained NARX (solid line). The three data rows indicate
-    \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons each. The physics-constrained NARX converges faster
+    \caption[Validation loss of vanilla NARX vs PC-NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
+    during the training of the vanilla NARX (dashed line) and the PC-NARX (solid line). The three data rows indicate
+    \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons each. The PC-NARX converges faster
     than the vanilla NARX.}
     \label{results:fig:validation_loss}
 \end{figure}
 \newline
 \newline
-All physics-constrained NARX models with varying number of hidden neurons
+All PC-NARX models with varying number of hidden neurons
 converge faster to lower validation losses than
 their unconstrained peers. After two consecutive drops in validation loss during the first $150$ epochs,
 all models stagnate which is common in NN training. Close to a local minimum w.r.t to the trainable
@@ -59,17 +59,17 @@ if a sufficiently large amount of high-quality data is supplied.
 \newline
 In reality, training data is often noisy and only available in limited amount.
 Computing power and memory are expensive in time and investment. The training duration
-and network complexity should be kept to a minimum. Hence, the physics-constrained activation
+and network complexity should be kept to a minimum. Hence, the PC activation
 presents a great opportunity to speed up NN training convergence. It also
 allows to reduce the network size or the amount of training data,
 while the prediction accuracy of an unconstrained NN is retained. It can be shown, that
-physics-constrained NNs perform \SI{18}{\%} better than basic NNs when the amount training
+PCNNs perform \SI{18}{\%} better than basic NNs when the amount training
 data is reduced to \SI{60}{\%} in one specific case of modelling an extractive distillation~\cite{chen2024}.
 For a process model in the simulation software \emph{Aspen Plus}, the PC-NN yielded an improvement of \SI{25}{\%} w.r.t validation loss 
 under the same conditions. These findings by Chen et al. \cite{chen2024} correlate with this work.
 Reducing the network size is especially interesting for MPC applications, where it
 significantly influences the online optimization w.r.t the input variables.
-Thus, reducing the network size of a physics-constrained NARX may be truly advantagous.
+Thus, reducing the network size of a PC-NARX may be truly advantagous.
 \newline
 \newline
 \noindent
@@ -204,41 +204,41 @@ Additionally, the error does not add up over time.
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_naive_pc.pdf}
-    \caption[Physics violation of the naive physics-constrained NARX]
+    \caption[Physics violation of the naive PC-NARX]
     {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
     of the vanilla NARX framework. The residual is forced to zero up to \SI{64}{\bit} precision.}
     \label{results:fig:pc_violation_naive}
 \end{figure}
 \newline
 \newline
-The same is done with the naive-NARX models that are not trained with the physics-constrained
+The same is done with the naive-NARX models that are not trained with the PC
 activation, but simply apply it to their output (fig.~\ref{results:fig:pc_violation_naive}). The 
 balance error during the simulation shows a completely different picture. All models achieve
 vanishing balance errors at \SI{64}{bit} precision of \SI{3.4e-16}{}. These appear consistent over the complete
-simulation horizon. The naively physics-constrained models exhibit even smaller balance errors than the initial measurement itself, which stems
+simulation horizon. The naively PC models exhibit even smaller balance errors than the initial measurement itself, which stems
 from a first principle simulation, due to fewer rounding errors. There is no noticable difference
 between the nominal predictions $\mathbb{E}$ (green) and the conditioned quantile predictions $Q_{0.9}$ (yellow) and $Q_{0.1}$ (purple)
 in contrast to their vanilla versions. Additionally, this can be interpreted as a proof of concept
-for the physics-constrained activation $g_\text{pc}$. It enforces linear equality constraints up to machine precision, even
+for the PC activation $g_\text{pc}$. It enforces linear equality constraints up to machine precision, even
 if it is not used during training.
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_pc}
-    \caption[Physics violation of the physics-constrained NARX]
+    \caption[Physics violation of the PC-NARX]
     {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
     of the vanilla NARX framework.}
     \label{results:fig:pc_violation_pc}
 \end{figure}
 \newline
 \newline
-Finally, the balance error is plotted for the PC-NARX, that uses the physics-constrained
+Finally, the balance error is plotted for the PC-NARX, that uses the PC
 activation during training and simulation (fig.~\ref{results:fig:pc_violation_pc}). While it significantly improves
 training efficiency, it also enforces linear equality constraints in an open-loop simulation up to \SI{32}{\bit} precision.
 Similarly to the naive application, all three NARX models achieve the same contraint residual error
-of \SI{1.7e-7}{}. A difference between the physics-constrained nominal trajectory (green) and the quantile conditioned (yellow, purple)
+of \SI{1.7e-7}{}. A difference between the PC nominal trajectory (green) and the quantile conditioned (yellow, purple)
 trajectories is not existent. It is worth noticing, that the minimum possible contraint residual differs 
 between the naive- and the PC-NARX. The naive version is not trained with the 
-physics-constrained activation $g_\text{pc}$. It is applied \emph{a posteriori} and implemented using
+PC activation $g_\text{pc}$. It is applied \emph{a posteriori} and implemented using
 a \texttt{casadi}-function object. The PC version owns a direct implementation of $g_\text{pc}$
 into a \texttt{torch.nn.Module}. Eventhough it is converted into a \texttt{casadi} expression to be
 simulated in \texttt{do-mpc}, it still keeps the \SI{32}{\bit} precision of the \texttt{torch.float32}-object.
@@ -257,7 +257,7 @@ the simulation results for the expected value and quantile NARX models are illus
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_-1.pdf}
     \caption[Forward simulation of the vanilla-NARX framework for the temperature.]
-    {Forward simulation of the vanilla-NARX framework without physics-constrained activation for 
+    {Forward simulation of the vanilla-NARX framework without PC activation for 
     \SI{480}{\second}. The scaled temperature $T'$ is shown for two measurement positions $z=0.25L$ and
     $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters
     for \SI{512}{\second}.}
@@ -296,7 +296,7 @@ coordinates are presented (fig.~\ref{results:fig:vanilla_temperature_sim}).
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_2.pdf}
     \caption[Forward simulation of the vanilla-NARX framework for the dimensionless concentration.]
-    {Forward simulation of the vanilla-NARX framework without physics-constrained activation for 
+    {Forward simulation of the vanilla-NARX framework without PC activation for 
     \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
     for two measurement positions $z=0.25L$ and
     $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters.}
@@ -324,14 +324,14 @@ interpretation. Furthermore, a distinct probabilistic coverage cannot be guarant
 To enhance the simulation capability of the quantile-conditioned models, the physics
 constrained activation function is employed. The dimensionless concentration
 measures act as the conservation quantity at all reactor positions.
-When the physics-constrained activation is applied naively (fig.~\ref{results:fig:naive_concentration_sim}) (dash-dotted), so only during simulation
+When the PC activation is applied naively (fig.~\ref{results:fig:naive_concentration_sim}) (dash-dotted), so only during simulation
 but not during training, the trajectories of the quantile-conditioned models do not differ
 noticably to their vanilla version (fig.~\ref{results:fig:vanilla_concentration_sim}).
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_naive_pc_2.pdf}
     \caption[Forward simulation of the naive-NARX framework for the dimensionless concentration.]
-    {Forward simulation of the naive\_pc NARX framework with physics-constrained activation for 
+    {Forward simulation of the naive\_PC-NARX framework with PC activation for 
     \SI{480}{\second}. The scaled concentration measure of ethylene oxide $\chi_\text{EO}$ is shown
     for two measurement positions $z=0.25L$ and
     $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters.}
@@ -339,14 +339,14 @@ noticably to their vanilla version (fig.~\ref{results:fig:vanilla_concentration_
 \end{figure}
 \newline
 \newline
-When the fully physics-constrained NARX architecture is simulated forward in time, a small improvement
+When the fully PC-NARX architecture is simulated forward in time, a small improvement
 w.r.t the positioning of the quantile-conditioned boundaries can be noticed (fig.~\ref{results:fig:pc-concentration-sim}).
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_2.pdf}
-    \caption[Forward simulation of the PC NARX framework for the dimensionless concentration.]
-    {Forward simulation of the PC NARX framework with physics-constrained activation for 
-    \SI{480}{\second}. The fully physics-constrained framework exhibits a minor improvement to the 
+    \caption[Forward simulation of the PC-NARX framework for the dimensionless concentration.]
+    {Forward simulation of the PC-NARX framework with PC activation for 
+    \SI{480}{\second}. The fully PC framework exhibits a minor improvement to the 
     vanilla NARX framework.}
     \label{results:fig:pc-concentration-sim}
 \end{figure}
@@ -354,9 +354,9 @@ For the majority of time instances, the upper quantile-conditioned NARX (yellow)
 trajectory (green) to its top even for the narrow distribition at $z=0.25L$. The same yields for the lower
 quantile-conditioned NARX (purple), which limits the expected value to the bottom. Accordingly, the number
 of crossing events is reduced. This represent a slightly more meaningful estimation of the concentration measure
-by the fully physics-constrained NARX framework than by the naive or vanilla versions.
-Because the \emph{a posteriori} application of the physics-constrained activation does not truly alter
-the resulting trajectories, the physics-constrained activation 
+by the fully PC-NARX framework than by the naive or vanilla versions.
+Because the \emph{a posteriori} application of the PC activation does not truly alter
+the resulting trajectories, the PC activation 
 is assumed to enhance the learning capability of NARX models.
 This statement is underlined by the significantly faster training convergence.
 In summary, model parameters are learned much better for
@@ -476,11 +476,11 @@ of quantile calibration with CQR (sec.~\ref{theory: CQR}) and a more complex net
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/naive_pc_coverage_width.pdf}
     \caption[Coverage and relative interval width of the naive-pc framework.]
     {Coverage (purple) and relative interval width (green) for the temperature quantiles of the NARX models
-    in the naive physics-constrained framework. The ideal intended coverage (dashed line) lies at $0.8$.}
+    in the naive PC framework. The ideal intended coverage (dashed line) lies at $0.8$.}
     \label{results:fig:naive-coverage-width}
 \end{figure}
 \noindent
-In essence, the same behavior is exhibted by the naively physics-constrained NARX framework (fig.~\ref{results:fig:naive-coverage-width}).
+In essence, the same behavior is exhibted by the naively PC-NARX framework (fig.~\ref{results:fig:naive-coverage-width}).
 The mean coverage growths from \SI{0.783}{} to \SI{0.983}{} over the reactor length yielding the same
 over-coverage pattern as the vanilla version. The distribution of calculated coverages itself 
 is asymmetrical towards higher values. In terms of the empirical standard deviation $s$, no
@@ -494,31 +494,31 @@ no significant change.
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/pc_coverage_width.pdf}
     \caption[Coverage and relative interval width of the PC framework.]
     {Coverage (purple) and relative interval width (green) for the temperature quantiles of the NARX models
-    in the fully physics-constrained framework. The ideal intended coverage (dashed line) lies at $0.8$.}
+    in the fully PC framework. The ideal intended coverage (dashed line) lies at $0.8$.}
     \label{results:fig:pc-coverage-width}
 \end{figure}
 \noindent
-Due to the altered training approach, the physics-constrained framework demonstrates a slight change
+Due to the altered training approach, the PC framework demonstrates a slight change
 in coverage and relative interval width (fig.~\ref{results:fig:pc-coverage-width}) remaining
 in the same spatial pattern. Its coverage rises from \SI{0.814}{} to \SI{0.986}{} over the $z$-coordinate.
 W.r.t the desired coverage of $0.8$ there is no improvement visible. At the first measurement,
 the vanilla framework displays a better median (fig.~\ref{results:fig:vanilla-coverage-width}),
-while the physics-constrained framework has a better average value (tab.~\ref{results:tab: coverage_intervall_width}).
+while the PC framework has a better average value (tab.~\ref{results:tab: coverage_intervall_width}).
 Nevertheless, the PC-framework shows a decrease in coverage deviation at all positions
 in comparison to the other two approaches. The uncertainty in the coverage is reduced by 
 \SI{13.3}{\%}, \SI{12.6}{\%}, \SI{11.2}{\%} and \SI{14.3}{\%} for the coordinates $z/L \in \{0.25, 0.5, 0.75, 1\}$
 which implies a more reproducable coverage prediction.
 However, its efficiency is worsened, because the relative interval width enlarges
 slightly but measurably by \SI{11.6}{\%}, \SI{3.5}{\%}, \SI{2.9}{\%} and \SI{2.8}{\%}
-in comparison to the vanilla framework. It is assumed that the physics-constrained framework reduces the accumulation
+in comparison to the vanilla framework. It is assumed that the PC framework reduces the accumulation
 of prediction errors and thus provides slightly better reproducabilitiy.
 \newline
 \newline
-In total, the vanilla, naive and physics-constrained NARX frameworks perform equally.
+In total, the vanilla, naive and PC-NARX frameworks perform equally.
 All have in common, that the desired coverage is achieved at the first measurement position
 followed by an over-coverage in spatially increasing manner. Especially the rising uncertainty
 along the axial reactor coordinate due to succeeding residence time represents a challenge
-for recursive quantile estimation. Even enhancements such as CQR and a physics-constrained
+for recursive quantile estimation. Even enhancements such as CQR and a PC
 activation function cannot provide a remedy. The models struggle to capture the heteroscedasticity in 
 the distribution caused by the spatial coordinate. It may be beneficial to introduce
 the measurement position as an NN input. This could help learning the spatial dependence better as well as
@@ -534,7 +534,7 @@ Nonetheless, the tendency towards over-coverage is welcomed compared to under-co
 as it enforces contraint satisfaction and thus safety over objective performance.  
 The introduction of an \emph{a posteriori}-only or naive
 PC-activation function does not lead to recognizable differences to the basic NARX framework. 
-In contrast, a physics-constrained activation function applied during training and inference
+In contrast, a PC activation function applied during training and inference
 achieves a change. It improves the learning of equation governed data as shown (sec.~\ref{results:sec:training-efficiency}). 
 In the recursive forward simulation though, it causes minimally wider confidence intervals and
 smaller deviations in the coverage predictions. It is neither counted as a significant improvement, nor a
@@ -544,9 +544,9 @@ deterioration in the straight simulation.
 \label{MPC-Performance-and-Robustness}
 
 As the last part of this work, the control performance of an MPC, that relies on the mentioned
-NARX frameworks vanilla, naive and physics-constrained (pc) is to be analyzed.
-On one hand, an apropriate MPC controller is to be postulated and tuned.
-On the other hand, a series of closed-loop simulations is to be completed to calculate the
+NARX frameworks vanilla, naive and PC (pc) is to be analyzed.
+On one hand, an apropriate MPC controller is postulated and tuned.
+On the other hand, a series of closed-loop simulations is completed to calculate the
 performance indicators selectivity, constraint violation, control effort and runtime.
 To investigate the effect of the uncertainty quantification (UQ), the MPC is run including a
 nominal NARX architecture with expected value models only.
@@ -634,10 +634,17 @@ $250$, $20$, $15$ and $10$. Here, the very first wall temperature has the bigges
 of the TR. Due to the plug-flow it is most prone to induce oscillation into the system. Thus, its change
 is penalized much higher than the other temperatures. The missing dispersion of the flow makes the system
 especially sensitive to varying inputs. Further, the wall temperatures are subject to a lower bound $T_\text{w,lb}$ of 
-\SI{580}{} and an upper bound $T_\text{w,ub}$ of \SI{625}{\kelvin}. To ensure negative heat flow, the
+\SI{580}{} and an upper bound $T_\text{w,ub}$ of \SI{625}{\kelvin}. 
+The cooling is realized by water evaporation in the jacket and adjusted via the vapor pressure.
+Therefore, only reactor cooling is possible and heating should be made infeasible for the controller.
+To ensure negative heat flow, the
 cooling temperatures of the reactor jacket $\bm{T}_{\text{w},k}$ must remain below the reaction temperature 
 at the respective measurements $\bm{T}_k$. Otherwise, the controller would also exploit heating to 
-further improve the selectivity which is not allowed. For better convergence of the interior point optimizer
+further improve the selectivity which is not allowed.
+A pitfall of this constraint is that it cannot be guaranteed at every exact axial position but only for the 
+depicted measurements. It is introduced to provide a somewhat better realism and
+it is not considered a crucial constraint for performance or robustness.
+For better convergence of the interior point optimizer
 \cite{Waechter2006}, the constraints on maximum temperature, minimum conversion and negative heat flow are
 considered as \emph{soft} constraints. Their respective slack variables are given as $\lambda_1$, $\lambda_2$ and
 $\lambda_3$. A violation of the maximum temperature constraint as well as finessing the heat flow direction
@@ -651,15 +658,71 @@ between selectivity, conversion, maximum temperature violation, input oscillatio
 While other tuning approaches such as plain grid search or Bayesian optimization exist,
 the manual procedure allows for a better understanding of the MPC-system relationship.
 
-\subsection{Vanilla NARX}
+
+\subsection{Nominal NARX}
+
 To control the system, one time-varying signal is sampled for the input flow speed as well as 
-a constant combination for the first principle model parameters. 
-Using an MPC algorithm based on the vanilla NARX architecture with UQ via CQR,
-a control loop is executed over\SI{400}{\second} steps with given time step lengths and control frequency (tab.~\ref{results:tab:MPC-configuration}).
+a constant combination for the first principle model parameters.
+While the inlet temperature of \SI{625}{\kelvin} and mole fractions are constant, the inlet
+flow speed $u$ can fluctuate in steep ramps between \SI{0.2}{} and \SI{0.4}{\meter \; \second^{-1}}.
+Using \SI{0.4}{\meter \; \second^{-1}} as the reference, the reactor is confronted with a load 
+range between \SI{100}{\%} and \SI{50}{\%} (fig.~\ref{results:fig:MPC-loop-nominal} (c)).
+This is assumed to be challenging and realistic at the same time like in
+carbon dioxide methanation \cite{fischer2021}.
+Other than the uncertain parameters, the flow speed is known in advance by the MPC algorithm and
+implemented as a time-varying parameter (\texttt{tvp}) in \texttt{do-mpc}. 
+A control loop is executed over $200$ control steps with given control step length of \SI{2}{\second} 
+and simulation step length of \SI{1}{\second} (tab.~\ref{results:tab:MPC-configuration}).
 With a duration of \SI{20}{} times the system's greatest time constant, this horizon length is considered 
 representative for a real application.
-The resulting trajectories for all system measurements, inputs, throughput flow rate,
+The nominal NARX architecture employs expected value NNs only and does not account for
+UQ (fig.~\ref{results:fig:MPC-loop-nominal}).
+The color gradient denotes the measurement position along the $z$-coordinate.
+Purple represents $z/L = 0.25$, blue $0.50$, green $0.75$ and yellow $1.0$, which is effectively the outlet. 
+Further, the graphic shows the reactor temperature as
+most important system measurement (a), the control
+inputs (b), the inlet flow speed (c), conversion and selectivity (d) (fig.~\ref{results:fig:MPC-loop-nominal}).
+\newline
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_nominal.pdf}
+    \caption[Control loop - NARX without uncertainty quantification.]
+    {Control loop with the nominal NARX framework without UQ.
+    (a) reactor temperatures. (b) input wall temperatures. (c) fluctuating inlet flow speed.
+    (d) selectivity and conversion. The color gradient indicates the axial position.}
+    \label{results:fig:MPC-loop-nominal}
+\end{figure}
+
+\noindent
+To have a reference, the nominal result is discussed briefly. 
+A more detailed explaination of the control is done for the 
+more rigorous vanilla UQ-based MPC (sec.~\ref{results:sec:vanilla-NARX}).
+The nominal MPC forecasts violations of the minimum conversion constraint and increases the first wall temperature
+at \SI{60}{}, \SI{160}{}, \SI{240}{} and \SI{320}{\second} (fig.~\ref{results:fig:MPC-loop-nominal}~(b)).
+This increase occurs harshly to values
+above \SI{605}{\kelvin}.
+Consequently, the inputs suffer a lot from undershoots and oscillation in all cooling compartments
+(I).
+Due to the uncaptured plant-model mismatch, the nominal MPC repeatedly exceeds the critical maximum 
+reactor temperature of \SI{630}{\kelvin} (fig.~\ref{results:fig:MPC-loop-nominal} (a) II).
+The MPC is trapped in a bounce-back between minimum conversion, maximimum temperature and confronted
+with an undamped system without dispersion or smoothing effects which causes the increase in oscillation.
+The fact, that the third (green) and fourth (yellow) reactor temperatures fluctuate right at the maximimum
+temperature constraint, underlines how poorly the surrogates describe the parametric uncertainty.
+Eventhough maximum temperature exceedings are performed, which endager safe operation,
+the nominal MPC does not avoid violations of minimum conversion
+(fig.~\ref{results:fig:MPC-loop-nominal}~(d)~III).
+
+\subsection{Vanilla NARX}
+\label{results:sec:vanilla-NARX}
+
+An MPC is run with the vanilla surrogate ensemble based on UQ via CQR with the
+exact same parameter combination and inlet flow speed trajectory as the nominal one.
+The resulting trajectories for the temperature measurements, inputs, throughput flow rate,
 selectivity and conversion are plotted (fig.~\ref{results:fig:MPC-loop-vanilla}).
+To have a better idea about the system as a whole, the dimensionless concentration
+measures $\chi_{(\cdot)}$ are indicated as well.
 \newline
 
 \begin{figure}
@@ -674,16 +737,8 @@ selectivity and conversion are plotted (fig.~\ref{results:fig:MPC-loop-vanilla})
 \end{figure}
 
 \noindent
-The color gradient denotes the measurement position along the $z$-coordinate which turns from 
-purple to yellow starting at $z/L = 0.25$. While the inlet temperature of \SI{625}{\kelvin} and mole fractions are constant, the inlet
-flow speed $u$ can fluctuate in steep ramps between \SI{0.2}{} and \SI{0.4}{\meter \; \second^{-1}}.
-Using \SI{0.4}{\meter \; \second^{-1}} as the reference, the reactor is confronted with a load 
-range between \SI{100}{\%} and \SI{50}{\%} (fig.~\ref{results:fig:MPC-loop-vanilla} (h)).
-This is assumed to be challenging and realistic at the same time like in
-carbon dioxide methanation \cite{fischer2021}.
-Other than the uncertain parameters, the flow speed is known in advance by the MPC algorithm and
-implemented as a time-varying parameter (\texttt{tvp}) in \texttt{do-mpc}.
-Regarding the dimensionless concentration measures $\chi_{(\cdot)}$ for the components (fig.~\ref{results:fig:MPC-loop-vanilla} (a–e)), 
+Regarding the dimensionless concentration measures $\chi_{(\cdot)}$ for the components
+(fig.~\ref{results:fig:MPC-loop-vanilla} (a–e)), 
 a reasonable consumption of educts and production of products is indicated.
 Ethylene (E) and oxygen (O$_2$) decrease over the reactor length with $z/L = 0.25$ (purple)
 showing the highest and the reactor outlet (yellow) the lowest values.
@@ -705,6 +760,9 @@ hits its lower boundary of $0.5$. Here, the MPC with the vanilla NARX framework 
 to anticipate the constraint violation and counteract with reduced cooling in all compartments
 (fig.~\ref{results:fig:MPC-loop-vanilla} (g)). The same behavior is observed at \SI{160}{}, \SI{260}{}
 and \SI{320}{\second}, where the throughput amplifies each time.
+Increases in the first cooling temperature occur more gentle with a maximum
+of \SI{600}{\kelvin} compared to the nominal MPC
+with values up to \SI{605}{\kelvin} (fig.~\ref{results:fig:MPC-loop-nominal}~(b)).
 Additionally, the controller prefers to cool the reaction mixture at the beginning of the reactor (purple)
 more strongly to counteract a hotspot formation (fig.~\ref{results:fig:MPC-loop-vanilla} (g)).
 To correct for unreacted educts, the wall temperatures
@@ -728,7 +786,12 @@ The observed oscillations appear to follow the load increases at
 \SI{0}{}, \SI{80}{}, \SI{160}{}, \SI{250}{} and \SI{320}{\second}
 (fig.~\ref{results:fig:MPC-loop-vanilla} (h)).
 Here, the controller must react to the lower residence time and the threat to cross the conversion
-constraint. These oscillations, that follow an undershoot, are undesired (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~(green) I)
+constraint. 
+The regularization of the control inputs becomes smaller compared to the soft constraint
+violation and vanish from the objective function landscape.
+Thus, the MPC chooses to change the input more often.
+These oscillations, that follow an undershoot,
+are undesired (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~(green) I)
 and indicate how badly the convection dominated system damps disturbances.
 Because the lack of axial dispersion does not allow for natural damping, the controller
 must be able to reliably predict the system dynamics to avoid oscillation.
@@ -738,9 +801,9 @@ As it only acts on the level of the truncation error of
 $\mathcal{O}(\Delta z)$ of the backward finite difference method, its effect is extremely weak.
 In case of the PFTR, numerical diffusion contributes to axial dispersion, eventhough 
 dispersion and diffusion are separate phenomena in a physical sense.
-For better stability, it is more suitable and realistic to model axial dispersion of the flow.
+For better stability, it is more suitable and at the same time realistic to model axial dispersion of the flow.
 Besides a high prediction accuracy, a long-enough prediction horizon and a greater regularization term
-could reduce switching of the input. Further, it is interesting, whether a physics-constrained NARX
+could reduce switching of the input. Further, it is interesting, whether a PC-NARX
 framework is able to yield an improvement or not.
 \newline
 \newline
@@ -749,7 +812,17 @@ Moving on to the reactor temperature (fig.~\ref{results:fig:MPC-loop-vanilla}~(f
 the controller is able to avoid the violation of the maximum temperature constraint (II, black, dash-dotted)
 of \SI{630}{\kelvin} for all temperature measurements $T$.
 Especially at the outlet of the reactor (yellow), the controller operates close to the constraint
-without a violation. This is achieved eventhough the kinetic
+without a violation. 
+In contrast to the nominal MPC, the vanilla MPC with UQ
+can maneuver the reactor very closely at the maximum temperature
+(fig.~\ref{results:fig:MPC-loop-vanilla} (f)) in robust manner.
+While undershoots and oscillations appear,
+they are reduced compared to the nominal MPC. This comes not at the cost of a 
+lower conversion (fig.~\ref{results:fig:MPC-loop-vanilla} (i) III). Nominal and vanilla
+MPC controllers achieve comparable violations of the conversion limit. So, the employment 
+of quantile regression NARX models causes a significant improvement regarding robustness in
+the temperature (fig.~\ref{results:fig:MPC-loop-vanilla} (f) II).
+This is achieved eventhough the kinetic
 parameters of the first principle model are not only unknown but generated randomly.
 The UQ via quantile regression works and ensures constraint satisfaction
 for the uncertain measurement of the temperature for this specific parameter combination.
@@ -780,7 +853,10 @@ solution duration climbs to approximately \SI{6}{\second}. This is likely a resu
 optimization landscape. Here, the system is endangered to hit the minimum conversion constraint
 due to a higher input flow. Thus, the penalty of the slack variable $\lambda_2$ induces
 a gradient, that pushes the interior point away from the strict inequality constraint of the 
-input variable. With regard to real applicability, the \texttt{ipopt} solution time
+input variable. Additionally, the control input regularization becomes less influential,
+that previously may caused a local minimum. The optimizer needs to find a new one leading
+to an increased convergence duration.
+With regard to real applicability, the \texttt{ipopt} solution time
 becomes an obstacle for the control frequency of \SI{0.5}{\second^{-1}}. 
 To realize feasibility, the time step length of the prediction horizon may be doubled to \SI{4}{\second}
 which would effectively reduce the amount of optimization variables to one half.
@@ -790,57 +866,21 @@ Therefore, the solution time would shrink roughly by \SI{50}{\%}.
 Further, the training of the NARX models must be adjusted accordingly
 to account for a \SI{4}{\second} time step. This would come at the cost of a worse
 representation of the fast system dynamics.
-
-
-\subsection{Nominal NARX}
-
-The nominal NARX architecture employs expected value NNs only and does not account for
-UQ. An MPC is run with this specific surrogate ensemble with the
-exact same parameter combination and inlet flow speed trajectory as the vanilla one (fig.~\ref{results:fig:MPC-loop-nominal}).
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_nominal.pdf}
-    \caption[Control loop - NARX without uncertainty quantification.]
-    {Control loop with the nominal NARX framework without UQ.
-    (a) reactor temperatures. (b) input wall temperatures. (c) fluctuating inlet flow speed.
-    (d) selectivity and conversion. The color gradient indicates the axial position.}
-    \label{results:fig:MPC-loop-nominal}
-\end{figure}
-Similarly, it forecasts violations of the minimum conversion constraint and increases the first wall temperature
-at \SI{60}{}, \SI{160}{}, \SI{240}{} and \SI{320}{\second} (fig.~\ref{results:fig:MPC-loop-nominal}~(b)).
-This increase occurs much more drastically
-above \SI{605}{\kelvin} than in the vanilla UQ case with a maximum of \SI{600}{\kelvin}.
-Consequently, the inputs suffer a lot more from undershoots and oscillation in all cooling compartments
-(I).
-\newline
-\newline
-\noindent
-Due to the uncaptured plant-model mismatch, the nominal MPC repeatedly exceeds the critical maximum 
-reactor temperature of \SI{630}{\kelvin} (fig.~\ref{results:fig:MPC-loop-nominal} (a) II).
-The MPC is trapped in a bounce-back between minimum conversion, maximimum temperature and confronted
-with an undamped system which causes the increase in oscillation.
-The fact, that the third (green) and fourth (yellow) reactor temperatures fluctuate right at the maximimum
-temperature constraint, underlines how poorly the surrogates describe the parametric uncertainty.
-In contrast, the vanilla UQ framework can maneuver the reactor very closely at the maximum temperature
-(fig.~\ref{results:fig:MPC-loop-vanilla} (f)) in robust manner. While undershoots and oscillations appear,
-they are reduced compared to the nominal MPC. This comes not at the cost of a 
-lower conversion (fig.~\ref{results:fig:MPC-loop-vanilla} (i) III). Nominal and vanilla
-MPC controllers achieve comparable violations of the conversion limit. So, the employment 
-of quantile regression NARX models causes a significant improvement regarding robustness in
-the temperature (fig.~\ref{results:fig:MPC-loop-vanilla} (f) II).
+Another solution can be approximate MPC, where the learning-based controller itself is learned
+to replace the expensive second-order optimization.
 
 
 
 
 \subsection{Naive NARX}
 
-With the naively physics-constrained NARX framework, the MPC receives predictions that align 
-with the conservation of elements. It first sight, the vanilla and
+With the naively PC-NARX framework, the MPC receives predictions that align 
+with the conservation of elements. At first sight, the vanilla and
 the naive MPC algorithms do not differ noticably (fig.~\ref{results:fig:MPC-loop-naive}).
 Neither inputs (b), nor conversion (d) show a significant difference. This is suggested
 by the previously done simulation capability (sec.~\ref{results:sec:simulation-capability}) and
 uncertainty quantification (sec.~\ref{results:sec:uncertain-quantification}) experiments, 
-where the naive application of the physics-constrained activation did not alter
+where the naive application of the PC activation did not alter
 the outcome remarkably.
 \newline 
 
@@ -849,7 +889,7 @@ the outcome remarkably.
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_naive.pdf}
     \caption[Control loop - naive NARX framework.]
     {
-        MPC loop based on the naively physics-constrained NARX framework for UQ.
+        MPC loop based on the naively PC-NARX framework for UQ.
         (a) reactor temperatures. (b) input wall temperatures. (c) fluctuating inlet flow speed.
         (d) selectivity and conversion. The color gradient indicates the axial position.
     }
@@ -861,7 +901,7 @@ Especially, the undershoots and oscillations ((b) I) are almost identical to the
 controller (fig.~\ref{results:fig:MPC-loop-vanilla}~(g)~I).
 This translates into the reactor temperature profiles, that are almost indistinguishable
 (fig.~\ref{results:fig:MPC-loop-vanilla}~(a)).
-Again, this supports the assumption, that the mere application of the physics-constrained
+Again, this supports the assumption, that the mere application of the PC
 activation outside of NN training has a negligible effect. It neither alters the outcome 
 substantially in the forward pass like in the open-loop simulation, nor in the backward
 pass within the MPC.
@@ -869,7 +909,7 @@ pass within the MPC.
 
 \subsection{Physics-constrained NARX}
 
-Finally, the rigorously physics-constrained NARX based MPC is applied to the system.
+Finally, the rigorously PC-NARX based MPC is applied to the system.
 Here, the PC activation function is used not only during MPC prediction but also
 during NN training. Analogously to the other variations, the trajectories 
 of measured reactor temperature (a), wall cooling temperature (b), inlet flow speed (c)
@@ -879,9 +919,9 @@ conversion and selectivity are illustrated (d) (fig.~\ref{results:fig:MPC-loop-p
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_pc.pdf}
-    \caption[Control loop - physics-constrained NARX framework.]
+    \caption[Control loop - PC-NARX framework.]
     {
-        MPC controlled system with the fully physics-constrained NARX ensemble.
+        MPC controlled system with the fully PC-NARX ensemble.
         (a) reactor temperatures. (b) input wall temperatures. (c) fluctuating inlet flow speed.
         (d) selectivity and conversion. The color gradient indicates the axial position.
     }
@@ -948,7 +988,7 @@ for rapid switches as well as gradual input changes that might be unnecessary (e
 In contrast to the objective function in the MPC formulation (eq.~\ref{results:eq:MPC-formulation-TR}),
 the wall temperatures appear without scaling. Thus, the unit of the control effort equates to $\text{K}^2$.
 Lastly, the average solution time of the QP in \texttt{ipopt} is calculated as $\Delta t_\text{ipopt}$.
-All KPIs are listed for the four MPC variations nominal, vanilla, naive and physics-constrained
+All KPIs are listed for the four MPC variations nominal, vanilla, naive and PC
 (tab.~\ref{results:tab:MPC-KPIs}). Additionally, the four most important system variables
 (outlet temperature, first cooling temperature, selectivity and conversion) are plotted for
 all $16$ runs (fig.~\ref{results:fig:MPC-comparison}) to clarify the KPIs with the actual system 
@@ -992,7 +1032,7 @@ Due to the low temperature sensitivity in this temperature region, the selectivi
 no difference with values of \SI{0.818}{} and \SI{0.819}{} (fig.~\ref{results:fig:MPC-comparison}~(b), blue). 
 Apparently, the temperature constraint violation is at zero for all
 NARX ensembles with UQ. The quantile NARX models, that are based
-on conformalized quantile regression, are able to guarantee robustness. 
+on conformalized quantile regression, are able to achieve robustness. 
 Eventhough they are calibrated for the \SI{90}{\%}-quantile, they do not allow for \SI{10}{\%}
 of violation. This aligns with the finding of strict over-coverage during 
 the assessment of uncertainty quantification (sec.~\ref{results:sec:uncertain-quantification}).
@@ -1002,10 +1042,13 @@ This is further illustrated by the outlet temperature trajectories, which
 remain precisely below the maximimum constraint for all runs 
 (fig.~\ref{results:fig:MPC-comparison}~(a), I, yellow) with UQ. 
 In contrast, the nominal MPC crosses the maximimum boundary repeatedly for a large number of runs.
-Thus, quantile regression represents a tremendous advantage over the nominal NARX architecture, 
+Thus, quantile regression represents an advantage over the nominal NARX architecture, 
 which exhibits a significant amount of temperature constraint violation of \SI{11.2}{\%}.
 W.r.t conversion, which is not treated as a robust constraint, all MPCs with UQ 
-cause greater violations than the nominal one. Because of the trade-off between temperature and 
+cause greater violations than the nominal one. This is due to the robustness regarding
+the maximum temperature. UQ-based MPCs can anticipate temperature exceedings and
+therefore prefer risking violations of minimum conversion.
+Because of the trade-off between temperature and 
 conversion, the nominal controller simply performs better with \SI{15.9}{\%} violation than the
 UQ-based controllers by exploiting vorbidden temperatures. The vanilla- and naive-based 
 MPCs show equal violations with \SI{29.0}{\%} which again indicates that the naive application of the 

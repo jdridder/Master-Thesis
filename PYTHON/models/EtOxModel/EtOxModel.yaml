@@ -18,15 +18,15 @@ element_species_matrix: [[4, 0, 4, 2, 0], [2, 0, 2, 0, 1], [0, 2, 1, 1, 2]]
 N_meas: 4  # number of equidistant measurement positions
 
 equation_parameters:
-  # Constants
-  T_in: 625
+  boundary_conditions: {"x_E": 0.3, "x_O2": 0.25, "x_EO": 0, "x_H2O": 0.0025, "x_CO2": 0.08, "T": 625}
+  # constants
+  T_in: 625 # / K
   x_E_in: 0.3
   R_g: 8.314  # J / mol K
   M: [28.05, 32, 44.05, 18, 44.01, 28] # molar masses [g / mol]
 
   # Initial Conditions for states
   p0: 1.5e6  # initial pressure [Pa]
-
 
   # Reaction 1
   k1: 6.275e6  # rate factor [mol/(kg_p Pa s)]
@@ -43,8 +43,9 @@ equation_parameters:
   dHR2: -1321.42e3 # effective reaction enthalpy [J/mol]
 
   # Parameters for the physics consistency layer.
-  rho_tot: 677  # average total lumped density [kg/m3] (it is considered non-constant in the simulation, but varies only between 666.5 and 667.5) it is used for the physics consitency layer as constant value
-  cp_tot: 1090  # total lumped heat capacity [J/kg K] (is calculated for the simulation, used for the physics consistency layer) 
+  rho_tot: 677  # average total lumped density [kg/m3]
+  # (it is considered non-constant in the simulation, but varies only between 666.5 and 667.5)
+  cp_tot: 1090  # total lumped heat capacity [J/kg K]
   h_comp: [69.8, 9.24, -32.02, -231.33, -380.61]  # enthalpies of formation [kJ/mol] of the different components [E, O2, EO, H2O, CO2], calculated for T=600K
 
   # Gas phase Parameters
@@ -54,16 +55,6 @@ equation_parameters:
   A_mu: -1.20e-11  # [kg m-1 s-1 T-2]
   B_mu: 4.83e-8  # [kg m-1 s-1 T-1]
   F_mu: 4.73e-6  # [kg m-1 s-1]
-  # component diffusion coefficient correlation parameters 
-  A_D_E: 4.78e-12  # [m2 s-1 K-2]
-  A_D_O2: 5.90e-12  # [m2 s-1 K-2]
-  A_D_CO2: -8.00e-13  # [m2 s-1 K-2]
-  B_D_E: 2.89e-9  # [m2 s-1 K-1]
-  B_D_O2: 3.68e-9  # [m2 s-1 K-1]
-  B_D_CO2: 9.49e-9  # [m2 s-1 K-1]
-  F_D_E: -4.64e-7  # [m2 s-1]
-  F_D_O2: -5.36e-7 # [m2 s-1]
-  F_D_CO2: -2.37e-6  # [m2 s-1]
   # heat conductivitiy
   lam_g: 0.045081 # heat conductivity of nitrogen [W m-1 K-1] at 15 bar and 600 K
 
@@ -71,7 +62,6 @@ equation_parameters:
   # Solid Phase Bed Parameters
   eps_0: 0.4 # inner void fraction of the packed bed
   rho_p: 1171.2  # density of the solid phase [kg/m3]
-  # TODO: Add real number 50 is really low for faster behavior
   cp_p: 1000  # heat capacity of the solid phase [J/(kg K)] 
   dp: 0.001  # diameter of the pellets [m]
   act: 1  # catalyst activity 

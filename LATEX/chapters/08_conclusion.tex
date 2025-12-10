@@ -1,14 +1,15 @@
 \chapter{Conclusion}
 
-In the challenging field of optimization under uncertainty, it is crucial
-to guarantee robustness as well as retain objective performance.
+In the challenging field of robust optimization, it is crucial
+to quantify uncertainty as well as retain objective performance.
 \emph{Multi-stage MPC} can handle low-order uncertainty sets but scales
 poorly with growing number of scenarios \cite{lucia2015}. This is especially challenging in 
 chemical reaction networks, with a high amount of uncertain kinetic parameters
 for all appearing reactions. Instead of considering possible parameter combinations online,
 neural networks can be trained to capture statistical quantiles offline.
 Thus, the computational effort for uncertainty quantification (UQ) is separated from the recursive
-optimization. 
+optimization. In addition, the integration of high fidelity first principles models is prohibitive in real time control.
+Thus, efficient surrogate models are another driver of this research.
 \newline
 \newline
 \noindent
@@ -16,7 +17,7 @@ Within the course of this work, several methods have been combined
 to derive, implement and assess a NARX framework.
 Relying on conformalized quantile regression, an ensemble of neural network NARX
 models not only predicts the expected value of the measurement propagation but also
-the quantiles of predefined uncertain measurements. Further, a physics-constrained
+the quantiles of predefined uncertain measurements. Further, a physics-constrained (PC)
 activation function is presented as a direct corollary (cor.~\ref{cor: physics constrained solution})
 of the \emph{Karush-Kuhn-Tucker} conditions. It maps NN outputs during forward passes as well as gradients 
 during backward passes into the feasible space defined by linear equality constraints.
@@ -29,10 +30,10 @@ Its kinetic parameters are subject to Gaussian distributed uncertainty.
 During NN training, this activation has shown
 to significantly speed up covergence, because it incorporates 
 equations directly into the network, that govern the data.
-PC-NNs with only \SI{25}{\%} of the hidden neurons
+PCNNs with only \SI{25}{\%} of the hidden neurons
 of a basic NN exhibit equal validation losses after $512$ epochs.
 After excessive training with perfect data, the advantage is assumed to be minor.  
-But for small or noisy data sets, PC-NNs portray a real advantage over
+But for small or noisy data sets, PCNNs portray a real advantage over
 basic NNs \cite{chen2024}.
 In the forward simulation, physics-consistency is achieved up to machine
 precision for both the naive and the the PC-NARX frameworks. The activation
@@ -53,7 +54,7 @@ to allow a recursive simulation. While it captures some correlation
 between measurements, it lacks rigorousitiy. Quantile predictions are only valid when calculated
 in a single-step. The naive forward simulation represents an approximation of the quantiles at best.
 This is prooven by the fact, that the desired coverage of $0.8$ is only achieved at the first
-measurement position. Neither the vanilla, naive nor the physics-constrained ensemble
+measurement position. Neither the vanilla, naive nor the PC ensemble
 yield a significant change in mean coverage nor relative interval width. Solely, the PC framework
 achieves more reproducable coverages with a standard deviation that is \SI{12.9}{\%} lower 
 than the vanilla framework on average. All versions show increasing over-coverage 
@@ -69,7 +70,7 @@ should act as an input to the NN to learn a complete reactor profile and reduce 
 During inference, the
 measurement position can be held constant. Additionally, a greater amount of data is available, as 
 all spatial discretization nodes can be considered during training.
-In the mere forward pass, the physics-constrained
+In the mere forward pass, the PC
 activation function is another useful tool for surrogate modelling with cosmetic character, 
 whereas it cannot solve errors introduced by foundational assumptions in the NARX architecture.
 \newline
@@ -81,24 +82,24 @@ The uncertainty-aware MPCs enable safe operation with zero temperature limit vio
 which is impressive, as the heat conductivity of the packed-bed can easily vary between
 \SI{0.3}{} and \SI{0.5}{\watt \; \meter^{-1} \; \kelvin^{-1}} (fig.~\ref{case:def: heat conductivity distribution}).
 While the performance stays unaffected in this specific example,
-UQ based frameworks reduce the combined constraint violation by \SI{95.0}{\%} compared to the nominal case. 
+UQ-based frameworks reduce the combined constraint violation by \SI{95.0}{\%} compared to the nominal case. 
 Because of the increased complexity, the solution time grows by \SI{216}{\%} here.
 Furthermore, input oscillations shrink by \SI{39.2}{\%} due to a reasonable safety-distance
-to the critical contraint.
+to the critical contraint and more gentle control inputs.
 CQR is a useful tool to ensure robustness up to a specified coverage and enables 
 to capture high-order uncertainties. However, the number of uncertain measurements to be accounted
 for remains a limitation, as one separate quantile regressor needs to be trained for each.
 \newline
 \newline
 \noindent
-The integration of a PC activation function enables an improvement in the
+The implementation of a PC activation function enables an improvement in the
 conversion constraint violation of \SI{16.2}{\%} relative to the other UQ architectures
 and control effort of \SI{44.4}{\%} relative to the nominal one.
 This is achieved neither by sacrificing objective performance, nor exploiting infeasible
 temperatures. Additionally, the solution time only increases by \SI{151.7}{\%} to \SI{3.80}{\second}.
 The reduction of input oscillations, faster convergence in MPC operation and in NN training
 is not only caused by correcting the NN outputs themselves. The adjustment of the gradient
-during the backward passes (eq.~\ref{results:eq:pc-effect-on-backpropagation}) induce the major impact.
+during the backward passes (eq.~\ref{results:eq:pc-effect-on-backpropagation}) evoke the major impact.
 This type of activation function allows to include linear equality constraints into machine learning
-architectures and is not only useful for chemical engineering.
-It is a valuable modeling tool with a wide range of possible applications. 
+architectures. Thus, it is not only useful in chemical process modelling but also
+a valuable tool with a wide range of applications.
