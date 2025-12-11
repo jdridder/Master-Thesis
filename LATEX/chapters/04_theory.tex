@@ -9,7 +9,7 @@ parametric offsets such as wrongly determined friction coefficients or model mis
 As the straight maximization or minimzation of an objective often puts a problem to its boundaries,
 unforeseen disturbances may lead to \emph{constraint violation} or even \emph{instability} \cite{houska2011}.
 Therefore, \emph{robust} optimization formulations are needed, that are proof against mentioned challenges as
-well as retain the \emph{performance} with respect to the objective function.
+well as retain the \emph{performance} with respect to (w.r.t.) the objective function.
 \newline
 
 \section{Robust Optimization}
@@ -26,6 +26,7 @@ may be considered.
     \]
 \end{definition}
 
+\noindent
 Here, the optimization of the objective is formulated in a bilevel form. The scalar objective function $F_0$ is to 
 be minimized w.r.t the decision variables $\vu$ for the worst case scenario w.r.t the disturbance
 vector $\vw$. It can be interpreted as a player-vs-player setup \cite{houska2011}. One player (the optimizer)
@@ -46,6 +47,7 @@ To reduce the number of constraints, the worst case estimate can be applied here
     \]
 \end{definition}
 
+\noindent
 Now, the inequality constraints are also formulated in a bi-level manner. The maximum of $F_i$ is 
 constant in $\vw$ and only a function of the decision variables $\vu$. The function $\varphi_i$
 exactly describes the worst case for $F_i$ parametrized by $\vu$. In fact, if certain assumptions hold
@@ -91,12 +93,13 @@ the model of the system.
     \]
 \end{definition}
 
+\noindent
 Optimal system inputs $\vu$ are to be determined, that minimize the objective function $J$. This objective
 varies with the inputs and the states of the system $\vx$. It is to be minimized over a time horizon
 from $t_0$ to $t_\text{end}$, called the \emph{prediction horizon}. The states of the system evolve along
 the dynamics of the system, which are described by the system model $f(\vx, \vu)$. Thus, the quality
 of the controller heavily depends on the prediction accuracy of this model \cite{lucia2013}.
-The system states however should remain in a set of constraints at all times whereas the inputs
+The system states however should remain in a set of constraints at all times whereas, the inputs
 are bounded, all summarized by the constraint  functions $F_i$. In a physical sense, constraint violation can lead to 
 instability and thus damage of the real system.
 For instance, a \emph{temperature runaway} must be avoided at all costs in a chemical reactor.
@@ -126,6 +129,7 @@ Coming from this general perspective on robust optimization and basic MPC, \emph
     \]
 \end{definition}
 
+\noindent
 The only difference to the basic MPC formulation (\ref{theory:def: general mpc}) is that the model, the objective 
 and the constraints are functions of the uncertainty, denoted with $\vw$.
 This MPC formulation (def.~\ref{theory:def: continuous mpc}) is infinite in time and in the uncertain parameters.
@@ -135,8 +139,7 @@ on finite elements \cite{biegler2010}. One possibility to roughly discretize the
 done by \emph{multi-stage-MPC} \cite{lucia2015}. 
 \newline
 \newline
-
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=0.9\textwidth]{Figures/Theory/multi-stage-mpc.pdf}
     \caption[Multi-stage MPC scenario tree]
@@ -148,9 +151,10 @@ done by \emph{multi-stage-MPC} \cite{lucia2015}.
     \label{theory:fig: multi-stage-mpc}
 \end{figure}
 
+\noindent
 It generates a scenario tree (fig.~\ref{theory:fig: multi-stage-mpc}) for all pre-defined combinations of disturbances.
 In the algorithm design phase, scenario cases $w_k^{(\cdot)}$ must be
-defined a priori for each independent disturbance that may act on the system. As different disturbances occur
+defined a priori for each independent disturbance that may, act on the system. As different disturbances occur
 in different combinations, each possible scenario is represented by a branch. At every time step in the \emph{robust horizon},
 branches for every discrete uncertainty case are generated. This procedure is coined \emph{scenario generation}.
 In practice, the worst cases for the disturbances are assumed plus an optional expected value. Mostly, this yields good results
@@ -174,9 +178,10 @@ the number of parameters and their respective values (eq.~\ref{theory:eq: number
    n_\text{s} = \bigg ( \prod^{n_\text{w}}_i \nu_i \bigg ) ^{N_{\text{r}}}
 \end{equation}
 
+\noindent
 Here, $n_\text{w}$ denotes the number of different disturbances and $\nu_i$ their respective discrete values. $n_\text{s}$
 describes the number of scenarios in the scenario tree (fig.~\ref{theory:fig: multi-stage-mpc}).
-High order uncertainties lead to optimization problems that are simply impossible to solve in real time.
+High order uncertainties lead to optimization problems, that are simply impossible to solve in real time.
 
 
 
@@ -185,15 +190,15 @@ High order uncertainties lead to optimization problems that are simply impossibl
 \emph{Feedforward neural networks} (NNs), sometimes referred to as \emph{multi-layer-perceptrons} (MLPs),
 provide a stunning capability of approximating any multivariate function from any finite-dimensional
 space to another. According to the \emph{Universal Approximation Theorem}, any finite-dimensional function can be reproduced if the number of hidden
-layers and respective neurons is high enough, up to an arbitrarily small error \cite{hornik1990}. Thus, NNs play a major role in
+layers and respective neurons is high enough, up to an arbitrary small error \cite{hornik1990}. Thus, NNs play a major role in
 recent developments in machine learning. Large language models such as ChatGPT heavily rely on neural
-networks \cite{vaswani2023}. NNs are not only succesfully applied in natural language processing but in the chemical process industry.
+networks \cite{vaswani2023}. NNs are not only succesfully applied in natural language processing but also in the chemical process industry.
 Applications range from thermodynamic property prediction over unit operation design to corporate-level decision making \cite{mcbride2019}.
 Their ability to approximate any non-linear function while being differentiable, makes NNs especially suitable for dynamic optimization
 such as MPC. In contrast to detailed first principle models, NNs have the advantage of making a prediction with
 less non-linear function evaluations and floating point operations. Thus, the computational complexity may be lowered significantly.
  As MPC operates in real time parallel to the system to be controlled, the computation duration is a key measure
-for a succesfull MPC implementation. That is why surrogate models in the form of NNs are a crucial tool for dynamic
+for a successful MPC implementation. That is why, surrogate models in the form of NNs are a crucial tool for dynamic
 optimization and are heavily investigated in current research \cite{salzmann2024l4casadi}. May an NN be given as an alternating series of function evaluations
 between a linear function $h(\bm{a})$ and a \emph{non-linear} activation function $g(h(\va))$ (def.~\ref{theory:def: neural network}).
 
@@ -210,7 +215,8 @@ between a linear function $h(\bm{a})$ and a \emph{non-linear} activation functio
     \]
 \end{definition}
 
- The linear transformation matrices $\bm{\theta}_{Wl}$ and offsets $\bm{\theta}_{bl}$
+\noindent
+The linear transformation matrices $\bm{\theta}_{Wl}$ and offsets $\bm{\theta}_{bl}$
 are called weights and biases respectively and are the trainable parameters of an NN. The activation functions $g$ are important
 to introduce non-linearity into every linear projection. Otherwise, the complete function combination can be written as one 
 singular linear transformation and the universal approximation capability is lost. Given a set of training data of $m$ data points,
@@ -229,10 +235,11 @@ the optimal parameters for $\bm{\theta}$ are found by solving an optimization ta
     \end{aligned}
 \end{equation}
 
+\noindent
 In \emph{supervised learning}, the training data is separated in \emph{features} $\mathbb{X}_\text{train}$, the inputs of the NN,
 and \emph{targets} $\mathbb{Y}_\text{train}$. During training, the parameters $\bm{\theta}$ are determined such that
 the NN approximates the data in best possible manner.
-In this example the loss function $\mathcal{L}$ portrays the mean squared error (MSE), that is used in most regression tasks. 
+In this example, the loss function $\mathcal{L}$ portrays the mean squared error (MSE), that is used in most regression tasks. 
 The difference between the model prediction, denoted as $\bm{\tilde{y}}(\bm{\xi}^{(i)})$, and the true data point $\bm{y}^{(i)}$
 is penalized quadratically to learn the expected value of a data distribution.
 
@@ -249,9 +256,9 @@ order $\tau$, its quantile definition is recalled as follows \cite{lange2017}.
 \end{definition}
 \noindent
 Where $p(\rx = x)$ represents the probability density function of the random variable $\rx$. The
-$\tau$-th quantile is reached when the probability mass $P(q_\tau)$ is equal to the quantile order.
-By utilizing a loss function in form of the MSE, an NN is trained to approximate the expected value of a distribution of data points.
+$\tau$-th quantile is reached, when the probability mass $P(q_\tau)$ is equal to the quantile order.
 To specify the prediction characteristic of an NN, the type of training loss function is decisive.
+By utilizing a loss function in form of the MSE, an NN is trained to approximate the expected value of a distribution of data points.
 To learn the quantiles of a distribution of data points, the \emph{quantile loss} or \emph{pinball loss} can be used (eq.~\ref{theory:eq: quantile loss}).
 
 \begin{equation}
@@ -264,7 +271,7 @@ To learn the quantiles of a distribution of data points, the \emph{quantile loss
 \end{equation}
 \noindent
 The hyperparameter $\tau$ denotes the order and therefore position of the quantile. A small value for $\tau$, e.g.,
-$0.05$ or $0.1$, strongly penalizes data points that are below the threshold $y < \tilde{y}(\bm{\theta})$ via the $(1-\tau)$ term
+$0.05$ or $0.1$, strongly penalizes data points, that are below the threshold $y < \tilde{y}(\bm{\theta})$ via the $(1-\tau)$ term
 to keep the quantile small. A high value for $\tau$ (e.g., $0.95$) focuses on the penalization of data points above
 the threshold $y \geq \tilde{y}(\bm{\theta})$ to include a greater amount of points.
 For robust optimization, \emph{quantile regression} can be applied to learn upper or lower bounds for the uncertainty-dependent
@@ -316,19 +323,21 @@ falls into the interval, the score is the maximum of the negative distances to t
 In case a calibration point is located below $\tilde{q}_{\tau_1}$, this distance is counted as a violation
 in the positive direction. The same occurs, when a point lies above $\tilde{q}_{\tau_2}$. In summary,
 coverage is counted as a negative and miscoverage as a positive in a quantitative manner.
+The violation of the desired coverage of $(1-\alpha)$ is encoded into the conformity scores. 
+Therefore, its respective empirical quantile acts as a correction term for the original quantile 
+predictions (eq.~\ref{theory:eq: empirical quantile of scores}).
 
 \begin{equation}
     \label{theory:eq: empirical quantile of scores}
     Q_{1-\alpha}(\bm{\epsilon}) \coloneq (1-\alpha)(1+1/m_\text{cal})\text{-th empirical quantile of} \; \bm{\epsilon}
 \end{equation}
 \noindent
-The violation of the desired coverage of $(1-\alpha)$ is encoded into the conformity scores. 
-Therefore, its respective empirical quantile acts as a correction term for the original quantile 
-predictions (eq.~\ref{theory:eq: empirical quantile of scores}). It must be substracted
+\noindent
+It must be substracted
 from the lower quantile prediction and added to the upper quantile prediction
 to yield the calibrated regressors  $q_{\tau_1}$ and $q_{\tau_2}$ (th.~\ref{theory:th:CQR-update}).
 
-\begin{theorem} Adjusted prediction intervall with the empirical quantile of the conformity scores
+\begin{theorem} Adjusted prediction interval with the empirical quantile of the conformity scores
      $\bm{\epsilon}^{(i)}$ \cite{romano2019cqr}.
     \label{theory:th:CQR-update}
     \[
@@ -354,7 +363,7 @@ Because of their universal approximation capability \cite{hornik1990} and their 
 as \emph{surrogate models} in MPC algorithms to approximate the system behavior represented by the function $f$ (def.~\ref{theory:def: general mpc}).
 When an NN is trained with data generated by a first principle model, the simulation is done offline from the MPC algorithm.
 This can significantly reduce the online solution time in contrast to first principle models \cite{salzmann2023}, because
-the latter require an expensive itegration routine. The general idea here is to forecast the measurements at a future
+the latter require an expensive integration routine. The general idea here is to forecast the measurements at a future
 time instant or instants as a function of past measurements and inputs (def.~\ref{theory:def: NARX Model}).
 
 \begin{definition} Time-discrete form of an NN to predict the future state based on past information.
@@ -368,6 +377,7 @@ time instant or instants as a function of past measurements and inputs (def.~\re
     \]
 \end{definition}
 
+\noindent
 In the discrete-time notation, the state at the next time instant $\vx_{k+1}$ is calculated by propagating the current
 state $\vx_k$ through a function $f(\vx_k, \vu_k)$ that discribes the system dynamic (def.~\ref{theory:def: NARX Model}).
 In the original MPC formulation (def.~\ref{theory:def: general mpc}) this is some numerical integration scheme for a system of differential equations \cite{biegler2010}
@@ -390,10 +400,10 @@ technically belong to \emph{shallow learning} architectures.
 In the realm of control, the non-linear system indendification is summarized with the term
 \emph{Non-linear AutoRegressive with eXogenous inputs} (NARX). Here, the term \emph{autoregressive} means that
 the future prediction is a function of a series of past measurements \{$\vy_k, \vy_{k-1}, ..., \vy_{k-h}$\}, while \emph{exogenous}
-implies that a series of outside inputs \{$\vu_k, \vu_{k-1}, ..., \vu_{k-h}$\} is passed to the function as well (def.~\ref{theory:def: NARX Model}).
+implies that a series of outside control inputs \{$\vu_k, \vu_{k-1}, ..., \vu_{k-h}$\} is passed to the function as well (def.~\ref{theory:def: NARX Model}).
 The hyperparameter $h$ denotes the length of the time horizon of the past series. A high value for this parameter includes more
 past information, which possibly allows better predictions while increasing the network input.
-In fact, the determination of which and how many instants of past states and measurements to introduce, is part
+In fact, the determination of which and how many instants of past inputs and measurements to introduce, is part
 of hyperparameter tuning. As this would inflate the work unnecessarily, $h$ is set equal for states and inputs.
 Furthermore, the measurements are supposed to equal the states. Implicitly, the states are directly measurable.
 
@@ -403,11 +413,12 @@ Furthermore, the measurements are supposed to equal the states. Implicitly, the 
     \bm{\phi}_k \coloneq (\vx_k, \vx_{k-1}, ..., \vx_{k-h}, \vu_k, \vu_{k-1}, ..., \vu_{k-h})
 \end{equation}
 
+\noindent
 The concatenated input feature vector $\bm{\phi}_k$ contains all past states and inputs within the time horizon $h$, leading
 to a vector length of $(n_x + n_u) \cdot (h+1)$, where $n_x$ and $n_u$ represent the number of states and inputs respectively. 
-For large systems, the input length increases the network size unacceptably quick, while the input time series often exhibit
+For large systems, the input length increases the network size unacceptably quick, while the input time series often exhibits
 strong redundacies. To reduce the input size, the feature vector $\bm{\phi}_k$ is passed to an \emph{encoder} \cite{kemmerling2025}.
-The encoder is based on feature compression via \emph{principal component analysis} (PCA) that maps the feature space to 
+The encoder is based on feature compression via \emph{principal component analysis} (PCA), that maps the feature space to 
 a lower-dimensional subspace via a linear orthogonal transformation. This subspace represents the space of the input data with the biggest variance.
 This procedure is built on the concept of \emph{singular value decomposition} (SVD).
 
@@ -417,7 +428,7 @@ SVD is a fundamental building block in linear algebra. Its applications
 range from image compression, over exploratory data analysis to model reduction in fluid mechanics.
 The power of SVD is, that it maps a high-dimensional space into a low-dimensional subspace. The mapping is achieved by a simplistic matrix
 transformation. It not only identifies a subspace, it also identifies underlying patterns in the data encoded
-via the respective \emph{singular vectors}. The compression and component indentification is guaranteed
+via the respective \emph{singular vectors}. The compression and component identification is guaranteed
 to exist for every matrix $\bm{X} \in \mathbb{C}^{n \times m}$ in contrast to an eigendecomposition \cite{Brunton2019}.
 \newline
 \newline
@@ -434,11 +445,12 @@ into three submatrices (th.~\ref{theory:th: singular value decomposition}).
     \] 
 \end{theorem}
 
+\noindent
 Here, the matrices $\bm{U} \in \mathbb{C}^{n \times n}$ and $\bm{V}^* \in \mathbb{C}^{m \times m}$ are quadratic, orthonormal matrices.
 The real, non-negative, diagonal matrix $\bm{\Sigma} \in \mathbb{R}^{n \times m}$ contains the so called \emph{singular values} of the matrix
 with the biggest as the top-left entry. The notation $\bm{V}^*$ stands for the transposed complex-conjugate of $\bm{V}$.
 Its computation can be implemented via an incremental PCA, that supports GPU acceleration and memory efficient batching
-with \texttt{pytorch} \cite{pytorch2019, incrementalpca2025}.
+with \texttt{pyTorch} \cite{pytorch2019, incrementalpca2025}.
 The compression itself is done by truncating the yielded matrices by taking the first $r$ columns of $\bm{U}$, the
 first $r$ rows of $\bm{V}^*$ and $r$ diagonal elements of $\bm{\Sigma}$ (eq.~\ref{theory:eq: truncated svd}).
 \begin{equation}
@@ -489,7 +501,7 @@ by a \emph{PCA encoder} placed before the first layer of a NARX model to reduce 
 
 \section{Quantification of Model Uncertainty}
 
-Furthermore, CQR (\ref{theory: CQR}) is used to quantify the uncertainty of system states. 
+Furthermore, CQR (sec.~\ref{theory: CQR}) is used to quantify the uncertainty of system states. 
 Under model uncertainty, the evolvement of the system described by $f(\vx, \vu, \vw)$ heavily
 depends of the uncertainty vector $\bm{w} \in \mathbb{W}$ (def.~\ref{theory:def: continuous mpc}).
 While multi-stage MPC roughly discretizes the parameter space for parameter extreme cases under tremendous computational effort,
@@ -503,23 +515,23 @@ of accounting for uncertainties during MPC runtime. This outsources computationa
 \newline
 \newline
 Upper and lower
-NARX quantile models can be trained, to predict a confidence intervall that includes predictions of future states
+NARX quantile models can be trained, to predict a confidence interval that includes predictions of future states
 with a given coverage. In total, three predictions must be made to simulate the system forward in time
-while quantifying the uncertainty. These consist of the expected value of the states at the next instant,
-which is denoted as $\mathbb{E}(\vx_{k+1}|\bm{\phi}_k)$, and two quantiles, $Q_\tau(\vx_{k+1}|\bm{\phi}_k)$,
+while quantifying the uncertainty. These consist of the expected value of the measurements at the next instant,
+which is denoted as $\mathbb{E}(\vy_{k+1}|\bm{\phi}_k)$, and two quantiles, $Q_\tau(\vy_{k+1}|\bm{\phi}_k)$,
 with pre-defined probability coverages $\tau$. All are predicted given the feature vector $\bm{\phi}_k$
-of past states and inputs. In this work, models that predict the expected value $\mathbb{E}$ are trained 
+of past measurements and inputs. In this work, models that predict the expected value $\mathbb{E}$ are trained 
 using the \emph{mean squared error} as loss function (eq.~\ref{eq: loss function}). 
 Quantile models $Q_\tau$ are trained using the \emph{quantile loss} (eq.~\ref{theory:eq: quantile loss})
-in combination with CQR (\ref{theory: CQR}).
+in combination with CQR (sec.~\ref{theory: CQR}).
 
 
 \section{Conservation of Atoms}
 
-The derived methology will later be applied to control a \emph{packed-bed tubular reactor} under parametric uncertainty which is
+The derived methology will later be applied to control a \emph{packed-bed tubular reactor} under parametric uncertainty, which is
 a common realization for many chemical processes. For this sake, the \emph{conservation of atoms} during chemical reactions
-is introduced. Similar to the conservation of mass or energy, the conservation of atoms demands, that all atoms that enter
-a chemical reaction must also leave this reaction. While they change the species they form, the atoms themselves are conserved.
+is introduced. Similar to the conservation of mass or energy, the conservation of atoms demands that all atoms, that enter
+a chemical reaction, must also leave this reaction. While they change the species they form, the atoms themselves are conserved.
 This can be expressed as follows.
 \begin{theorem} Conservation of atoms during a chemical reaction.
     \label{theory:th: conservation of atoms}
@@ -528,8 +540,9 @@ This can be expressed as follows.
     \]
 \end{theorem}
 
+\noindent
 Here, $\bm{B}$ denotes the \emph{element-species-matrix} and $\bm{\Delta n}$ the changes in the molar amounts of all participating
-specieses in a reaction network. The sum of all atoms in all species must be equal at all times regardless of how the underlying reactions take place.
+species in a reaction network. The sum of all atoms in all species must be equal at all times regardless of how the underlying reactions take place.
 This builds the foundation of reaction network analysis and the determination of key- and non-key-components \cite{guttel2021}.
 \begin{equation}
     \label{theory:eq: element-species-matrix}

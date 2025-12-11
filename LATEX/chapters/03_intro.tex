@@ -1,22 +1,23 @@
 \chapter{Introduction}\label{intro} 
 
 
-Whether finance, science or engineering, optimality is the key objective in
+Whether finance, science or engineering, optimality is a key ambition in
 a vast amount of applications. A specified outcome should be realized with the least amount
 of resources or investment. It becomes especially challenging to 
 find a trustworthy optimal solution, when unconsidered effects influence the underlying mathematical model.
-In many real-world scenarios, future conditions are uncertain. 
-For self-driving cars, a road may inherit varying grip. Investments must be taken under uncertain market behavior.
+In many real-world scenarios, circumstances are subject to uncertainty. 
+Investments must be taken within insecure markets.
+For self-driving cars, a road may inherit varying grip. 
 Catalysts degrade and exhibit slower reaction speeds over time.
 Thus, \emph{robust optimization} is a major field of research to yield optimality under
 uncertain conditions with \emph{robustness} regarding constraints and \emph{performance} regarding the objective. 
-This means that the constraints should be satisfied in all cases, while the specified performance
+The constraints should be satisfied in all cases, while the specified performance
 is as good as possible.
 \newline
 \newline
 \noindent
 \emph{Model predictive control} (MPC) is an online optimization algorithm that repeatedly 
-chooses optimal actions for a system based on a specified objective. With regard to
+calculates optimal actions for a system based on a specified objective. With regard to
 self-driving cars, autonomous aviation or load-flexible chemical plants, MPC can enable
 optimal operation under dynamic conditions. However, uncertainty remains a key challenge
 in safe application. \emph{Multi-stage MPC} can handle low-order uncertainties with good performance
@@ -35,25 +36,25 @@ This comes with one downside.
 \newline
 \newline
 \noindent
-Due to its black-box-nature, a basic NN cannot obey strict equations regarding its output vector.
+Due to its black-box-nature, a basic NN cannot obey explicit equations regarding its output vector.
 This might be a problem in strict cases, where balance equations such as energy, mass or capital need to be met precisely.
 When outputs become propagated through NNs several times, errors accumulate. Exactly this is performed
-by MPC algorithms making them prone to the accumulation of errors. To takle this, a recent type of
+by MPC algorithms making them prone to the accumulation of errors. To tackle this, a recent type of
 activation function is presented equivalently to Chen et al. \cite{chen2024}, that corrects NN outputs based on
 linear equality constraints during both forward and backward passes.
 \newline
 \newline
 \noindent
-The performance of the yieled \emph{physics-constrained} NNs is later evaluated in a case study.
+The performance of the yieled \emph{physics-constrained} (PC) NNs is later evaluated in a case study.
 Here, a dynamic \emph{plug-flow tubular reactor} (PFTR) of the \emph{ethylene oxidation} is modeled to
 imitate a load-flexible process under parameteric uncertainty. It is exhibited through the Gaussian-distributed
 kinetic parameters \emph{activation energy} and \emph{pre-exponential collision factor} as well as the \emph{radial heat conductivity}
 of the packed bed. A surrogate model framework is supposed to be developed, that 
 captures the system uncertainty while yielding accurate predictions for an MPC algorithm. A comparison
-is drawn between basic NNs and physics-constrained NNs in terms of training efficiency,
+is drawn between basic NNs and PCNNs in terms of training efficiency,
 physics-consistency, simulation capability, uncertainty quantification and MPC robustness and performance.
 This is realized in \texttt{python} with the open-source libraries \texttt{pyTorch} \cite{pytorch2019} for
 training, \texttt{l4casadi} \cite{salzmann2023} for hessian-acceleration and interconnection,
-\texttt{do\_mpc} \cite{dompc} for simulation and control, \texttt{casadi} \cite{casadi}
+\texttt{do-mpc} \cite{dompc} for simulation and control, \texttt{casadi} \cite{casadi}
 for numerical optimization and \texttt{ipopt} \cite{Waechter2006} for solving.
 

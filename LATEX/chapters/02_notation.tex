@@ -26,6 +26,7 @@ $\displaystyle \rmA$ & A matrix-valued random variable\\
 \begin{longtable}{p{0.25\textwidth}p{0.65\textwidth}}
 $\displaystyle \sA$ & A set\\
 $\displaystyle \R$ & The set of real numbers \\
+$\displaystyle \mathbb{C}$ & The set of complex numbers \\
 % NOTE: do not use \R^+, because it is ambiguous whether:
 % - It includes 0
 % - It includes only real numbers, or also infinity.
@@ -37,8 +38,6 @@ $\displaystyle \{0, 1, \dots, n \}$ & The set of all integers between $0$ and $n
 $\displaystyle [a, b]$ & The real interval including $a$ and $b$\\
 $\displaystyle (a, b]$ & The real interval excluding $a$ but including $b$\\
 $\displaystyle \sA \backslash \sB$ & Set subtraction, i.e., the set containing the elements of $\sA$ that are not in $\sB$\\
-$\displaystyle \gG$ & A graph\\
-$\displaystyle \parents_\gG(\ervx_i)$ & The parents of $\ervx_i$ in $\gG$
 \end{longtable}
 %
 %
@@ -60,10 +59,7 @@ $\displaystyle \erva_i$ & Element $i$ of the random vector $\rva$ \\
 \def\arraystretch{1.5}
 \begin{longtable}{p{0.25\textwidth}p{0.65\textwidth}}
 $\displaystyle \mA^\top$ & Transpose of matrix $\mA$ \\
-$\displaystyle \mA^+$ & Moore-Penrose pseudoinverse of $\mA$\\
-$\displaystyle \mA \odot \mB $ & Element-wise (Hadamard) product of $\mA$ and $\mB$ \\
 % Wikipedia uses \circ for element-wise multiplication but this could be confused with function composition
-$\displaystyle \mathrm{det}(\mA)$ & Determinant of $\mA$ \\
 \end{longtable}
 %
 \section*{Calculus}
@@ -72,12 +68,8 @@ $\displaystyle \mathrm{det}(\mA)$ & Determinant of $\mA$ \\
 $\displaystyle\frac{d y} {d x}$ & Derivative of $y$ with respect to $x$\\ [2ex]
 $\displaystyle \frac{\partial y} {\partial x} $ & Partial derivative of $y$ with respect to $x$ \\
 $\displaystyle \nabla_\vx y $ & Gradient of $y$ with respect to $\vx$ \\
-$\displaystyle \nabla_\mX y $ & Matrix derivatives of $y$ with respect to $\mX$ \\
-$\displaystyle \nabla_\tX y $ & Tensor containing derivatives of $y$ with respect to $\tX$ \\
 $\displaystyle \frac{\partial f}{\partial \vx} $ & Jacobian matrix $\mJ \in \R^{m\times n}$ of $f: \R^n \rightarrow \R^m$\\
-$\displaystyle \nabla_\vx^2 f(\vx)$ or $\displaystyle \mH( f)(\vx)$ & The Hessian matrix of $f$ at input point $\vx$\\
 $\displaystyle \int f(\vx) d\vx $ & Definite integral over the entire domain of $\vx$ \\
-$\displaystyle \int_\sS f(\vx) d\vx$ & Definite integral with respect to $\vx$ over the set $\sS$ \\
 \end{longtable}
 %
 %
@@ -87,16 +79,12 @@ $\displaystyle \int_\sS f(\vx) d\vx$ & Definite integral with respect to $\vx$ o
 \def\arraystretch{1.5}
 \begin{longtable}{p{0.25\textwidth}p{0.65\textwidth}}
 $\displaystyle \ra \bot \rb$ & The random variables $\ra$ and $\rb$ are independent\\
-$\displaystyle \ra \bot \rb \mid \rc $ & They are conditionally independent given $\rc$\\
 $\displaystyle P(\ra)$ & A probability distribution over a discrete variable\\
 $\displaystyle p(\ra)$ & A probability distribution over a continuous variable, or over
 a variable whose type has not been specified\\
 $\displaystyle \ra \sim P$ & Random variable $\ra$ has distribution $P$\\% so thing on left of \sim should always be a random variable, with name beginning with \r
 $\displaystyle  \E_{\rx\sim P} [ f(x) ]$ & Expectation of $f(x)$ with respect to $P(\rx)$ \\
-$\displaystyle \Var(f(x)) $ &  Variance of $f(x)$ under $P(\rx)$ \\
-$\displaystyle \Cov(f(x),g(x)) $ & Covariance of $f(x)$ and $g(x)$ under $P(\rx)$\\
-$\displaystyle H(\rx) $ & Shannon entropy of the random variable $\rx$\\
-$\displaystyle \KL ( P \Vert Q ) $ & Kullback-Leibler divergence of P and Q \\
+$\displaystyle  Q_{\tau, \rx\sim P} [ f(x) ]$ & Quantile of $f(x)$ with respect to $P(\rx)$ with coverage $\tau$ \\
 $\displaystyle \mathcal{N} ( \vx ; \vmu , \mSigma)$ & Gaussian distribution %
 over $\vx$ with mean $\vmu$ and covariance $\mSigma$ \\
 \end{longtable}
@@ -109,8 +97,6 @@ $\displaystyle f \circ g $ & Composition of the functions $f$ and $g$ \\
   $\displaystyle f(\vx ; \vtheta) $ & A function of $\vx$ parametrized by $\vtheta$.
   (Sometimes we write $f(\vx)$ and omit the argument $\vtheta$ to lighten notation) \\
 $\displaystyle \log x$ & Natural logarithm of $x$ \\
-$\displaystyle \sigma(x)$ & Logistic sigmoid, $\displaystyle \frac{1} {1 + \exp(-x)}$ \\
-$\displaystyle \zeta(x)$ & Softplus, $\log(1 + \exp(x))$ \\
 $\displaystyle || \vx ||_p $ & $\normlp$ norm of $\vx$ \\
 $\displaystyle || \vx || $ & $\normltwo$ norm of $\vx$ \\
 $\displaystyle x^+$ & Positive part of $x$, i.e., $\max(0,x)$\\

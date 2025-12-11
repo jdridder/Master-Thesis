@@ -1,7 +1,39 @@
 \chapter*{Kurzzusammenfassung}
-\lipsum[2]
+
+Robuste Optimierung soll Optimalität erreichen, während
+sämtliche Nebenbedingungen erfüllt sind
+–  trotz Störungen, Parameterabweichungen oder nicht modellierter Effekte.
+In \emph{Model Predictive Control} (MPC) sind
+eine schnelle Berechnung und Robustheit entscheidend.
+Durch die Konformalisierung einer Quantilsregression (CQR) können
+Neuronale Netze (NNs) Quantile von Verteilungen
+lernen und die rechenintensive 
+Integration im MPC-Algorithmus ersetzen.
+Für einen lastflexiblen Festbettreaktor ist gezeigt, wie NNs mit CQR 
+die Unsicherheit in der Temperatur quantifizieren.
+Dadurch ermöglichen sie die vollständige Einhaltung der Maximaltemperatur 
+während der MPC-Steuerung.
+Zudem wird eine \emph{physics-constrained} (PC) Aktivierungsfunktion präsentiert, 
+die NN-Ausgaben während Inferenz und Gradientenbildung
+in einen definierten Raum zwingt. 
+Durch den korrigierten Gradienten wird das Training beschleunigt.
+Außerdem reduzieren PCNNs den 
+MPC-Stellaufwand hier um \SI{8.5}{\%} und führen zu \SI{21}{\%} kürzeren Rechenzeiten,
+was einer Glättung der Zielfunktion zugeschrieben wird.
 
 
 
 \chapter*{Abstract}
-\lipsum[2]
+
+Robust optimization aims to maintain high performance while satisfying constraints under perturbations,
+parameter offsets, or unmodeled effects. This is especially 
+demanding in model predictive control (MPC), where fast computation and robustness are crucial.
+Neural networks (NNs) combined with conformalized quantile regression (CQR) can learn confidence 
+intervals and replace expensive integration and state estimation in MPC.
+For a load-flexible fixed-bed reactor, CQR-based NNs quantify temperature uncertainty
+during recursive simulation and ensure zero violations of the maximum temperature constraint in MPC.
+A physics-constrained (PC) activation function is introduced to map NN outputs into a 
+feasible space during both forward and backward passes. This accelerates training by 
+correcting NN gradients. In this case, PC-based NNs reduce MPC control effort by \SI{8.5}{\%}
+and enable faster 
+solution times by \SI{21}{\%}, assuming a smoother objective landscape.

@@ -3,7 +3,7 @@
 The goal of this work is to derive a physics-consistent surrogate modelling technique to be applied within a robust MPC algorithm.
 Physics-consistency, prediction accuracy and uncertainty quantification will be assessed using a case study of a catalytic \emph{packed-bed tubular reactor}.
 This reactor type is common in the chemical industry in many processes such as ethylene oxidation, carbon dioxide methanization or steam reforming.
-Especially with regard to \emph{load flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}.
+Especially with regard to \emph{load-flexible} processes using renewable energy sources, dynamic control such as MPC can enable optimal operation \cite{fischer2021}.
 For example, the energy supply can be closely tied to weather conditions or the feed composition may fluctuate due to
 biological resources \cite{dittmer2022}.
 \newline
@@ -13,7 +13,7 @@ In a dynamic operating environment, the thermal inertia of the catalytic packed 
 This can cause a self-accelerating temperature runaway leading to thermal damage or even explosion.
 Furthermore, high temperatures can cause several catalyst deactivation effects such as sintering. Therefore, the temperature
 is considered a safety-critical state that needs to obey to a maximum constraint in the sense of $F_i \leq 0$ in the original optimization (def.~\ref{theory:def: bi-level program}) for all possible disturbances $\vw$.
-The maximum of $F_i$ should be approximated by $\tilde{\varphi}_i(\vu)$. This will be achieved by training a NARX model that predicts
+The maximum of $F_i$ should be approximated by $\tilde{\varphi}_i(\vu)$. This will be achieved by training a NARX model, that predicts
 a tuned upper and lower bound for $\tilde{\varphi}_i(\vu)$ independent from the uncertainty $\vw$ using quantile regression.
 Apart from safety, the maximization of the selectivity towards the value product is a reasonable control objective, as the selectivity
 is most correlated to process profitability in many cases. To achieve a reasonable turnover from educts to products, a minimum 
@@ -250,10 +250,18 @@ The activation energy of the main reaction is plotted against its pre-exponentia
 While the true parameter combination is marked with a yellow point, the blue crosses indicate
 the possible parameter combinations by sampling the multi-variate normal distribution (eq.~\ref{case:def: multi-variate distribution}).
 The sampling is done $1000$ times. Activation enegies can range between \SI{65000}{} and \SI{85000}{\joule \; \mole^{-1}},
-whereas the pre-exponential factor varies between \SI{1.5e6}{} and $3.0 \times 10^7 \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{1.1} \; s^{-1}}$.
+whereas the pre-exponential factor varies between \SI{1.5e6}{} and $3.0 \times 10^7 \; \mathrm{mol \; kg_{cat}^{-1} \; Pa^{-1.1} \; s^{-1}}$.
 To calculate the mean vector $\bm{\mu}$ and the covariance matrix $\bm{\Sigma}$, an actual parameter fitting with emulated
-measurement noise has been executed using a \emph{berty} reactor model.
-Mean and covariance can be consulted in the appendix (tab.~\ref{app:tab:mean-and-covariance}).
+measurement noise is executed using a \emph{Berty} reactor model.
+To do so, the experimental setup by Al-Saleh et al. \cite{alsaleh1988} is modeled via a Berty reactor with ideal mixing
+using the true kinetic parameters for the reaction kinetics.
+Artificial gas chromatograph and temperature measurements are taken and pertubed by additive Gaussian noise.
+Using $128$ measurement points for varying conditions, the parameter fitting is executed $1000$ times
+to yield a data set of $1000$ combinations of the four kinetic parameters.
+Finally, the mean and covariance of this data set are calculated and serve as the basis for the
+Monte-Carlo (MC) sampling of the underlying multi-variate Gaussian distribution. 
+Mean and covariance can be consulted in the appendix 
+(tab.~\ref{app:tab:mean-kinetic-parameters} and \ref{app:tab:covariance-kinetic-parameters}).
 
 \begin{figure}
     \centering
@@ -382,7 +390,7 @@ To start the simulation, an initial vector $\bm{\phi}_\text{init}$ must be suppl
 
 To train and test the NARX frameworks, reactor measurement data is generated at mentioned positions. 
 For this sake, the normal distributions for the radial heat conductivity and the kinetic parameters 
-are sampled in Monte-Carlo (MC) fashion to yield a parameter vector $\vw$ in the uncertainty space.
+are sampled in MC fashion to yield a parameter vector $\vw$ in the uncertainty space.
 For the inputs in the training data ($T_{\text{w,1}}$ to $T_{\text{w,4}}$), excited ramp signals are generated with an
 uniform distribution. The distribution ranges from \SI{535}{\kelvin} to \SI{665}{\kelvin} for each input temperature.
 Once a signal level is sampled, it is held for a random duration between $0.6$ and $1.8$ times of 
@@ -412,7 +420,7 @@ in volume. Thus, the wall heat transfer acts as the slowest process
 that, governs the dynamic behavior of the system. 
 \newline
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Reaction-Modelling/input_trajectories.pdf}
     \caption[Excited input trajectories for the four wall temperatures.]
@@ -434,20 +442,33 @@ smaller with $100$ trajectories and a shorter horizon of \SI{512}{\second}.
         Configuration for training, calibration and test data generation.
     }
     \centering
-    \begin{tabular}{ccccccccccc}
+    \begin{tabular}{cccccc}
         \toprule
-        & & & \multicolumn{3}{c}{\textbf{wall temperature}} & \multicolumn{3}{c}{\textbf{flow speed}} \\
-        purpose & trajects & steps & bounds / \SI{}{\kelvin} & $\tau$ / \SI{}{\second} & vary & bounds / \SI{}{\meter \second^{-1}} & $\tau$ / \SI{}{\second} & vary \\
+        & & & \multicolumn{3}{c}{\textbf{wall temperature}} \\
+        purpose & trajectories & steps & bounds / \SI{}{\kelvin} & $\tau$ / \SI{}{\second} & vary \\
         \midrule
-        train & 1000 & 1024 & (535, 665) & 12 & True & (0.18, 0.42) & 35 & True \\
-        \cline{1-9}
-        calibration & 1000 & 1024 & (535, 665) & 12 & True & (0.18, 0.42) & 35 & True \\
-        \cline{1-9}
-        test & 100 & 512 & (550, 650) & 12 & False & (0.2, 0.4) & 35 & False \\
+        train & 1000 & 1024 & (535, 665) & 12 & True  \\
+        \cline{1-6}
+        calibration & 1000 & 1024 & (535, 665) & 12 & True  \\
+        \cline{1-6}
+        test & 100 & 512 & (550, 650) & 12 & False  \\
+    \bottomrule
+    \end{tabular}
+    \begin{tabular}{cccc}
+        \toprule
+        & \multicolumn{3}{c}{\textbf{flow speed}} \\
+        purpose & bounds / \SI{}{\meter \second^{-1}} & $\tau$ / \SI{}{\second} & vary \\
+        \midrule
+        train & (0.18, 0.42) & 35 & True \\
+        \cline{1-4}
+        calibration & (0.18, 0.42) & 35 & True \\
+        \cline{1-4}
+        test & (0.2, 0.4) & 35 & False \\
     \bottomrule
     \end{tabular}
     \label{case:tab:data-generation-parameters}
 \end{table}
+\newline
 \newline
 \noindent
 To avoid extrapolation during the test phase, the training and calibration signals are chosen to cover

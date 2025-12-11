@@ -2,9 +2,9 @@
 
 In this work, several methodologies are combined and assessed together to implement a robust MPC algorithm
 for systems that exhibit uncertainty. First, NARX models are implemented to simulate a system forward in time.
-Second, \emph{quantile}-NARX models are trained to simulate confidence intervalls forward in time. Third,
+Second, \emph{quantile}-NARX models are trained to simulate confidence intervals forward in time. Third,
 a new type of activation function is added to all mentioned NARX architectures to enforce their alignment
-with physical balance equations. Later, these surrogate models are compared w.r.t training efficiency,
+with physical balance equations. Later, these surrogate models are compared w.r.t. training efficiency,
 physics consistency and uncertainty quantification capability. 
 This is done with the intention to use these surrogate models within an MPC optimization
 loop (def.~\ref{theory:def: continuous mpc}).
@@ -17,14 +17,14 @@ is set up as the RHS.
     \[  
     \begin{gathered}
         \begin{pmatrix}
-            \vx^\uparrow \\
-            \vx_\text{nom} \\
-            \vx^\downarrow
+            \vy^\uparrow \\
+            \vy_\text{nom} \\
+            \vy^\downarrow
         \end{pmatrix}_{k+1}
         = \begin{pmatrix}
-            \hat{Q}_{\tau_1}(\vx_{k+1} | \bm{\phi}^\uparrow_k) \\
-            \mathbb{E}(\vx_{k+1} | \bm{\phi}_{\text{nom},k}) \\
-            \hat{Q}_{\tau_2}(\vx_{k+1} | \bm{\phi}^\downarrow_k)
+            \hat{Q}_{\tau_1}(\vy_{k+1} | \bm{\phi}^\uparrow_k) \\
+            \mathbb{E}(\vy_{k+1} | \bm{\phi}_{\text{nom},k}) \\
+            \hat{Q}_{\tau_2}(\vy_{k+1} | \bm{\phi}^\downarrow_k)
         \end{pmatrix}
         \eqcolon f_\text{UQ}
         \begin{pmatrix}
@@ -36,74 +36,82 @@ is set up as the RHS.
     \end{gathered}
     \]
 \end{definition}
+
+\noindent
 Here, $\mathbb{E}$, $\hat{Q}_{\tau_1}$ and $\hat{Q}_{\tau_2}$ are NARX models to predict the expected value and two
-quantiles for all states at the next time instant $k+1$ with the given feature vector for past states
-and inputs $\bm{\phi}_k$. The states pertaining to the upper quantile function, are indicated
-with "$\uparrow$". Similarly, the lower quantile states are denoted with a "$\downarrow$", while
+quantiles for all measurements at the next time instant $k+1$ with the given feature vector for past measurements
+and inputs $\bm{\phi}_k$. The measurements pertaining to the upper quantile function, are indicated
+with "$\uparrow$". Similarly, the lower quantile measurements are denoted with a "$\downarrow$", while
 "nom" refers to the nominal scenario. Technically, three RHS functions are propagated
-independently trough time except for the initial state, which is the same for all three. Therefore, the feature vector
+independently trough time except for the initial state, which is the same for all three.
+Therefore, the feature vector
 (eq.~\ref{theory:eq: input feature vector}) is shifted after each iteration using the resulting
 state vector of the according NARX model. The function notation is summarized as $f_\text{UQ}$.
 It is important to note, that the initial feature vector $\bm{\phi}_\text{init}$ containts $h+1$
-past measurements and inputs. Which must be known to initiate the RHS based a NARX framework.
+past measurements and inputs. Which must be known for initiation.
 \newline
 
 \section{NARX Framework for Chance Constraint Satisfaction}
 
 When recalling the bi-level formulation of a semi-infinite program (def.~\ref{theory:def: bi-level program}),
-worst case functions $\varphi_i(\vu)$ are assumed to ensure robust constraint satisfaction. For simplicity, only state constraints in the 
-form of $\vx_k \leq 0 \; \forall k$ are considered. This resembles a great amount of cases, as constraints
-often appear as pure state constraints.  So, the uncertainty quantification in form of 
-a quantile NARX model only needs to cover the states, that are part of state constraints.
-Furthermore, quantile regression for states with counteracting dynamics lead to wrong predictions.
-Therefore it is reasonable to separate the prediction of quantile states from the prediction of all other states.
+worst case functions $\varphi_i(\vu)$ are assumed to ensure robust constraint satisfaction.
+For simplicity, only measurement constraints in the 
+form of $\vy_k \leq 0 \; \forall k$ are considered. This resembles a great amount of cases, as constraints
+often appear as pure measurement constraints.  So, the uncertainty quantification in form of 
+a quantile NARX model only needs to cover the measurements, that are part of measurement constraints.
+Furthermore, quantile regression for measurements with counteracting dynamics lead to wrong predictions.
+Therefore, it is reasonable to separate the prediction of quantile measurements from the prediction of all other measurements.
 
 
-\begin{definition} Modified function $\hat{Q}_\tau$ to predict quantiles of critical states and according expected values of all other states.
+\begin{definition} Modified function $\hat{Q}_\tau$ to predict quantiles of critical measurements and according expected values
+    of all other measurements.
     \[
-        \hat{Q}_\tau(\vx_{k+1} | \bm{\phi}_k) = 
+        \hat{Q}_\tau(\vy_{k+1} | \bm{\phi}_k) = 
         \begin{pmatrix}
-            Q_\tau(\vx_{k+1, :n_\text{crit}} | \bm{\phi}_k) \\
-            \mathbb{E}_{\tau}(\vx_{k+1, n_\text{crit}:} | \bm{\phi}_k)
+            Q_\tau(\vy_{k+1, :n_\text{crit}} | \bm{\phi}_k) \\
+            \mathbb{E}_{\tau}(\vy_{k+1, n_\text{crit}:} | \bm{\phi}_k)
         \end{pmatrix}
     \]
 \end{definition}
-Only constraint critical states $\vx_{:n_\text{crit}}$ undergo real quantile regression by the function $Q_\tau$.
-The quantity $n_\text{crit}$ stands for the ending index of constraint critical states in the state vector $\vx$.
-All other states are to be inferred such that they match the quantile prediction of the critical states. 
-This is marked by an expected value $\mathbb{E}_\tau$, that is conditioned by the quantile of the critical states.
+\noindent
+Only constraint critical measurements $\vy_{:n_\text{crit}}$ undergo real quantile regression by the function $Q_\tau$.
+The quantity $n_\text{crit}$ stands for the ending index of constraint critical measurements in the vector $\vy$.
+All other measurements are to be inferred such that they match the quantile prediction of the critical measurements. 
+This is marked by an expected value $\mathbb{E}_\tau$, that is conditioned by the quantile of the critical measurements.
 Concatenated together, these two NARX architectures allow a state propagation. Whether the predictions of the conditioned
 model are physical meaningful is questionable, because it is trained using some correlation between the 
 quantile model's predictions and ground truth.
-To quantify the uncertainty for multiple states or measurements, 
+To quantify the uncertainty for multiple measurements, 
 three additional NARX models must be set up, one for each quantile and one for the nominal case.
 In fact, the number of NARX models growths as a multiple of three which limits
-the number of states or measurements with uncertainty quantification.
+the number of measurements with uncertainty quantification.
 Here, a trade-off becomes clear – the framework allows to capture the effect of high-order uncertainty
-vectors $\vw$ for a small amount of target states or measurements. In contrast, multi-stage MPC
+vectors $\vw$ for a small amount of target measurements. In contrast, multi-stage MPC
 is able to handle all uncertain states at once with a restriction on the number of uncertain parameters.
+Additionally, it requires a state estimation routine.
 
 \subsection{Quantile Conditioning}
 
 The quality of predictions made by $\hat{Q}_\tau$ heavily depends on the reliability of the expected
-values of those states, that are not inferred by quantile regression. To train a NARX model $\mathbb{E}_\tau$, that learns
-the expected values for the other states that belong to the quantile predictions of the critical states,
+values of those measurements, that are not inferred by quantile regression.
+To train a NARX model $\mathbb{E}_\tau$, that learns
+the expected values for the other measurements, that belong to the quantile predictions of the critical measurements,
 several different weighted loss functions can be used. These loss functions all have in common that they
 emphasize data points in close proximity to the quantile prediction and penalize data points with growing distance.
 \begin{equation}
     \label{sur:eq: distance to quantile prediction}
-    d = || Q_\tau(\bm{\phi}_k) - \vx_{k+1,:n_\text{crit}}||_2
+    d = || Q_\tau(\bm{\phi}_k) - \vy_{k+1,:n_\text{crit}}||_2
 \end{equation}
 The distances $d$ of quantile predictions to the ground truth values at the next time instant is 
 calculated as the $l_2$-norm (eq.~\ref{sur:eq: distance to quantile prediction}). 
 \begin{equation}
     \label{sur:eq: weighted mean squared error}
     \mathcal{L}_w(\bm{\theta}) = 
-    \frac{1}{m} \sum^m_i w(d^{(i)}) \cdot
-    || \vx^{(i)}_{k+1} - \mathcal{NN}(\bm{\theta}, \bm{\phi}^{(i)}_k) ||_2^2
+    \frac{1}{m} \sum^m_i \omega(d^{(i)}) \cdot
+    || \vy^{(i)}_{k+1} - \mathcal{NN}(\bm{\theta}, \bm{\phi}^{(i)}_k) ||_2^2
 \end{equation}
 These distances
-are used to calculate certain weights $w$ for a weighted MSE to serve as the loss function for 
+are used to calculate certain weights $\omega$ for a weighted MSE to serve as the loss function for 
 $\mathbb{E}_\tau$ (eq.~\ref{sur:eq: weighted mean squared error}). To train such a conditioned NARX model
 following steps must be executed (alg.~\ref{sur:algo: weighted MSE creation}).
 
@@ -111,32 +119,36 @@ following steps must be executed (alg.~\ref{sur:algo: weighted MSE creation}).
 	\caption{Calculation of the quantile based weights for a weighted MSE.}
 	\label{sur:algo: weighted MSE creation}
 	\begin{algorithmic}
-		\REQUIRE $\bm{\Xi}$, $\mathbb{X}$, $Q_\tau$
-        \STATE $\mathbb{X}_\text{crit} \leftarrow \mathbb{X}_{:n_\text{crit}}$
-        \STATE $\tilde{\mathbb{X}}_\text{crit} \leftarrow Q_\tau(\bm{\Xi})$
-        \STATE $\bm{d} \leftarrow || \mathbb{X}_\text{crit} - \tilde{\mathbb{X}}_\text{crit} ||_{(\cdot)}$
-        \STATE $\vw \leftarrow w(\vd)$
-        \RETURN $\vw$
+		\REQUIRE $\bm{\Xi}$, $\mathbb{Y}$, $Q_\tau$
+        \STATE $\mathbb{Y}_\text{crit} \leftarrow \mathbb{Y}_{:n_\text{crit}}$
+        \STATE $\tilde{\mathbb{Y}}_\text{crit} \leftarrow Q_\tau(\bm{\Xi})$
+        \STATE $\bm{d} \leftarrow || \mathbb{Y}_\text{crit} - \tilde{\mathbb{Y}}_\text{crit} ||_{(\cdot)}$
+        \STATE $\bm{\omega} \leftarrow \omega(\vd)$
+        \RETURN $\bm{\omega}$
 	\end{algorithmic}
 \end{algorithm}
+
+\noindent
 First, the quantile model $Q_\tau$ must have been trained. $\bm{\Xi}$ denotes the data matrix of encoded feature
-vectors and $\mathbb{X}$ the data matrix of states at the next time instant. The vector $\vd$ contains the
-distances of the inferred quantile predictions to the ground truth in the critical states.
-These are passed to a weight function $w$ to generate a weight vector $\vw$, that collects all weights
+vectors and $\mathbb{Y}$ the data matrix of measurements at the next time instant. The vector $\vd$ contains the
+distances of the inferred quantile predictions to the ground truth in the critical measurements.
+These are passed to a weight function $w$ to generate a weight vector $\bm{\omega}$, that collects all weights
 for all data points.
 
 \subsection{Weight Function}
 
 To weight the data points in the MSE using the distance measure $d$, a lot of possible functions exist.
-This is a straight tuning question. Inspired by the distributive character of uncertain states, that 
-result from Gaussian distributed model parameters, a modified Gaussian is used to weight the MSE.
+This is a straight tuning question. Inspired by the distributive character of uncertain measurements, that 
+result from Gaussian-distributed model parameters, a modified Gaussian is used to weight the MSE.
 \begin{definition} Gaussian-tube as weight function.
     \label{sur:def: gaussian weight function}
     \[
-    w(d) = \frac{2}{\sqrt{2 \pi} \sigma_\text{w}} \cdot e^{-\frac{1}{2} \frac{d^2}{\sigma_\text{w}^2}} 
+    \omega(d) = \frac{2}{\sqrt{2 \pi} \sigma_\text{w}} \cdot e^{-\frac{1}{2} \frac{d^2}{\sigma_\text{w}^2}} 
     \quad d \in \mathbb{R}_+ 
     \]
 \end{definition}
+
+\noindent
 The Gaussian strongly weights points with closest distance to the quantile predictions. As the distance increases,
 the weight first decays softly, than swiftly and finally tends to zero. It almost acts like an $\epsilon$-tube
 with a soft boundary. The standard deviation $\sigma_\text{w}$ acts as a hyperparameter to tune the width of the 
@@ -147,7 +159,7 @@ As the domain of the distance measure is $d \in \mathbb{R}_+$, the Gaussian and 
 \newline
 \newline
 Using such an approach of weighting quantile predictions to condition another model to deliver expected values
-for all non-quantile states, can be a source of error. The training of the conditioned model $\mathbb{E}_\tau$
+for all non-quantile measurements, can be a source of error. The training of the conditioned model $\mathbb{E}_\tau$
 does not only rely on ground truth data, but on a correlation of a subjective distance measure $d$ in some vector space
 and a weight function. This may lead to bad predictions in the sense of system tracking and physical consistency.
 To guarantee physical consistency, a new type of activation function is presented, that forces NARX predictions
@@ -160,16 +172,16 @@ models.
 By definition, neural networks (NNs) are designed to reproduce their training data in a best possible manner,
 defined by the characteristics of the loss
 function used during the training process. NN predictions minimize the loss towards the training data seen beforehand.
-Circumstances exist, in which the output of a NN should strictly satisfy a certain set of equations. In case of
+Circumstances exist, in which the output of an NN should strictly satisfy a certain set of equations. In case of
 physical modeling, the prediction of a surrogate should follow the same conservation laws as a first principle model. Especcialy,
-when predicions are propagated through several NNs or simulated in an autoregressive manner, errors accumulate. 
-Final predictions are untrustworthy or simulations exhibit instability \cite{chen2024}. As a MPC algorithm needs a reasonable
+when predictions are propagated through several NNs or simulated in an autoregressive manner, errors accumulate. 
+Final predictions are untrustworthy or simulations exhibit instability \cite{chen2024}. As an MPC algorithm needs a reasonable
 approximation of the system behavior over the complete prediction horizon, the accumulation of conservation violations
 become an issue.
 \newline
 \newline
 \noindent
-To realize physics-constrained NN outputs, several strategies exists. Physics-informed neural networks (\emph{PINN}s) for instance,
+To realize physics-consistent NN outputs, several strategies exists. Physics-informed neural networks (\emph{PINN}s) for instance,
 embed physical balance equations into the loss function similar to a regularization term \cite{raissi2019}. This serves as a 
 soft constraint and comes with two downsides.
 The NN output does not strictly follow the constraint equation, because the physical consistency is fulfilled up to
@@ -178,7 +190,7 @@ Every new balance equation to be included introduces a new hyperparameter worsen
 To guarantee strict constraint satisfaction and thus perfect physics consistency up to machine precision,
 a new type of activation function is presented equivalently to the work by Chen et al. \cite{chen2024}. This activation function serves as a linear projection from the NN output space
 into the physical allowed subspace without adding neither learnable parameters nor hyperparameters.
-Let the output of a NN be defined as well as a set of linear equality contraints that summarize some physical conservation quantity (def.~\ref{def: physics consistency}).
+Let the output of an NN be defined as well as a set of linear equality contraints that summarize some physical conservation quantity (def.~\ref{def: physics consistency}).
 
 
 \begin{definition} Crude NN output with a given set of linear equality constraints.
@@ -202,7 +214,7 @@ Let the output of a NN be defined as well as a set of linear equality contraints
 
 \noindent
 $\bm{\tilde{y}}$ denotes the NN output, $\bm{\xi}$ the input and the matrices $\bm{A}$ and $\bm{b}$ portray the feasible space of points.
-The variable $\bm{z}_0$ illustrates an external input into the constraint. This may be a NN input, a constant, or another batched 
+The variable $\bm{z}_0$ illustrates an external input into the constraint. This may be an NN input, a constant, or another batched 
 reference point. In a physical sense, $\bm{z}_0$ is often introduced as a boundary or initial condition.
 A feasible point $\bm{y}$ now needs to be determined that fulfills the set of linear equality constraints.
 $n_\text{out}$ and $n_\text{c}$ describe the number of output features and numbers
@@ -226,7 +238,7 @@ The constraint matrix $\bm{A}$ must be of shape
 $n_\text{c}~\times~n_\text{out}$. The vector $\bm{b}$ represents the offset of the linear equality constraints. This optimization
 task can be solved analytically by setting up the \emph{Karush-Kuhn-Tucker} (KKT) conditions (th.~\ref{th: physics constrained KKT}).
 
-\begin{theorem} Langrangian and KKT conditions of the QP
+\begin{theorem} Langrangian and KKT conditions of the QP.
     \label{th: physics constrained KKT}
     \[
         \begin{aligned}
@@ -244,7 +256,7 @@ The vector $\bm{\nu}$ contains the dual variables of the linear equality constra
 The optimality conditions lead to a linear system of equations (cor.~\ref{cor: physics constrained solution}).
 
 
-\begin{corollary} The optimal solution in the feasible space as projection of an activation function
+\begin{corollary} The optimal solution in the feasible space as projection of an activation function.
     \label{cor: physics constrained solution}
     \begin{gather*}
     \begin{pmatrix}
@@ -268,14 +280,15 @@ The optimality conditions lead to a linear system of equations (cor.~\ref{cor: p
 \end{corollary}
 \noindent
 The optimal solution denoted with "*" is directly yielded by projecting the NN output $\bm{\tilde{y}}$
-using the additional input $\bm{z}_0$ and a projection matrix $\bm{K}$. This projection matrix only contains the constraint matrix $\bm{A}$ can be computed
+using the additional input $\bm{z}_0$ and a projection matrix $\bm{K}$.
+This projection matrix only contains the constraint matrix $\bm{A}$ and can be computed
 before runtime which drastically speeds up forward and backward passes in contrast to implicit methods \cite{cvxpylayers2019}.
 The solution elegantly serves as an 
 activation function $g_\text{pc}(\bm{\tilde{y}}, \bm{z}_0)$, that maps the crude NN output into a subspace defined by $\bm{A}$ and $\bm{b}$. The final output
 for $\bm{y}^*$ satisfies the linear equality constraints by definition, while it is located as close to the crude
 output $\bm{\tilde{y}}$ as possible. 
 This is not only applicable in the field of chemical engineering but a 
-general formulation that allows to integrate linear equality constraints into NNs.
+general formulation, that allows to integrate linear equality constraints into NNs.
 Additionally, the type of network architecture is independent of the mapping. It can be appended to any 
 network type such as recurrent NNs, convolutional NNs or transformer-based architectures.
 \newline
@@ -285,7 +298,7 @@ network type such as recurrent NNs, convolutional NNs or transformer-based archi
     \includegraphics[width=1\textwidth]{Figures/Theory/pc_neural_network.pdf}
     \caption[Neural network with physics-constrained activation function $g_\text{pc}$]
     {The physics-constrained NN turns the input vector $\bm{\xi}$ into the crude output $\bm{\tilde{y}}$ via
-    a feedforward NN, which is the projected by the physics-constrained activation function $g_\text{pc}$
+    a feedforward NN, which is projected by the physics-constrained activation function $g_\text{pc}$
     into the feasible output $\bm{y}^*$. It allows to include data points such as boundary conditions as needed in the form of $\bm{z}_0$}
     \label{theory:fig: pc_neural_network}
 \end{figure}
@@ -305,8 +318,8 @@ Physics-consistent NNs however, may implement arbitrary physical knowledge, wher
 Thus, physics-constrained (PC) NNs and PINNs are both physics-consistent NNs.
 Furthermore, the procedure could be extended
 to support arbitrary non-linear equality constraints by splitting the network output in frozen and unfrozen variables~\cite{lastrucci2025}.
-It enables the integration of enthalpy balances that are of non-linear nature. As this work combines the implementation
-of physics-constrained NNs with parametric uncertainty for MPC, the focus remains on linear equality constraints.
+It enables the integration of enthalpy balances, that are of non-linear nature. As this work combines the implementation
+of PCNNs with parametric uncertainty for MPC, the focus remains on linear equality constraints.
 
 \begin{algorithm}
 	\caption{Forward pass of the physics-constrained activation function.}
@@ -329,11 +342,11 @@ of physics-constrained NNs with parametric uncertainty for MPC, the focus remain
 \end{algorithm}
 
 \noindent
-The forward pass through the physics-constrained activation involves the setup of a temporary vector $\vh$ (alg.~\ref{theory:algo: pc forward pass})
+The forward pass through the PC activation involves the setup of a temporary vector $\vh$ (alg.~\ref{theory:algo: pc forward pass})
 and the truncation of the dual variables in the solution. The matrix inversion to yield $\bm{K}$ should be done 
 offline and then saved as untrainable model parameter. In \texttt{pyTorch} this is can be done using the
-\texttt{register\_buffer()} method. An implementation example of the physics-constrained activation can be found in the appendix (\ref{app:code:forward-pass}).
-For a straight forward implementation, the formulation appears in such a way that it supports batching of 
+\texttt{register\_buffer()} method. An implementation example of the PC activation can be found in the appendix (\ref{app:code:forward-pass}).
+For a straightforward implementation, the formulation appears in such a way that it supports batching of 
 a certain batch size $n_\mathcal{B}$.
 Computing frameworks that support broadcasting such as \texttt{numpy} or
 \texttt{pyTorch} allow the implementation of $\bm{z}_0$ in the shape of $1 \times n_\text{out}$ to reduce memory usage as long as it remains constant.

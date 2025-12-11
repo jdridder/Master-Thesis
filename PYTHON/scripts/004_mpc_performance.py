@@ -291,7 +291,7 @@ def run_mpc_performance(
             save_path=plot_dir,
             plot_cfg=plot_cfg,
             save_cfg={"show_fig": False, "export_name": f"control_loop_{surrogate_key}"},
-        )w
+        )
 
     # calculate mean performance -> mean selectivity
     kpi_dict = {}

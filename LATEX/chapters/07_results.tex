@@ -18,13 +18,14 @@ The training data is generated using constant model parameters. Thus, no uncerta
 is present. PC-NARX (solid line) and vanilla-NARX models (dashed line) are compared
 during their evolvement over $512$ training epochs (fig.~\ref{results:fig:validation_loss}).
 As shallow neural networks, all NARX models posses only \emph{one} hidden layer with either
-$64$ (purple), $16$ (blue) or $4$ (yellow) hidden neurons. For a non-linear reaction system, that includes 24 outputs, the low amount
+$64$ (purple), $16$ (blue) or $4$ (yellow) hidden neurons. For a non-linear reaction system,
+that includes $24$ outputs, the low amount
 of $4$ hidden neurons represents a challenge. The training is performed with identical learning rates
 of \SI{5e-5} and batch sizes of $1024$ for all three NARX variations using \SI{1.024e6}{} data points.
 Here, the training and validation fractions are $0.8$ and $0.2$ respectively.
-\begin{figure}
+\begin{figure}[!h]
     \centering
-    \includegraphics[width=1\textwidth]{Figures/Results/001_val_loss.pdf}
+    \includegraphics[width=1\textwidth]{Figures/Results/val_loss.pdf}
     \caption[Validation loss of vanilla NARX vs PC-NARX]{The validation loss calculated as MSE $\mathcal{L}_\mathrm{MSE, val}$
     during the training of the vanilla NARX (dashed line) and the PC-NARX (solid line). The three data rows indicate
     \emph{one hidden layer} with $64, 16$ and $4$ hidden neurons each. The PC-NARX converges faster
@@ -36,7 +37,7 @@ Here, the training and validation fractions are $0.8$ and $0.2$ respectively.
 All PC-NARX models with varying number of hidden neurons
 converge faster to lower validation losses than
 their unconstrained peers. After two consecutive drops in validation loss during the first $150$ epochs,
-all models stagnate which is common in NN training. Close to a local minimum w.r.t to the trainable
+all models stagnate which is common in NN training. Close to a local minimum w.r.t. the trainable
 parameters, only slow improvement is made. Changes in the loss function become rather 
 stochastic in \emph{stochastic gradient descent} (SGD) than systematic, when the gradient gets close to zero.
 Without regard to the training phase, the PC-NARX models always outperform the vanilla-NARX models
@@ -57,7 +58,7 @@ So theoretically, the vanilla-NARX should approach the PC-NARX in excessive neur
 if a sufficiently large amount of high-quality data is supplied.
 \newline
 \newline
-In reality, training data is often noisy and only available in limited amount.
+In practise, training data is often noisy and only available in limited amount.
 Computing power and memory are expensive in time and investment. The training duration
 and network complexity should be kept to a minimum. Hence, the PC activation
 presents a great opportunity to speed up NN training convergence. It also
@@ -65,10 +66,10 @@ allows to reduce the network size or the amount of training data,
 while the prediction accuracy of an unconstrained NN is retained. It can be shown, that
 PCNNs perform \SI{18}{\%} better than basic NNs when the amount training
 data is reduced to \SI{60}{\%} in one specific case of modelling an extractive distillation~\cite{chen2024}.
-For a process model in the simulation software \emph{Aspen Plus}, the PC-NN yielded an improvement of \SI{25}{\%} w.r.t validation loss 
+For a process model in the simulation software \emph{Aspen Plus}, the PCNN yielded an improvement of \SI{25}{\%} w.r.t. validation loss 
 under the same conditions. These findings by Chen et al. \cite{chen2024} correlate with this work.
 Reducing the network size is especially interesting for MPC applications, where it
-significantly influences the online optimization w.r.t the input variables.
+significantly influences the online optimization w.r.t. the input variables.
 Thus, reducing the network size of a PC-NARX may be truly advantagous.
 \newline
 \newline
@@ -77,8 +78,8 @@ The facilitated validation convergence implies that not only the direct NN outpu
 but its gradient as well. In SGD, the gradient exhibits noise, because only the points are
 considered by the gradient, that are part of the current batch. It is reasonable, that
 the correction by the physics-constraints reduces the stochasticity of the gradient
-in each iteration in SGD an therefore allows faster convergence. 
-The effect on the gradient can be investigated by looking at the first partial derivative.
+in each iteration in SGD and therefore allows faster convergence. 
+The effect on the gradient can be investigated by looking at the second partial derivative.
 The first step of backpropagation may be given with
 the loss function $\mathcal{L}$ and the network parameters $\bm{\theta}_i$ 
 (eq.~\ref{results:eq:backpropagation-first-step}) \cite{deisenroth2019}.
@@ -111,13 +112,13 @@ and cor.~\ref{cor: physics constrained solution}).
 \noindent
 Thus, the gradient of the NN is modified using a linear transformation with a submatrix of
 the projection inverse $\bm{K}$. This is the solution inverse of the KKT-conditions of the original
-(QP) (def.~\ref{th: physics constrained KKT}) and acts as a projection of the output into the feasible space,
+QP (def.~\ref{th: physics constrained KKT}) and acts as a projection of the output into the feasible space,
 that is defined by the program.
 The same is done to the gradient without taking the reference point
 into account enforcing only feasible directions.
 Consequently, this shrinks 
 the noisiness of the resulting network parameters and network output. This may also become
-an advantage for the application in MPC, where network gradients w.r.t the 
+an advantage for the application in MPC, where network gradients w.r.t. the 
 control inputs instead of the trainable parameters are calculated.
 The direct modification of the gradient underlines that the conditioning of $\bm{K}$
 is of great importance to ensure numerical stability during NN training.
@@ -125,7 +126,7 @@ Ill-conditioned programs, perhaps with unscaled constraints, will certainly lead
 
 
 % When performing backpropagation including the PC activation function,
-% the gradient w.r.t the network parameters looks as follows.
+% the gradient w.r.t. the network parameters looks as follows.
 
 \section{Physics-Consistency}
 
@@ -141,9 +142,9 @@ PCA compression and data representation. All models consist of one hidden layer 
     \centering
     \begin{tabular}{cccccc}
         \toprule
-        input size & hidden neurons & learning rate & training ratio & $\sigma_\text{w}$ & $\alpha$ \\
+        input size & hidden neurons & learning rate & training fraction & $\sigma_\text{w}$ & $\alpha$ \\
         \midrule
-        16 & [32] & \SI{5e-5}{} & 0.8 & 0.001 & 0.2 \\
+        16 & 32 & \SI{5e-5}{} & 0.8 & 0.001 & 0.2 \\
     \bottomrule
     \end{tabular}
     \label{results:tab:NARX-configuration}
@@ -152,12 +153,14 @@ PCA compression and data representation. All models consist of one hidden layer 
 \newline
 \noindent
 The training is performed with a constant learning rate of \SI{5e-5}{} and a training to validation ratio of $0.8:0.2$.
-Furthermore, the significance level $\alpha$ of the uncertainty quantification is set to $0.2$ which
+Furthermore, the miscoverage level $\alpha$ of the uncertainty quantification is set to $0.2$ which
 corresponds to an upper quantile model of $0.9$ and a lower quantile model of $0.1$.
 Regarding the weight function for the quantile conditioning (eq.~\ref{sur:def: gaussian weight function}),
 the weight parameter $\sigma_\text{w}$ is set to $0.001$ to emphasize data in close proximity to the
 quantile predictions. During training, early-stopping is employed based on the validation loss to avoid overfitting 
-and redundant training durations. Training is executed once for the vanilla and once for the PC-NARX
+and redundant training durations. The patience is set to $5$ epochs and the minimum improvement to $0.0$.
+So, if during $5$ epochs no improvement is made, the training terminates.
+Training is executed once for the vanilla and once for the PC-NARX
 framework.
 \newline
 \newline
@@ -165,9 +168,9 @@ framework.
 As a next step, an open-loop simulation is performed in \texttt{do-mpc}.
 It propagates the measurement trajectories for the nominal case, the upper and the lower quantiles forward
 in time independently (def.~\ref{sur:def: general rhs for uncertainty quantification}). This is done for 
-the three framework variations \emph{vanilla}, \emph{naive} and \emph{pc}. Further, the simulation
+the three framework variations \emph{vanilla}, \emph{naive} and \emph{PC}. Further, the simulation
 horizon extends to \SI{480}{\second} which portrays challenging conditions in contrast to the intended MPC
-prediction horizon of \SI{30}{\second}. The main 
+prediction horizon of \SI{26}{\second}. The main 
 performance metric is the balance violation of the conservation of atoms due to stoichiometry (th.~\ref{case:cor: conservation of atoms}).
 When it is equal to the zero vector, it is perfectly fulfilled.
 The residual of the linear balance constraint is calculated (eq.~\ref{results:eq:residual of balance equation})
@@ -178,7 +181,9 @@ and plotted as a function of time (fig.~\ref{results:fig:pc_violation_vanilla}).
     ||\bm{b}||_2 = ||\bm{B} \bm{\Delta \xi}||_2
 \end{equation}
 
-\begin{figure}
+\subsection{Vanilla NARX}
+
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_vanilla.pdf}
     \caption[Physics violation of the vanilla NARX]
@@ -206,11 +211,12 @@ Additionally, the error does not add up over time.
     \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_naive_pc.pdf}
     \caption[Physics violation of the naive PC-NARX]
     {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
-    of the vanilla NARX framework. The residual is forced to zero up to \SI{64}{\bit} precision.}
+    of the naive NARX framework. The residual is forced to zero up to \SI{64}{\bit} precision.}
     \label{results:fig:pc_violation_naive}
 \end{figure}
-\newline
-\newline
+
+\subsection{Naive NARX}
+
 The same is done with the naive-NARX models that are not trained with the PC
 activation, but simply apply it to their output (fig.~\ref{results:fig:pc_violation_naive}). The 
 balance error during the simulation shows a completely different picture. All models achieve
@@ -226,11 +232,12 @@ if it is not used during training.
     \includegraphics[width=1\textwidth]{Figures/Results/pc_violation_pc}
     \caption[Physics violation of the PC-NARX]
     {Balance equation violation as a function of time in a \SI{480}{\second} forward simulation
-    of the vanilla NARX framework.}
+    of the PC-NARX framework.}
     \label{results:fig:pc_violation_pc}
 \end{figure}
-\newline
-\newline
+
+\subsection{Physics-constrained NARX}
+
 Finally, the balance error is plotted for the PC-NARX, that uses the PC
 activation during training and simulation (fig.~\ref{results:fig:pc_violation_pc}). While it significantly improves
 training efficiency, it also enforces linear equality constraints in an open-loop simulation up to \SI{32}{\bit} precision.
@@ -253,7 +260,9 @@ disadvantageous. If truly needed, \SI{64}{\bit} tensor objects can be adapted ea
 
 To investigate, whether the NARX framework is able to track the distribution of measurement trajectories, 
 the simulation results for the expected value and quantile NARX models are illustrated (fig.~\ref{results:fig:vanilla_temperature_sim}).
-\begin{figure}
+
+\subsection{Vanilla NARX}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_-1.pdf}
     \caption[Forward simulation of the vanilla-NARX framework for the temperature.]
@@ -263,8 +272,7 @@ the simulation results for the expected value and quantile NARX models are illus
     for \SI{512}{\second}.}
     \label{results:fig:vanilla_temperature_sim}
 \end{figure}
-\newline
-\newline
+\noindent
 First, a look at the temperature is taken, which undergoes quantile regression and measurement propagation via
 the vanilla framework (dashed line). The measurement positions for display are choosen to be the reactor outlet $z=L$ and 
 the first quarter $z=0.25L$, where a hotspot is likely to form. While yellow, green and purple
@@ -291,7 +299,7 @@ but also via the conditioned NARX for the dimensionless concentration measure (f
 This may deteriorate the quantile prediction in contrast to the expected value NARX, which relies
 completely on least square regression. The according trajectories of $\bm{\chi}$ 
 for the concentration measure for ethylene oxide at the same reactor
-coordinates are presented (fig.~\ref{results:fig:vanilla_temperature_sim}).
+coordinates are presented (fig.~\ref{results:fig:vanilla_concentration_sim}).
 \begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_vanilla_2.pdf}
@@ -317,17 +325,19 @@ lower educt concentration and vice versa. This information is conveyed by the qu
 NARX models. For ethylene oxide, the quantile-conditioned
 NARX for the lower temperature quantile, forecasts also lower values at the reactor outlet.
 The opposite is achieved by the quantile-conditioned NARX for the upper temperature quantile.
-While this correlation is captured to a degree, it is not suited for confidence
-interpretation. Furthermore, a distinct probabilistic coverage cannot be guaranteed.
-\newline
-\newline
+While this correlation is captured to a degree, it is not suited for a mathematically
+valid confidence interpretation.
+A distinct probabilistic coverage is not guaranteed.
+
+\subsection{Naive NARX}
+
 To enhance the simulation capability of the quantile-conditioned models, the physics
 constrained activation function is employed. The dimensionless concentration
 measures act as the conservation quantity at all reactor positions.
 When the PC activation is applied naively (fig.~\ref{results:fig:naive_concentration_sim}) (dash-dotted), so only during simulation
 but not during training, the trajectories of the quantile-conditioned models do not differ
 noticably to their vanilla version (fig.~\ref{results:fig:vanilla_concentration_sim}).
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_naive_pc_2.pdf}
     \caption[Forward simulation of the naive-NARX framework for the dimensionless concentration.]
@@ -337,11 +347,13 @@ noticably to their vanilla version (fig.~\ref{results:fig:vanilla_concentration_
     $z=L$. $100$ first principle system trajectories are displayed as test data (light blue) for MC-sampled parameters.}
     \label{results:fig:naive_concentration_sim}
 \end{figure}
-\newline
-\newline
+
+\subsection{Physics-constrained NARX}
+
 When the fully PC-NARX architecture is simulated forward in time, a small improvement
-w.r.t the positioning of the quantile-conditioned boundaries can be noticed (fig.~\ref{results:fig:pc-concentration-sim}).
-\begin{figure}
+w.r.t. the positioning of the quantile-conditioned intervals can be noticed
+ (fig.~\ref{results:fig:pc-concentration-sim}).
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_2.pdf}
     \caption[Forward simulation of the PC-NARX framework for the dimensionless concentration.]
@@ -353,7 +365,7 @@ w.r.t the positioning of the quantile-conditioned boundaries can be noticed (fig
 For the majority of time instances, the upper quantile-conditioned NARX (yellow) limits the expected value
 trajectory (green) to its top even for the narrow distribition at $z=0.25L$. The same yields for the lower
 quantile-conditioned NARX (purple), which limits the expected value to the bottom. Accordingly, the number
-of crossing events is reduced. This represent a slightly more meaningful estimation of the concentration measure
+of crossing events is reduced. This represents a slightly more meaningful estimation of the concentration measure
 by the fully PC-NARX framework than by the naive or vanilla versions.
 Because the \emph{a posteriori} application of the PC activation does not truly alter
 the resulting trajectories, the PC activation 
@@ -362,7 +374,7 @@ This statement is underlined by the significantly faster training convergence.
 In summary, model parameters are learned much better for
 equation governed data, when according equations are incorporated
 as an output activation function into a neural network \cite{chen2024}. The visible effect on
-the propageted temperature quantiles is minor, which is why they are included
+the propagated temperature quantiles is minor, which is why they are included
 within the appendix (figs.~\ref{app:fig:naive-temperature-sim} and \ref{app:fig:pc-temperature-sim}).
 
 \section{Uncertainty Quantification}
@@ -370,8 +382,8 @@ within the appendix (figs.~\ref{app:fig:naive-temperature-sim} and \ref{app:fig:
 
 The quality of the uncertainty quantification (UQ) is evaluated with two key measures – \emph{coverage} and 
 \emph{relative interval width}. Coverage resembels the key idea behind quantiles, where
-each quantile \emph{covers} a fraction of $\tau$ of the values within a distribution. The real 0.9-quantile
-covers \SI{90}{\%} of values, the real 0.1-quantile covers \SI{10}{\%} of values, whereas the interval
+each quantile \emph{covers} a fraction of $\tau$ of the values within a distribution. The real $0.9$-quantile
+covers \SI{90}{\%} of values, the real $0.1$-quantile covers \SI{10}{\%} of values, whereas the interval
 between covers \SI{80}{\%} of the values. So to calculate the coverage of a given predicted interval
 for an output $j$, the fraction of ground truth points must be determined that lie within (eq.~\ref{results:eq: coverage}) \cite{kemmerling2025}.
 \begin{equation}
@@ -398,13 +410,16 @@ of models with equal coverages.
 \newline
 These two measures are compared between the three NARX frameworks vanilla, naive and PC in the open-loop
 simulation environment seen previously.
-Mentioned frameworks are simulated forward \SI{512} time steps for 100 independent input trajectories
+Mentioned frameworks are simulated forward \SI{512} time steps for $100$ independent input trajectories
 with a step size of \SI{1}{\second}.
 For each trajectory, the first principle model is simulated accordingly $200$ times with MC-sampled
-parameter combinations to calculate the interval coverages. The yielded coverages (purple) and relative intervall
+parameter combinations to calculate the interval coverages. 
+
+\subsection{Vanilla NARX}
+The yielded coverages (purple) and relative intervall
 widths (green) are supplied via boxplots for the vanilla framework (fig.~\ref{results:fig:vanilla-coverage-width}).
 Additionally, the results are listed in terms of mean and standard deviation (tab.~\ref{results:tab: coverage_intervall_width}).
-\begin{figure} % TODO: Remove the force after writing
+\begin{figure}
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/vanilla_coverage_width.pdf}
     \caption[Coverage and relative interval width of the vanilla framework.]
@@ -435,11 +450,11 @@ Further, the increase is expected and mimics the higher uncertainty in the tempe
 due to the longer residence time. This tendency is a direct result of non-dispersive plug-flow behavior.
 However, the magnitude of increase in relative interval width occurs in such a way, that over-coverage
 is achieved. The confidence intervals are wider than necessary leading to higher conservativeness inspite
-of quantile calibration with CQR (sec.~\ref{theory: CQR}) and a more complex network structure.
+of quantile calibration with CQR (sec.~\ref{theory: CQR}).
 \newline
 \newline
 
-\begin{table}
+\begin{table}[!h]
     \caption[Coverage and relative interval widths of the NARX frameworks]{
         Coverage and relative interval width of the temperature confidence prediction
         for $100$ independent input trajectories and $200$ parameter combinations of the first principle model.
@@ -451,21 +466,25 @@ of quantile calibration with CQR (sec.~\ref{theory: CQR}) and a more complex net
         &  & $\bar{\rx}$ & $\pm s$ & $\bar{\rx}$ & $\pm s$ \\
         $z/L$ / - & framework &  &  &  &  \\
         \midrule
-        \multirow[t]{3}{*}{$0.25$}    & naive & $0.783$ & $0.179$ & \SI{6.89e-03}{} & \SI{2.41e-03}{} \\
-        & PC & $\bm{0.814}$ & $\bm{0.156}$ & \SI{7.27e-03}{} & \SI{2.62e-03}{} \\
+        \multirow[t]{3}{*}{$0.25$}    
         & vanilla & $0.771$ & $0.181$ & \SI{6.51e-03}{} & \SI{2.36e-03}{} \\
+        & naive & $0.783$ & $0.179$ & \SI{6.89e-03}{} & \SI{2.41e-03}{} \\
+        & PC & $\bm{0.814}$ & $\bm{0.156}$ & \SI{7.27e-03}{} & \SI{2.62e-03}{} \\
         \cline{1-6}
-        \multirow[t]{3}{*}{$0.50$}    & naive & $0.897$ & $0.119$ & \SI{1.14e-02}{} & \SI{3.45e-03}{} \\
-        & PC & $0.911$ & $\bm{0.104}$ & \SI{1.17e-02}{} & \SI{3.69e-03}{} \\
+        \multirow[t]{3}{*}{$0.50$}   
         & vanilla & $\bm{0.895}$ & $0.119$ & \SI{1.13e-02}{} & \SI{3.48e-03}{} \\
+        & naive & $0.897$ & $0.119$ & \SI{1.14e-02}{} & \SI{3.45e-03}{} \\
+        & PC & $0.911$ & $\bm{0.104}$ & \SI{1.17e-02}{} & \SI{3.69e-03}{} \\
         \cline{1-6}
-        \multirow[t]{3}{*}{$0.75$}    & naive & $0.962$ & $0.070$ & \SI{1.74e-02}{} & \SI{4.60e-03}{} \\
-        & PC & $0.966$ & $\bm{0.063}$ & \SI{1.77e-02}{} & \SI{5.05e-03}{} \\
+        \multirow[t]{3}{*}{$0.75$}    
         & vanilla & $0.961$ & $0.071$ & \SI{1.72e-02}{} & \SI{4.60e-03}{} \\
+        & naive & $0.962$ & $0.070$ & \SI{1.74e-02}{} & \SI{4.60e-03}{} \\
+        & PC & $0.966$ & $\bm{0.063}$ & \SI{1.77e-02}{} & \SI{5.05e-03}{} \\
         \cline{1-6}
-        \multirow[t]{3}{*}{$1.00$}    & naive & $0.983$ & $0.048$ & \SI{2.19e-02}{} & \SI{5.26e-03}{} \\
-        & PC & $0.986$ & $\bm{0.042}$ & \SI{2.23e-02}{} & \SI{5.73e-03}{} \\
+        \multirow[t]{3}{*}{$1.00$}    
         & vanilla & $0.983$ & $0.049$ & \SI{2.17e-02}{} & \SI{5.27e-03}{} \\
+        & naive & $0.983$ & $0.048$ & \SI{2.19e-02}{} & \SI{5.26e-03}{} \\
+        & PC & $0.986$ & $\bm{0.042}$ & \SI{2.23e-02}{} & \SI{5.73e-03}{} \\
     \bottomrule
     \end{tabular}
     \label{results:tab: coverage_intervall_width}
@@ -479,7 +498,9 @@ of quantile calibration with CQR (sec.~\ref{theory: CQR}) and a more complex net
     in the naive PC framework. The ideal intended coverage (dashed line) lies at $0.8$.}
     \label{results:fig:naive-coverage-width}
 \end{figure}
-\noindent
+
+\subsection{Naive NARX}
+
 In essence, the same behavior is exhibted by the naively PC-NARX framework (fig.~\ref{results:fig:naive-coverage-width}).
 The mean coverage growths from \SI{0.783}{} to \SI{0.983}{} over the reactor length yielding the same
 over-coverage pattern as the vanilla version. The distribution of calculated coverages itself 
@@ -489,7 +510,7 @@ significant improvement is made. Its values are nearly indentical to the vanilla
 no significant change.
 \newline
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/Uncertainty-Quantification/pc_coverage_width.pdf}
     \caption[Coverage and relative interval width of the PC framework.]
@@ -497,11 +518,13 @@ no significant change.
     in the fully PC framework. The ideal intended coverage (dashed line) lies at $0.8$.}
     \label{results:fig:pc-coverage-width}
 \end{figure}
-\noindent
+
+\subsection{Physics-constrained NARX}
+
 Due to the altered training approach, the PC framework demonstrates a slight change
 in coverage and relative interval width (fig.~\ref{results:fig:pc-coverage-width}) remaining
 in the same spatial pattern. Its coverage rises from \SI{0.814}{} to \SI{0.986}{} over the $z$-coordinate.
-W.r.t the desired coverage of $0.8$ there is no improvement visible. At the first measurement,
+w.r.t. the desired coverage of $0.8$ there is no improvement visible. At the first measurement,
 the vanilla framework displays a better median (fig.~\ref{results:fig:vanilla-coverage-width}),
 while the PC framework has a better average value (tab.~\ref{results:tab: coverage_intervall_width}).
 Nevertheless, the PC-framework shows a decrease in coverage deviation at all positions
@@ -509,9 +532,9 @@ in comparison to the other two approaches. The uncertainty in the coverage is re
 \SI{13.3}{\%}, \SI{12.6}{\%}, \SI{11.2}{\%} and \SI{14.3}{\%} for the coordinates $z/L \in \{0.25, 0.5, 0.75, 1\}$
 which implies a more reproducable coverage prediction.
 However, its efficiency is worsened, because the relative interval width enlarges
-slightly but measurably by \SI{11.6}{\%}, \SI{3.5}{\%}, \SI{2.9}{\%} and \SI{2.8}{\%}
+slightly by \SI{11.6}{\%}, \SI{3.5}{\%}, \SI{2.9}{\%} and \SI{2.8}{\%}
 in comparison to the vanilla framework. It is assumed that the PC framework reduces the accumulation
-of prediction errors and thus provides slightly better reproducabilitiy.
+of prediction errors and thus provides a slightly better reproducabilitiy.
 \newline
 \newline
 In total, the vanilla, naive and PC-NARX frameworks perform equally.
@@ -544,28 +567,28 @@ deterioration in the straight simulation.
 \label{MPC-Performance-and-Robustness}
 
 As the last part of this work, the control performance of an MPC, that relies on the mentioned
-NARX frameworks vanilla, naive and PC (pc) is to be analyzed.
+NARX frameworks vanilla, naive and PC is to be analyzed.
 On one hand, an apropriate MPC controller is postulated and tuned.
 On the other hand, a series of closed-loop simulations is completed to calculate the
 performance indicators selectivity, constraint violation, control effort and runtime.
-To investigate the effect of the uncertainty quantification (UQ), the MPC is run including a
+To investigate the effect of the UQ, the MPC is run including a
 nominal NARX architecture with expected value models only.
-
-\subsection{Optimization Formulation}
 Following optimization formulation is proposed (eq.~\ref{results:eq:MPC-formulation-TR}).
+
+\newpage
+\subsection{Optimization Formulation}
 
 \begin{equation}
     \label{results:eq:MPC-formulation-TR}
     \begin{gathered}
-        \minimize{\vsy{t:t+N},\bm{T}_{\text{w},[t:t+N-1]}}\quad \quad \bigg ( \sum^{t+N-1}_{i=k}  -(S_{\text{EO},i})^2
+        \minimize{\vsy{t:t+N},\bm{T}_{\text{w},[t:t+N-1]}}\quad \quad  \sum^{t+N-1}_{i=k} \bigg ( -(S_{\text{EO},i})^2
         + \Delta \bm{T}_{\text{w},i}^\top \bm{R} \Delta \bm{T}_{\text{w},i} \bigg )
         - (S_{\text{EO},t+N})^2
         \\
         \begin{aligned}
             \text{s.t.} \quad  \bm{y}_{k+1} &= f_{\text{NARX}}(\bm{\phi}_k) \\
-            \bm{T}_k &\leq T_\text{max} \\
+            \bm{T}_{\text{w},k} &\leq \bm{T}_k \leq T_\text{max} \\
             X &\geq X_\text{min} \\
-            \bm{T}_{\text{w},k} &\leq \bm{T}_k \\
             T_{\text{w,lb}} &\leq \bm{T}_{\text{w},k} \leq T_{\text{w,ub}}
         \end{aligned}
     \end{gathered}
@@ -579,7 +602,7 @@ conversion $X_\text{min}$ is to be achieved. To reduce catalyst degradation, the
 to stay below $T_\text{max}$. 
 Temperature and conversion are positively correlated, as high temperatures favor faster chemistry.
 However, selectivity towards ethylene oxide and temperature are negatively correlated due to the 
-ratio of true activation energies (eq.~\ref{results:eq:ratio-activation-energies}).
+ratio of true activation energies (eq.~\ref{results:eq:ratio-activation-energies} and \ref{case:eq: reaction equation}).
 The total oxidation of ethylene accelerates faster with rising temperature.
 \newline
 \begin{equation}
@@ -626,7 +649,7 @@ All specifications for the MPC algorithm are listed (tab.~\ref{results:tab:MPC-c
 \noindent
 \newline
 For the implementation of the NARX-based UQ MPC algorithm
-with \texttt{do-mpc}, a robust horizon $N_\text{r}$ of one allows for an exact branching into 
+with \texttt{do-mpc}, a robust horizon $N_\text{r}$ of one allows for one exact branching into 
 one nominal, one upper and one lower scenario. 
 To avoid input oscillation,
 fluctuating wall temperatures are penalized using the diagonal matrix $\bm{R}$ with the coefficients $r_{ll}$ of 
@@ -634,7 +657,7 @@ $250$, $20$, $15$ and $10$. Here, the very first wall temperature has the bigges
 of the TR. Due to the plug-flow it is most prone to induce oscillation into the system. Thus, its change
 is penalized much higher than the other temperatures. The missing dispersion of the flow makes the system
 especially sensitive to varying inputs. Further, the wall temperatures are subject to a lower bound $T_\text{w,lb}$ of 
-\SI{580}{} and an upper bound $T_\text{w,ub}$ of \SI{625}{\kelvin}. 
+\SI{580}{\kelvin} and an upper bound $T_\text{w,ub}$ of \SI{625}{\kelvin}. 
 The cooling is realized by water evaporation in the jacket and adjusted via the vapor pressure.
 Therefore, only reactor cooling is possible and heating should be made infeasible for the controller.
 To ensure negative heat flow, the
@@ -673,7 +696,7 @@ Other than the uncertain parameters, the flow speed is known in advance by the M
 implemented as a time-varying parameter (\texttt{tvp}) in \texttt{do-mpc}. 
 A control loop is executed over $200$ control steps with given control step length of \SI{2}{\second} 
 and simulation step length of \SI{1}{\second} (tab.~\ref{results:tab:MPC-configuration}).
-With a duration of \SI{20}{} times the system's greatest time constant, this horizon length is considered 
+With a duration of \SI{20}{} times the system's largest time constant, this horizon length is considered 
 representative for a real application.
 The nominal NARX architecture employs expected value NNs only and does not account for
 UQ (fig.~\ref{results:fig:MPC-loop-nominal}).
@@ -884,7 +907,7 @@ where the naive application of the PC activation did not alter
 the outcome remarkably.
 \newline 
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_naive.pdf}
     \caption[Control loop - naive NARX framework.]
@@ -914,9 +937,7 @@ Here, the PC activation function is used not only during MPC prediction but also
 during NN training. Analogously to the other variations, the trajectories 
 of measured reactor temperature (a), wall cooling temperature (b), inlet flow speed (c)
 conversion and selectivity are illustrated (d) (fig.~\ref{results:fig:MPC-loop-pc}).
-\newline
-
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/MPC/control_loop_pc.pdf}
     \caption[Control loop - PC-NARX framework.]
@@ -927,9 +948,7 @@ conversion and selectivity are illustrated (d) (fig.~\ref{results:fig:MPC-loop-p
     }
     \label{results:fig:MPC-loop-pc}
 \end{figure}
-
-\noindent
-W.r.t the oscillation in the cooling temperature (b, I), there is an improvement visible 
+w.r.t. the oscillation in the cooling temperature (b, I), there is an improvement visible 
 at \SI{80}{}, \SI{180}{}, \SI{270}{} and \SI{340}{\second} to all other NARX versions.
 The undershoots and their following damped oscillations are reduced in amplitude and settling
 time (green and yellow). The temperature limit is not overstepped (a, II) like in the vanilla
@@ -940,7 +959,6 @@ fall below the lower limit ((d)~III). The vanilla, nominal and naive NARX surrog
 and \ref{results:fig:MPC-loop-naive}~(d)~III). For this specific flow speed trajectory (c) and
 model parameter combination, the PC architecture portrays an advantage over the vanilla one,
 as it allows less input undershoot, oscillation and greater conversion performance. 
-
 
 \subsection{Overall Comparison}
 \label{sec:overall-comparison}
@@ -1044,7 +1062,7 @@ remain precisely below the maximimum constraint for all runs
 In contrast, the nominal MPC crosses the maximimum boundary repeatedly for a large number of runs.
 Thus, quantile regression represents an advantage over the nominal NARX architecture, 
 which exhibits a significant amount of temperature constraint violation of \SI{11.2}{\%}.
-W.r.t conversion, which is not treated as a robust constraint, all MPCs with UQ 
+w.r.t. conversion, which is not treated as a robust constraint, all MPCs with UQ 
 cause greater violations than the nominal one. This is due to the robustness regarding
 the maximum temperature. UQ-based MPCs can anticipate temperature exceedings and
 therefore prefer risking violations of minimum conversion.
@@ -1063,13 +1081,13 @@ training, the robustness increases by \SI{95.8}{\%} (tab.~\ref{results:tab:MPC-i
 
 \begin{table}[!h]
     \centering
-    \caption[Percent change of KPIs of the nominal MPC.]{
+    \caption[Percent change of KPIs with the nominal MPC as reference.]{
         Percent change of KPIs with the nominal NARX ensemble as the reference.
     }
     \begin{tabular}{ccccc}
         \toprule
         & $\bar{S}_\text{EO}$ / \% &
-        $C_\text{vio}$ / \% & $J_{\Delta T_\text{w}}$ / \% & $\Delta t_\text{ipopt}$ \%  \\
+        $C_\text{vio}$ / \% & $J_{\Delta T_\text{w}}$ / \% & $\Delta t_\text{ipopt}$ / \%  \\
         \midrule
         vanilla & $0.1$ & $-95.0$ & $-39.2$ & $217.9$ \\
         naive & $0.1$ & $-95.0$ & $-39.2$ & $216.6$ \\

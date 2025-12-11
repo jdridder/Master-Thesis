@@ -2,34 +2,53 @@
 
 
 \chapter{Datasheets and Plots}
-\section{Kinetic parameter normal distribution}
+\section{Mean and covariance of kinetic parameters.}
 
-\begin{table}
-    \caption[Mean and covariance of the parameters]{
-        Mean and covariance matrix of the activation energies and pre-exponential collision factors.
+\begin{table}[!h]
+    \centering
+    \caption[Mean of the kinetic parameters.]{
+        Mean of the activation energies and pre-exponential collision factors
+        determined by a simulated paramter fitting experiment with a Berty reactor.
         }
-        \begin{tabular}{l r | r r r r}
+        \begin{tabular}{ccl}
             \toprule
-            \multicolumn{2}{c|}{$\boldsymbol{\mu}$} & \multicolumn{4}{c}{$\boldsymbol{\Sigma}$} \\ 
-            \cmidrule(lr){3-6}
-            \multicolumn{1}{c}{} & \multicolumn{1}{c|}{} & 
-            \multicolumn{1}{c}{$\ln k_{0,1}$} & 
-            \multicolumn{1}{c}{$E_{\text{A},1}$} & 
-            \multicolumn{1}{c}{$\ln k_{0,2}$} & 
-            \multicolumn{1}{c}{$E_{\text{A},2}$} \\
+            \multicolumn{3}{c}{$\boldsymbol{\mu}$} \\ 
             \midrule
-            $\ln k_{0,1}$ & 15.621453 & 0.351544 & 1768.109910 & 0.380453 & 1913.304578 \\
-            $E_{\text{A},1}$ & 74856.339000 & 1768.109910 & 9031744.980000 & 1913.445056 & 9773020.700000 \\
-            $\ln k_{0,2}$ & 16.272557 & 0.380453 & 1913.445056 & 0.411795 & 2070.851800 \\
-            $E_{\text{A},2}$ & 89853.839400 & 1913.304578 & 9773020.700000 & 2070.851800 & 10576522.400000 \\
+            ln $k_{0,1}$        & $15.6$ & $\mathrm{mol \; kg_{cat}^{-1} \; Pa^{-1.1} \; s^{-1}}$\\
+            $E_\mathrm{A,1}$    & \SI{7.46e4}{} & \si{\joule\per\mole}\\
+            ln $k_{0,2}$        & $16.2$ & $\mathrm{mol \; kg_{cat}^{-1} \; Pa^{-1} \; s^{-1}}$ \\
+            $E_\mathrm{A,2}$    & \SI{8.96e4}{} & \si{\joule\per\mole}\\
             \bottomrule
         \end{tabular}
-    \label{app:tab:mean-and-covariance}
+    \label{app:tab:mean-kinetic-parameters}
+\end{table}
+\begin{table}[!h]
+    \centering
+    \caption[Covariance matrix of the kinetic parameters.]{
+        Covariance matrix of the activation energies and pre-exponential collision factors.
+        For simplicity, the units are omitted. They appear as the respective multiplication of the row and column indices' units.
+        }
+        \begin{tabular}{ccccc}
+            \toprule
+            \multicolumn{5}{c}{$\boldsymbol{\Sigma}$} \\ 
+            \multicolumn{1}{c}{} & 
+            \multicolumn{1}{c}{$\ln k_{0,1}$} & 
+            \multicolumn{1}{c}{$E_{\text{A},1}$} & 
+            \multicolumn{1}{c}{$\ln k_{0,2}$} &
+            \multicolumn{1}{c}{$E_{\text{A},2}$} \\
+            \midrule
+            ln $k_{0,1}$ & $0.680$ & $3.39\times 10^{3}$ & $0.736$ & $3.67\times 10^{3}$ \\
+            $E_\mathrm{A,1}$ & $3.39\times 10^{3}$ & $1.71\times 10^{7}$ & $3.67\times 10^{3}$ & $1.85\times 10^{7}$ \\
+            ln $k_{0,2}$ & $0.736$ & $3.67\times 10^{3}$ & $0.797$ & $3.97\times 10^{3}$ \\
+            $E_\mathrm{A,2}$ & $3.67\times 10^{3}$ & $1.85\times 10^{7}$ & $3.97\times 10^{3}$ & $2.00\times 10^{7}$ \\
+            \bottomrule
+        \end{tabular}
+    \label{app:tab:covariance-kinetic-parameters}
 \end{table}
 
-
+\newpage
 \section{Temperature Trajectories}
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_naive_pc_-1.pdf}
     \caption[Forward simulation of the naive NARX framework for the temperature quantiles.]
@@ -37,7 +56,7 @@
     \SI{480}{\second}.}
     \label{app:fig:naive-temperature-sim}
 \end{figure}
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=1\textwidth]{Figures/Results/test_with_pc_-1.pdf}
     \caption[Forward simulation of the pc NARX framework for the temperature quantiles.]
@@ -46,7 +65,7 @@
     \label{app:fig:pc-temperature-sim}
 \end{figure}
 
-\chapter{Proofs and Code}
+\chapter{Equations and Code}
 \section{Code}
 
 \subsection{Inverse calculation and forward method to apply the pc activation}
